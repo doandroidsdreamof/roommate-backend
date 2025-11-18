@@ -31,6 +31,7 @@ async function bootstrap() {
 
   await app.listen(port);
   if (process.env.NODE_ENV === 'development') {
+    // TODO env var
     logger.log(`application is running on: http://localhost:${port}`);
     logger.log(`📚 Swagger documentation: http://localhost:${port}/api/docs`);
   }

@@ -36,8 +36,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       APP_NAME: ${APP_NAME}
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app                 # Sync your code changes || The container's /app is actually pointing to your local folder
+      - /app/node_modules      # keep container's node_modules
     depends_on:
       postgres:
         condition: service_healthy
