@@ -2,9 +2,9 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomInt } from 'crypto';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { OTP_LENGTH } from 'src/constants/contants';
-import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from '../../database/schema';
 import { VERIFICATION_STATUS } from '../../database/schema';
+import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { and, eq, gt, sql } from 'drizzle-orm';
 
 @Injectable()
@@ -61,16 +61,19 @@ export class OtpService {
       !verification ||
       verification.attemptsCount >= verification.maxAttempts
     ) {
+      this.logger.log('verification is failed => verifyOtp');
       return false;
     }
 
     if (verification.code !== code) {
+      this.logger.log('otp code is mismatched => verifyOtp');
       await this.db
         .update(schema.verifications)
         .set({ attemptsCount: verification.attemptsCount + 1 })
         .where(eq(schema.verifications.identifier, email));
       return false;
     }
+    this.logger.log('success => verifyOtp');
 
     await this.db
       .update(schema.verifications)

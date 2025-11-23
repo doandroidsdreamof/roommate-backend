@@ -3,6 +3,7 @@ import { EmailService } from 'src/mail/email.service';
 import { VerifyOtpDTO, OtpDTO } from './dto/auth-dto';
 import { OtpService } from './services/otp.service';
 import { UsersService } from 'src/users/users.service';
+import { TokenService } from './services/token.service';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +12,7 @@ export class AuthService {
     private emailService: EmailService,
     private otpService: OtpService,
     private usersService: UsersService,
+    private tokenService: TokenService,
   ) {}
   async sendOtp(dto: OtpDTO) {
     const { email } = dto;
@@ -40,12 +42,12 @@ export class AuthService {
       user = await this.usersService.createUser(email);
     }
 
-    return this.login(user.id);
+    return this.login(user.id, user.email);
   }
 
-  async login(userId: string) {
-    console.log('🚀 ~ userId:', userId);
-    // TODO: Generate tokens
-    return { accessToken: 501, refreshToken: 501 };
+  async login(userId: string, email: string) {
+    const refreshToken = await this.tokenService.createRefreshToken(userId);
+    const accessToken = this.tokenService.createAccessToken(userId, email);
+    return { accessToken: accessToken, refreshToken: refreshToken };
   }
 }

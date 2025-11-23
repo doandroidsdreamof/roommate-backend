@@ -2,20 +2,23 @@ import {
   CallHandler,
   ExecutionContext,
   HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
+import {
+  Response as ExpressResponse,
+  Request as ExpressRequest,
+} from 'express';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-export type Response<T> = {
+export type ApiResponse<T> = {
   success: boolean;
   statusCode: number;
   message: string;
-  data: T;
+  data: T | null;
   meta?: PaginationMeta;
   timestamp: string;
 };
@@ -26,7 +29,7 @@ export type ErrorResponse = {
   message: string;
   error: {
     name: string;
-    details?: any;
+    details?: unknown;
   };
   path: string;
   timestamp: string;
@@ -41,69 +44,70 @@ export type PaginationMeta = {
   hasPreviousPage: boolean;
 };
 
-// TODO separate exception and response mapping level
+type ServiceResponse = {
+  message?: string;
+  [key: string]: unknown;
+};
+
 @Injectable()
 export class ResponseInterceptor<T>
-  implements NestInterceptor<T, Response<T> | ErrorResponse>
+  implements NestInterceptor<T, ApiResponse<T> | ErrorResponse>
 {
   private readonly logger = new Logger(ResponseInterceptor.name);
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<ApiResponse<T> | ErrorResponse> {
     return next.handle().pipe(
-      map((data) => {
-        return this._handleResponse(data, context);
-      }),
-      catchError((err) => {
+      map((data) => this._handleResponse(data as ServiceResponse, context)),
+      catchError((err: unknown) => {
         this.logger.error(err);
         if (err instanceof HttpException) {
           return throwError(() => this._handleError(err, context));
         }
         const wrappedError = new InternalServerErrorException(
           'An unexpected error occurred',
-          {
-            cause: err,
-          },
+          { cause: err },
         );
-
         return throwError(() => wrappedError);
       }),
     );
   }
 
-  _handleResponse(response: any, context: ExecutionContext): Response<T> {
+  _handleResponse(
+    response: ServiceResponse | null,
+    context: ExecutionContext,
+  ): ApiResponse<T> {
     const ctx = context.switchToHttp();
-    const responseCtx = ctx.getResponse();
-    const statusCode = responseCtx.statusCode;
+    const res = ctx.getResponse<ExpressResponse>();
+    const statusCode = res.statusCode;
     const timestamp = new Date().toISOString();
-    const message = response?.message || 'Request successful';
+    const message = response?.message ?? 'Request successful';
+    const { message: _, ...data } = response ?? {};
 
     return {
       success: true,
-      data: response,
-      message: message,
-      timestamp: timestamp,
-      statusCode: statusCode,
+      data: Object.keys(data).length ? (data as T) : null,
+      message,
+      timestamp,
+      statusCode,
     };
   }
-  _handleError(
-    exception: HttpException,
-    context: ExecutionContext,
-  ): ErrorResponse {
+
+  _handleError(exception: HttpException, context: ExecutionContext): void {
     const ctx = context.switchToHttp();
-    const requestURL = ctx.getRequest().url;
-    const response = ctx.getResponse();
+    const req = ctx.getRequest<ExpressRequest>();
+    const res = ctx.getResponse<ExpressResponse>();
     const timestamp = new Date().toISOString();
+    const status = exception.getStatus();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    return response.status(status).json({
+    res.status(status).json({
       success: false,
       statusCode: status,
       timestamp,
       message: exception.message,
-      path: requestURL,
+      path: req.url,
       error: {
         name: exception.name,
         details: exception.cause,
