@@ -37,9 +37,11 @@ export const users = pgTable('users', {
 
 export const verifications = pgTable('verifications', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .unique(),
   status: verificationStatus('status').default('pending').notNull(),
-  identifier: varchar('identifier', { length: 255 }).notNull().unique(), //* for now email, but it will be implemented phone too
+  identifier: varchar('identifier', { length: 255 }).notNull().unique(),
   attemptsCount: integer('attempts_count').default(0).notNull(),
   maxAttempts: integer('max_attempts').default(3).notNull(),
   code: varchar('code', { length: 6 }),

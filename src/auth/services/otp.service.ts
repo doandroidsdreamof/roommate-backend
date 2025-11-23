@@ -16,19 +16,18 @@ export class OtpService {
   ) {}
 
   async insertOtp(email: string, optCode: string) {
-    const expirationDate = new Date(Date.now() + 5 * 60 * 1000); //* 5 minute
     const [result] = await this.db
       .insert(schema.verifications)
       .values({
         identifier: email,
-        codeExpiresAt: expirationDate,
+        codeExpiresAt: sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '5 minutes'`, //* To consistent timing as single source of truth
         code: optCode,
       })
       .onConflictDoUpdate({
         target: schema.verifications.identifier,
         set: {
           code: optCode,
-          codeExpiresAt: expirationDate,
+          codeExpiresAt: sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '5 minutes'`,
           status: VERIFICATION_STATUS.PENDING,
         },
       })
@@ -53,7 +52,7 @@ export class OtpService {
         and(
           eq(schema.verifications.identifier, email),
           eq(schema.verifications.status, VERIFICATION_STATUS.PENDING),
-          gt(schema.verifications.codeExpiresAt, sql`NOW()`),
+          gt(schema.verifications.codeExpiresAt, sql`NOW() AT TIME ZONE 'UTC'`), // TODO make sure about this usage
         ),
       )
       .limit(1);
