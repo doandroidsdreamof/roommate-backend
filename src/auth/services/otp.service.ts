@@ -5,6 +5,7 @@ import { OTP_LENGTH } from 'src/constants/contants';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from '../../database/schema';
 import { VERIFICATION_STATUS } from '../../database/schema';
+import { and, eq, gt, sql } from 'drizzle-orm';
 
 @Injectable()
 export class OtpService {
@@ -15,12 +16,21 @@ export class OtpService {
   ) {}
 
   async insertOtp(email: string, optCode: string) {
+    const expirationDate = new Date(Date.now() + 5 * 60 * 1000); //* 5 minute
     const [result] = await this.db
       .insert(schema.verifications)
-      .values({ identifier: email })
+      .values({
+        identifier: email,
+        codeExpiresAt: expirationDate,
+        code: optCode,
+      })
       .onConflictDoUpdate({
         target: schema.verifications.identifier,
-        set: { code: optCode, status: VERIFICATION_STATUS.PENDING },
+        set: {
+          code: optCode,
+          codeExpiresAt: expirationDate,
+          status: VERIFICATION_STATUS.PENDING,
+        },
       })
       .returning({ code: schema.verifications.code });
     return result.code;
@@ -36,6 +46,38 @@ export class OtpService {
     return otp;
   }
   async verifyOtp(email: string, code: string): Promise<boolean> {
-    // Check code matches + not expired + not used
+    const [verification] = await this.db
+      .select()
+      .from(schema.verifications)
+      .where(
+        and(
+          eq(schema.verifications.identifier, email),
+          eq(schema.verifications.status, VERIFICATION_STATUS.PENDING),
+          gt(schema.verifications.codeExpiresAt, sql`NOW()`),
+        ),
+      )
+      .limit(1);
+
+    if (
+      !verification ||
+      verification.attemptsCount >= verification.maxAttempts
+    ) {
+      return false;
+    }
+
+    if (verification.code !== code) {
+      await this.db
+        .update(schema.verifications)
+        .set({ attemptsCount: verification.attemptsCount + 1 })
+        .where(eq(schema.verifications.identifier, email));
+      return false;
+    }
+
+    await this.db
+      .update(schema.verifications)
+      .set({ status: VERIFICATION_STATUS.VERIFIED })
+      .where(eq(schema.verifications.identifier, email));
+
+    return true;
   }
 }

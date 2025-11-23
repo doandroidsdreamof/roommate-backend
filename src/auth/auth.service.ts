@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { EmailService } from 'src/mail/email.service';
 import { VerifyOtpDTO, OtpDTO } from './dto/auth-dto';
 import { OtpService } from './services/otp.service';
@@ -28,7 +28,9 @@ export class AuthService {
   }
   async authenticate(dto: VerifyOtpDTO) {
     const { email, otp } = dto;
-    console.log('🚀 ~ otp:', otp);
-    console.log('🚀 ~ email:', email);
+    const isValid = await this.otpService.verifyOtp(email, otp);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid OTP');
+    }
   }
 }
