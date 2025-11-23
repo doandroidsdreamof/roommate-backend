@@ -29,6 +29,7 @@ export class EmailService {
   async sendOtpEmail({ email, userName, otp }: OTPParams) {
     const html = getOtpEmailTemplate(otp, userName);
     // TODO hard-coded string
+    // TODO html sanitizer
     return await this.sendHtmlEmail(email, 'Verify your email', html);
   }
 }

@@ -21,6 +21,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
+    "db:reset": "drizzle-kit drop && drizzle-kit push",
     "db:studio": "NODE_ENV=development drizzle-kit studio",
     "docker-up:dev": "NODE_ENV=development docker compose -f docker-compose.dev.yml up --build",
     "docker-down:dev": "NODE_ENV=development docker-compose -f docker-compose.dev.yml down",

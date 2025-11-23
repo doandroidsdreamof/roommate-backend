@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1763223651659,
-      "tag": "0000_wakeful_ezekiel_stane",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1763399283851,
-      "tag": "0001_talented_spitfire",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1763403693653,
-      "tag": "0002_elite_hammerhead",
+      "when": 1763923387052,
+      "tag": "0000_lethal_silver_sable",
       "breakpoints": true
     }
   ]

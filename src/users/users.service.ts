@@ -30,4 +30,22 @@ export class UsersService {
       throw err;
     }
   }
+
+  async getUsername(email: string): Promise<string | undefined> {
+    const userName = await this.db.query.users.findFirst({
+      where: eq(schema.users.email, email),
+    });
+    return userName?.username;
+  }
+
+  async findByEmail(email: string) {
+    return await this.db.query.users.findFirst({
+      where: eq(schema.users.email, email),
+      columns: {
+        id: true,
+        isEmailVerified: true,
+        isActive: true,
+      },
+    });
+  }
 }

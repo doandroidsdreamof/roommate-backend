@@ -1,7 +1,12 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
 import { AuthService } from './auth.service';
-import { OtpValidationDTO, otpValidationSchema } from './dto/auth-dto';
+import {
+  verifyOtpValidationSchema,
+  VerifyOtpDTO,
+  OtpDTO,
+  otpValidationSchema,
+} from './dto/auth-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -9,7 +14,13 @@ export class AuthController {
 
   @Post('otp')
   @UsePipes(new ZodValidationPipe(otpValidationSchema))
-  findOne(@Body() dto: OtpValidationDTO) {
-    return this.authService.sendEmail({ ...dto });
+  requestOtp(@Body() dto: OtpDTO) {
+    return this.authService.sendOtp({ ...dto });
+  }
+
+  @Post('authenticate')
+  @UsePipes(new ZodValidationPipe(verifyOtpValidationSchema))
+  authenticate(@Body() dto: VerifyOtpDTO) {
+    return this.authService.authenticate({ ...dto });
   }
 }
