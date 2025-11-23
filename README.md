@@ -44,7 +44,6 @@
 ```
 Access Token:  JWT, stateless
 Refresh Token: Opaque string, hashed in DB, 90-day expiry
-Pattern:       One refresh token per user 
 ```
 
 ---
@@ -125,27 +124,6 @@ Flow:
   3. Server stores encrypted message (cannot read it)
   4. Receiver decrypts on their phone
 ```
-
-### Message Flow
-
-```mermaid
-sequenceDiagram
-    participant A as Client A
-    participant WS as WebSocket
-    participant MQ as RabbitMQ
-    participant DB as PostgreSQL
-    participant B as Client B
-
-    A->>WS: Send encrypted message
-    WS->>MQ: Queue message
-    MQ->>DB: Persist ciphertext
-    MQ->>WS: Route to recipient
-    WS->>B: Deliver message
-    B->>WS: Acknowledge receipt
-    WS->>A: Delivery confirmation
-```
-
----
 
 ## Phase 6: Safety & Moderation
 
