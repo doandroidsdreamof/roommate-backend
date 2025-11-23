@@ -1,73 +1,223 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Roommate App - Roadmap
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Architecture
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+[![](https://mermaid.ink/img/pako:eNplT01vgkAQ_StkzmgVEZFDk2oba6KNdklIynpYZUSi7JpliVr1v3eBarXuYT7ee_Nm5wgLESF4sNyI3WLFpDL8HuWGfv1NglyFVZpV2C1j1GrPp3ffn5CT8REnfP9ABuSeqmIJhBVMOSGjp1Fv9iAoDIzPN-KHRTBeJsPZfzYgYYBzIhZrVMaAKdyxw51RQCoXNp8najwNLwWlY8wyFmP2K78QlRyjJLu1KT9wZcIy3u0pkVIxEZmKJZLpKPwr9ZVFMxgSPQUmxDKJwFMyRxNSlCkrWjgWXhTUClOk4OkyYnJNgfKzntky_iVEehmTIo9X4C3ZJtNdvo309a8JiyVLr6hEHqHsi5wr8Nqt0gO8I-zBqzmWXXecpms1XFdn2zHhoEUNq97q2N2uYzXspmM1W2cTvsu1jbrbaZ9_AEfJqnk?type=png)](https://mermaid.live/edit#pako:eNplT01vgkAQ_StkzmgVEZFDk2oba6KNdklIynpYZUSi7JpliVr1v3eBarXuYT7ee_Nm5wgLESF4sNyI3WLFpDL8HuWGfv1NglyFVZpV2C1j1GrPp3ffn5CT8REnfP9ABuSeqmIJhBVMOSGjp1Fv9iAoDIzPN-KHRTBeJsPZfzYgYYBzIhZrVMaAKdyxw51RQCoXNp8najwNLwWlY8wyFmP2K78QlRyjJLu1KT9wZcIy3u0pkVIxEZmKJZLpKPwr9ZVFMxgSPQUmxDKJwFMyRxNSlCkrWjgWXhTUClOk4OkyYnJNgfKzntky_iVEehmTIo9X4C3ZJtNdvo309a8JiyVLr6hEHqHsi5wr8Nqt0gO8I-zBqzmWXXecpms1XFdn2zHhoEUNq97q2N2uYzXspmM1W2cTvsu1jbrbaZ9_AEfJqnk)
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Component Overview
 
-## Installation
+| Component         | Technology           | Responsibility                         |
+| ----------------- | -------------------- | -------------------------------------- |
+| Reverse Proxy     | Nginx                | SSL termination, load balancing        |
+| REST API          | NestJS               | HTTP endpoints, business logic         |
+| WebSocket Gateway | Socket.io            | Real-time chat, presence               |
+| Message Queue     | RabbitMQ             | Async message delivery between clients |
+| Cache             | Redis                | Cache layer, rate limiting, session    |
+| Database          | PostgreSQL + PostGIS | Primary data store, geospatial queries |
 
-```bash
-$ npm install
+---
+
+## Phase 1: Foundation
+
+> Core authentication system with stateless JWT access tokens and database-stored refresh tokens.
+
+### Completed
+
+- [x] Project scaffolding (NestJS, Drizzle, Docker)
+- [x] Email service (SMTP)
+- [x] OTP generation and verification
+- [x] JWT access tokens
+- [x] Refresh tokens (hashed, 90-day expiry)
+
+### Remaining
+
+- [ ] JWT Guard decorator
+- [ ] Token rotation on refresh
+- [ ] Database schema design
+- [ ] `POST /auth/refresh` endpoint
+- [ ] `POST /auth/logout` endpoint
+
+### Notes
+
+```
+Access Token:  JWT, stateless
+Refresh Token: Opaque string, hashed in DB, 90-day expiry
+Pattern:       One refresh token per user 
 ```
 
-## Running the app
+---
 
-```bash
-# development
-$ npm run start
+## Phase 2: User Profile
 
-# watch mode
-$ npm run start:dev
+> User identity and preferences system. Foundation for matching algorithm.
 
-# production mode
-$ npm run start:prod
+### Tasks
+
+- [ ] Profile schema extension
+- [ ] Profile CRUD endpoints
+- [ ] Lifestyle preferences (enums)
+- [ ] Image upload service
+- [ ] Image compression
+- [ ] Max 5 images per user
+
+## Phase 3: Listings
+
+> Property listing system with geospatial search capability.
+
+### Tasks
+
+- [ ] Listing schema with PostGIS
+- [ ] Listing CRUD endpoints
+- [ ] One listing per user constraint
+- [ ] Max 10 images per listing
+- [ ] Listing status (active/inactive/rented)
+- [ ] Geospatial indexing
+
+## Phase 4: Discovery & Matching
+
+> Swipe-based discovery system with mutual matching.
+
+### Tasks
+
+- [ ] Location-based feed
+- [ ] Cursor pagination
+- [ ] Swipe actions (like/pass)
+- [ ] Match on mutual like
+- [ ] Preference filtering
+- [ ] Exclude seen/blocked users
+
+### Algorithm Phases
+
+```
+Phase 1: Proximity + basic filters
+Phase 2: Lifestyle preference scoring
+Phase 3: ML recommendations (future)
 ```
 
-## Test
+---
 
-```bash
-# unit tests
-$ npm run test
+## Phase 5: Real-time Messaging
 
-# e2e tests
-$ npm run test:e2e
+> End-to-end encrypted peer-to-peer messaging via WebSocket.
 
-# test coverage
-$ npm run test:cov
+### Tasks
+
+- [ ] WebSocket Gateway (Socket.io)
+- [ ] JWT auth on connection
+- [ ] Room per match
+- [ ] RabbitMQ integration
+- [ ] E2EE implementation
+- [ ] Offline message queue
+- [ ] Delivery/read receipts
+
+### E2EE Design
+
+> Messages are encrypted on sender's device and decrypted on receiver's device. Server only stores encrypted data it cannot read.
+
+```
+Key Exchange: Diffie-Hellman
+
+Flow:
+  1. Users match → exchange encryption keys
+  2. Sender encrypts message on their phone
+  3. Server stores encrypted message (cannot read it)
+  4. Receiver decrypts on their phone
 ```
 
-## Support
+### Message Flow
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```mermaid
+sequenceDiagram
+    participant A as Client A
+    participant WS as WebSocket
+    participant MQ as RabbitMQ
+    participant DB as PostgreSQL
+    participant B as Client B
 
-## Stay in touch
+    A->>WS: Send encrypted message
+    WS->>MQ: Queue message
+    MQ->>DB: Persist ciphertext
+    MQ->>WS: Route to recipient
+    WS->>B: Deliver message
+    B->>WS: Acknowledge receipt
+    WS->>A: Delivery confirmation
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## Phase 6: Safety & Moderation
 
-Nest is [MIT licensed](LICENSE).
+> User safety features and abuse prevention.
+
+### Tasks
+
+- [ ] Block user endpoint
+- [ ] Rate limiting (Redis)
+- [ ] Bot prevention
+
+### Rate Limiting Strategy
+
+```
+Layer 1 - Nginx:   IP-based throttling
+Layer 2 - Redis:   User-based limits
+Layer 3 - App:     Endpoint-specific limits
+
+Limits:
+├── Auth:     5 OTP requests/hour/email
+```
+
+---
+
+## Phase 7: Maps Integration
+
+> Location services for listings and discovery.
+
+### Tasks
+
+- [ ] Geocoding service
+- [ ] Reverse geocoding
+- [ ] Location picker component
+
+## Phase 8: Infrastructure
+
+> Production deployment and DevOps setup.
+
+### Tasks
+
+- [ ] Docker Compose production config
+- [ ] Nginx SSL configuration (Let's Encrypt)
+- [ ] GitHub Actions CI/CD
+- [ ] Database migration strategy
+- [ ] Health check endpoints
+- [ ] Structured logging
+- [ ] Backup strategy (cron)
+
+### Docker Services
+
+```yaml
+services:
+  api: NestJS application
+  postgres: PostgreSQL + PostGIS
+  redis: Cache + Rate limiting
+  rabbitmq: Message queue
+  nginx: Reverse proxy + SSL
+```
+
+### CI/CD Pipeline
+
+[![](https://mermaid.ink/img/pako:eNpNjc1ugzAQhF_F2jNBTs2vD5UKpFKlHKK26qHAwYodQAUbGVttinj3EjepOqedbzSzMxwVF0Dh1KvPY8u0QfvnSqJVD-XBTm2NNpt7lJX7Tpr6N8gcystXMd1Q7lBRZrbr-ZUVju3cCnoaWCOuwc4Fj2Uhxl6d0dvhpQYPGt1xoEZb4cEg9MAuFuZLpQLTikFUQNeTM_1RQSWXtTMy-a7UcKtpZZsW6In10-rsyJkRRccazYY_qoXkQufKSgN0S7AbATrDF9Ag9AlJtkGc3iU4inAUeHAGSkLikzhI04REaYJTsnjw7d5iP4lD_E_b5QdmD2IE?type=png)](https://mermaid.live/edit#pako:eNpNjc1ugzAQhF_F2jNBTs2vD5UKpFKlHKK26qHAwYodQAUbGVttinj3EjepOqedbzSzMxwVF0Dh1KvPY8u0QfvnSqJVD-XBTm2NNpt7lJX7Tpr6N8gcystXMd1Q7lBRZrbr-ZUVju3cCnoaWCOuwc4Fj2Uhxl6d0dvhpQYPGt1xoEZb4cEg9MAuFuZLpQLTikFUQNeTM_1RQSWXtTMy-a7UcKtpZZsW6In10-rsyJkRRccazYY_qoXkQufKSgN0S7AbATrDF9Ag9AlJtkGc3iU4inAUeHAGSkLikzhI04REaYJTsnjw7d5iP4lD_E_b5QdmD2IE)
+
+---
+
+## Phase 9: Performance
+
+> Optimization and caching strategies.
+
+### Tasks
+
+- [ ] Move refresh tokens to Redis
+- [ ] Query optimization (indexes)
+- [ ] Connection pooling (pgBouncer)
+- [ ] Response caching
