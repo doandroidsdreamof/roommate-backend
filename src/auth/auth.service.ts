@@ -4,7 +4,6 @@ import { VerifyOtpDTO, OtpDTO } from './dto/auth-dto';
 import { OtpService } from './services/otp.service';
 import { UsersService } from 'src/users/users.service';
 
-type UserS
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -32,6 +31,4 @@ export class AuthService {
     console.log('🚀 ~ otp:', otp);
     console.log('🚀 ~ email:', email);
   }
-
-
 }
