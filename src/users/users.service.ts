@@ -38,13 +38,26 @@ export class UsersService {
     return userName?.username;
   }
 
+  async createUser(email: string) {
+    const { users: usersSchema } = schema;
+    const [user] = await this.db
+      .insert(schema.users)
+      .values({ email, isEmailVerified: true })
+      .returning({
+        id: usersSchema.id,
+        email: usersSchema.email,
+        isActive: usersSchema.isActive,
+      });
+    return user;
+  }
+
   async findByEmail(email: string) {
     return await this.db.query.users.findFirst({
       where: eq(schema.users.email, email),
       columns: {
         id: true,
-        isEmailVerified: true,
         isActive: true,
+        email: true,
       },
     });
   }

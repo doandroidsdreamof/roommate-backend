@@ -23,14 +23,29 @@ export class AuthService {
       userName,
       otp: savedOtp,
     });
-    // TODO hard-coded response
+    // TODO hardcoded response
     return { message: 'Check your email for OTP' };
   }
   async authenticate(dto: VerifyOtpDTO) {
     const { email, otp } = dto;
+
     const isValid = await this.otpService.verifyOtp(email, otp);
     if (!isValid) {
       throw new UnauthorizedException('Invalid OTP');
     }
+
+    let user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      user = await this.usersService.createUser(email);
+    }
+
+    return this.login(user.id);
+  }
+
+  async login(userId: string) {
+    console.log('🚀 ~ userId:', userId);
+    // TODO: Generate tokens
+    return { accessToken: 501, refreshToken: 501 };
   }
 }

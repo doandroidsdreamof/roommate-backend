@@ -41,6 +41,7 @@ export type PaginationMeta = {
   hasPreviousPage: boolean;
 };
 
+// TODO separate exception and response mapping level
 @Injectable()
 export class ResponseInterceptor<T>
   implements NestInterceptor<T, Response<T> | ErrorResponse>

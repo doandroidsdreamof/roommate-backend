@@ -28,7 +28,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   phoneNumber: varchar('phone_number', { length: 20 }).unique(),
   username: varchar('username', { length: 100 }).unique(),
-  isActive: boolean('is_active').default(true).notNull(),
+  isActive: boolean('is_active').default(true).notNull(), //* account suspension flag
   isEmailVerified: boolean('is_email_verified').default(false).notNull(),
   isPhoneVerified: boolean('is_phone_verified').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

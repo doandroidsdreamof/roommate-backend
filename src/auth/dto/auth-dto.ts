@@ -1,5 +1,6 @@
 import z from 'zod';
 
+// TODO hardcoded validation errors
 export const otpValidationSchema = z.object({
   email: z.email({ message: 'Invalid email address' }),
 });
