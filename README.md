@@ -15,7 +15,7 @@
 | WebSocket Gateway | Socket.io            | Real-time chat, presence               |
 | Message Queue     | RabbitMQ             | Async message delivery between clients |
 | Cache             | Redis                | Cache layer, rate limiting, session    |
-| Database          | PostgreSQL | Primary data store, geospatial queries |
+| Database          | PostgreSQL | Primary data store |
 
 ---
 
@@ -34,10 +34,10 @@
 ### Remaining
 
 - [ ] JWT Guard decorator
-- [ ] Token rotation on refresh
+- [x] Token rotation on refresh
 - [ ] Database schema design
-- [ ] `POST /auth/refresh` endpoint
-- [ ] `POST /auth/logout` endpoint
+- [x] `POST /auth/refresh` endpoint
+- [x] `POST /auth/logout` endpoint
 
 ### Notes
 
@@ -121,7 +121,7 @@ Key Exchange: Diffie-Hellman
 Flow:
   1. Users match → exchange encryption keys
   2. Sender encrypts message on their phone
-  3. Server stores encrypted message (cannot read it)
+  3. Server stores encrypted message (until it is delivered e.g. for offline users)
   4. Receiver decrypts on their phone
 ```
 
