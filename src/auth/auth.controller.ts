@@ -6,6 +6,8 @@ import {
   VerifyOtpDTO,
   OtpDTO,
   otpValidationSchema,
+  RefreshTokenDTO,
+  refreshTokenValidationSchema,
 } from './dto/auth-dto';
 
 @Controller('auth')
@@ -22,5 +24,17 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(verifyOtpValidationSchema))
   authenticate(@Body() dto: VerifyOtpDTO) {
     return this.authService.authenticate({ ...dto });
+  }
+
+  @Post('logout')
+  @UsePipes(new ZodValidationPipe(refreshTokenValidationSchema))
+  logout(@Body() dto: RefreshTokenDTO) {
+    return this.authService.logout({ ...dto });
+  }
+  // TODO rate-limitter
+  @Post('refresh')
+  @UsePipes(new ZodValidationPipe(refreshTokenValidationSchema))
+  refreshToken(@Body() dto: RefreshTokenDTO) {
+    return this.authService.refreshToken({ ...dto });
   }
 }

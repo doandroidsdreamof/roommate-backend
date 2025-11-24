@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { EmailService } from 'src/mail/email.service';
-import { VerifyOtpDTO, OtpDTO } from './dto/auth-dto';
+import { VerifyOtpDTO, OtpDTO, RefreshTokenDTO } from './dto/auth-dto';
 import { OtpService } from './services/otp.service';
 import { UsersService } from 'src/users/users.service';
 import { TokenService } from './services/token.service';
@@ -48,6 +48,26 @@ export class AuthService {
   async login(userId: string, email: string) {
     const refreshToken = await this.tokenService.createRefreshToken(userId);
     const accessToken = this.tokenService.createAccessToken(userId, email);
+    // TODO move accessToken to Bearer
     return { accessToken: accessToken, refreshToken: refreshToken };
+  }
+
+  async logout(dto: RefreshTokenDTO) {
+    const { refreshToken, userId } = dto;
+    //* what if this silently faield
+    await this.tokenService.revokeRefreshToken(refreshToken, userId);
+  }
+
+  async refreshToken(dto: RefreshTokenDTO) {
+    const { refreshToken, userId, email } = dto;
+    const isTokenValid = await this.tokenService.isRefreshTokenValid(
+      refreshToken,
+      userId,
+    );
+    if (isTokenValid) {
+      throw new UnauthorizedException();
+    }
+    const accessToken = this.tokenService.createAccessToken(userId, email);
+    return { accessToken: accessToken };
   }
 }

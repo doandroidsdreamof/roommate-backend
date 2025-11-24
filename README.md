@@ -2,7 +2,7 @@
 
 ## Architecture
 
-[![](https://mermaid.ink/img/pako:eNplT01vgkAQ_StkzmgVEZFDk2oba6KNdklIynpYZUSi7JpliVr1v3eBarXuYT7ee_Nm5wgLESF4sNyI3WLFpDL8HuWGfv1NglyFVZpV2C1j1GrPp3ffn5CT8REnfP9ABuSeqmIJhBVMOSGjp1Fv9iAoDIzPN-KHRTBeJsPZfzYgYYBzIhZrVMaAKdyxw51RQCoXNp8najwNLwWlY8wyFmP2K78QlRyjJLu1KT9wZcIy3u0pkVIxEZmKJZLpKPwr9ZVFMxgSPQUmxDKJwFMyRxNSlCkrWjgWXhTUClOk4OkyYnJNgfKzntky_iVEehmTIo9X4C3ZJtNdvo309a8JiyVLr6hEHqHsi5wr8Nqt0gO8I-zBqzmWXXecpms1XFdn2zHhoEUNq97q2N2uYzXspmM1W2cTvsu1jbrbaZ9_AEfJqnk?type=png)](https://mermaid.live/edit#pako:eNplT01vgkAQ_StkzmgVEZFDk2oba6KNdklIynpYZUSi7JpliVr1v3eBarXuYT7ee_Nm5wgLESF4sNyI3WLFpDL8HuWGfv1NglyFVZpV2C1j1GrPp3ffn5CT8REnfP9ABuSeqmIJhBVMOSGjp1Fv9iAoDIzPN-KHRTBeJsPZfzYgYYBzIhZrVMaAKdyxw51RQCoXNp8najwNLwWlY8wyFmP2K78QlRyjJLu1KT9wZcIy3u0pkVIxEZmKJZLpKPwr9ZVFMxgSPQUmxDKJwFMyRxNSlCkrWjgWXhTUClOk4OkyYnJNgfKzntky_iVEehmTIo9X4C3ZJtNdvo309a8JiyVLr6hEHqHsi5wr8Nqt0gO8I-zBqzmWXXecpms1XFdn2zHhoEUNq97q2N2uYzXspmM1W2cTvsu1jbrbaZ9_AEfJqnk)
+[![](https://mermaid.ink/img/pako:eNplT1tvgjAU_ivkPKMTkYt9WDLdsi3RRVcSklEfqhyRKNSUEnXqfx-X4XT24fSc73baIyxEiEBguRG7xYpLpXkDlmrFGW5iTFVQX7Mau2a0Vuvx9OZ5E3rSPqI43d-RPr2l6loBQQ0zSkcPo8Hsji_92ucL9YKyaE-T99l_1qeBj3MqFmtU2itXuOOHmyCf1il8Po_VeBo0DWNjzDIeYfYrb4hajmGcXcdUD7gwQVVv9lRIpZiITEUS6XQU_LWFFnSIZBwCUTJHHRKUCS9HOJYJDNQKE2RAijbkcs2ApefCs-XplxBJY5Mij1ZAlnyTFVO-DYs_P8c8kjy5oBLTEOVQ5KkCYphVBpAj7IG07K7Ztm3D7fZd0zRMy9XhAMTqGG3T6fX7tuk6vZ5hOWcdvqu1nbbrWOcfUQWmaw?type=png)](https://mermaid.live/edit#pako:eNplT1tvgjAU_ivkPKMTkYt9WDLdsi3RRVcSklEfqhyRKNSUEnXqfx-X4XT24fSc73baIyxEiEBguRG7xYpLpXkDlmrFGW5iTFVQX7Mau2a0Vuvx9OZ5E3rSPqI43d-RPr2l6loBQQ0zSkcPo8Hsji_92ucL9YKyaE-T99l_1qeBj3MqFmtU2itXuOOHmyCf1il8Po_VeBo0DWNjzDIeYfYrb4hajmGcXcdUD7gwQVVv9lRIpZiITEUS6XQU_LWFFnSIZBwCUTJHHRKUCS9HOJYJDNQKE2RAijbkcs2ApefCs-XplxBJY5Mij1ZAlnyTFVO-DYs_P8c8kjy5oBLTEOVQ5KkCYphVBpAj7IG07K7Ztm3D7fZd0zRMy9XhAMTqGG3T6fX7tuk6vZ5hOWcdvqu1nbbrWOcfUQWmaw)
 
 ---
 
@@ -15,7 +15,7 @@
 | WebSocket Gateway | Socket.io            | Real-time chat, presence               |
 | Message Queue     | RabbitMQ             | Async message delivery between clients |
 | Cache             | Redis                | Cache layer, rate limiting, session    |
-| Database          | PostgreSQL + PostGIS | Primary data store, geospatial queries |
+| Database          | PostgreSQL | Primary data store, geospatial queries |
 
 ---
 
@@ -67,7 +67,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ### Tasks
 
-- [ ] Listing schema with PostGIS
+- [ ] Listing schema based on location
 - [ ] Listing CRUD endpoints
 - [ ] One listing per user constraint
 - [ ] Max 10 images per listing
@@ -177,7 +177,7 @@ Limits:
 ```yaml
 services:
   api: NestJS application
-  postgres: PostgreSQL + PostGIS
+  postgres: PostgreSQL
   redis: Cache + Rate limiting
   rabbitmq: Message queue
   nginx: Reverse proxy + SSL

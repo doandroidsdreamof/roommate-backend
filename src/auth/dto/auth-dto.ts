@@ -10,5 +10,13 @@ export const verifyOtpValidationSchema = z.object({
   otp: z.string().length(6),
 });
 
+export const refreshTokenValidationSchema = z.object({
+  refreshToken: z.string().min(5), //TODO move it to config
+  userId: z.string(),
+  email: z.email({ message: 'Invalid email address' }),
+});
+
+export type RefreshTokenDTO = z.infer<typeof refreshTokenValidationSchema>;
+
 export type VerifyOtpDTO = z.infer<typeof verifyOtpValidationSchema>;
 export type OtpDTO = z.infer<typeof otpValidationSchema>;

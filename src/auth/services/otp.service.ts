@@ -66,6 +66,7 @@ export class OtpService {
     }
 
     if (verification.code !== code) {
+      // TODO review here
       this.logger.log('otp code is mismatched => verifyOtp');
       await this.db
         .update(schema.verifications)
