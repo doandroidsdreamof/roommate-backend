@@ -1,5 +1,6 @@
 import z from 'zod';
 
+// TODO code duplication
 // TODO hardcoded validation errors
 export const otpValidationSchema = z.object({
   email: z.email({ message: 'Invalid email address' }),
@@ -15,6 +16,13 @@ export const refreshTokenValidationSchema = z.object({
   userId: z.string(),
   email: z.email({ message: 'Invalid email address' }),
 });
+
+export const logoutValidationSchema = z.object({
+  refreshToken: z.string().min(5), //TODO move it to config
+  userId: z.string(),
+});
+
+export type LogoutDTO = z.infer<typeof logoutValidationSchema>;
 
 export type RefreshTokenDTO = z.infer<typeof refreshTokenValidationSchema>;
 

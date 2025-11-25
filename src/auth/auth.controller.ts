@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
 import { AuthService } from './auth.service';
 import {
@@ -8,7 +8,10 @@ import {
   otpValidationSchema,
   RefreshTokenDTO,
   refreshTokenValidationSchema,
+  LogoutDTO,
+  logoutValidationSchema,
 } from './dto/auth-dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -25,10 +28,10 @@ export class AuthController {
   authenticate(@Body() dto: VerifyOtpDTO) {
     return this.authService.authenticate({ ...dto });
   }
-
+  @UseGuards(AuthGuard)
   @Post('logout')
-  @UsePipes(new ZodValidationPipe(refreshTokenValidationSchema))
-  logout(@Body() dto: RefreshTokenDTO) {
+  @UsePipes(new ZodValidationPipe(logoutValidationSchema))
+  logout(@Body() dto: LogoutDTO) {
     return this.authService.logout({ ...dto });
   }
   // TODO rate-limitter

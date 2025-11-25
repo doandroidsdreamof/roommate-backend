@@ -33,7 +33,7 @@
 
 ### Remaining
 
-- [ ] JWT Guard decorator
+- [x] JWT Guard decorator
 - [x] Token rotation on refresh
 - [ ] Database schema design
 - [x] `POST /auth/refresh` endpoint
@@ -72,7 +72,6 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [ ] One listing per user constraint
 - [ ] Max 10 images per listing
 - [ ] Listing status (active/inactive/rented)
-- [ ] Geospatial indexing
 
 ## Phase 4: Discovery & Matching
 

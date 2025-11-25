@@ -23,7 +23,6 @@ export class TokenService {
   createAccessToken(userId: string, email: string) {
     this.logger.log('access token is created');
     return this.jwtService.sign({
-      expiresIn: '4', // TODO hardcoded config
       sub: userId,
       email: email,
     });
@@ -45,14 +44,11 @@ export class TokenService {
 
   async revokeRefreshToken(refreshToken: string, userId: string) {
     const hashedToken = this.hashToken(refreshToken);
-    this.logger.log('🚀 ~ time:', new Date(Date.now()));
-    const expiredTime = new Date(Date.now() - 10000); //* 10 sec
-    this.logger.log('🚀 ~ expiredTime:', expiredTime);
 
-    //TODO review here maybe transaction may useful
+    // This is still atomic even though it updates multiple rows
     const storedToken = await this.db
       .update(schema.refreshToken)
-      .set({ expiresAt: expiredTime, isRevoked: true })
+      .set({ isRevoked: true })
       .where(
         and(
           eq(schema.refreshToken.tokenHash, hashedToken),
