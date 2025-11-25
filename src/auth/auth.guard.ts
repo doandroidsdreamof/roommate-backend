@@ -37,8 +37,7 @@ export class AuthGuard implements CanActivate {
         secret: JWT_SECRET,
       });
 
-      request['user'] = payload; // overwrite as user
-      this.logger.log(request['user']);
+      request['user'] = payload; //* overwrite it in header
     } catch (error) {
       this.logger.error(error);
       throw new UnauthorizedException();
