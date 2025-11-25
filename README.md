@@ -8,14 +8,14 @@
 
 ## Component Overview
 
-| Component         | Technology           | Responsibility                         |
-| ----------------- | -------------------- | -------------------------------------- |
-| Reverse Proxy     | Nginx                | SSL termination, load balancing        |
-| REST API          | NestJS               | HTTP endpoints, business logic         |
-| WebSocket Gateway | Socket.io            | Real-time chat, presence               |
-| Message Queue     | RabbitMQ             | Async message delivery between clients |
-| Cache             | Redis                | Cache layer, rate limiting, session    |
-| Database          | PostgreSQL | Primary data store |
+| Component         | Technology | Responsibility                         |
+| ----------------- | ---------- | -------------------------------------- |
+| Reverse Proxy     | Nginx      | SSL termination, load balancing        |
+| REST API          | NestJS     | HTTP endpoints, business logic         |
+| WebSocket Gateway | Socket.io  | Real-time chat, presence               |
+| Message Queue     | RabbitMQ   | Async message delivery between clients |
+| Cache             | Redis      | Cache layer, rate limiting, session    |
+| Database          | PostgreSQL | Primary data store                     |
 
 ---
 
@@ -35,7 +35,7 @@
 
 - [x] JWT Guard decorator
 - [x] Token rotation on refresh
-- [ ] Database schema design
+- [ ] Seeder
 - [x] `POST /auth/refresh` endpoint
 - [x] `POST /auth/logout` endpoint
 
@@ -54,12 +54,12 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ### Tasks
 
-- [ ] Profile schema extension
+- [x] Profile schema 
 - [ ] Profile CRUD endpoints
 - [ ] Lifestyle preferences (enums)
 - [ ] Image upload service
 - [ ] Image compression
-- [ ] Max 5 images per user
+- [ ] NSFW filtering
 
 ## Phase 3: Listings
 
@@ -109,6 +109,7 @@ Phase 3: ML recommendations (future)
 - [ ] E2EE implementation
 - [ ] Offline message queue
 - [ ] Delivery/read receipts
+- [ ] Temporary stored messages strategy
 
 ### E2EE Design
 
@@ -165,7 +166,8 @@ Limits:
 
 - [ ] Docker Compose production config
 - [ ] Nginx SSL configuration (Let's Encrypt)
-- [ ] GitHub Actions CI/CD
+- [x] GitHub Actions CI
+- [ ] GitHub Actions CD
 - [ ] Database migration strategy
 - [ ] Health check endpoints
 - [ ] Structured logging

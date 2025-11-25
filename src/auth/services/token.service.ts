@@ -49,7 +49,6 @@ export class TokenService {
   async revokeRefreshToken(refreshToken: string, userId: string) {
     const hashedToken = this.hashToken(refreshToken);
 
-    // This is still atomic even though it updates multiple rows
     const storedToken = await this.db
       .update(schema.refreshToken)
       .set({ isRevoked: true })
@@ -63,7 +62,6 @@ export class TokenService {
     if (storedToken.rowCount === 0) {
       throw new UnauthorizedException('Logout failed');
     }
-    this.logger.log('storedToken', storedToken.rows);
   }
 
   hashToken(token: string): string {
