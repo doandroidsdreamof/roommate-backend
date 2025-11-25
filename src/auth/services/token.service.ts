@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'crypto';
-import { and, eq, not } from 'drizzle-orm';
+import { and, eq, not, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from '../../database/schema';
@@ -36,7 +36,11 @@ export class TokenService {
       .values({ userId, tokenHash: hash })
       .onConflictDoUpdate({
         target: schema.refreshToken.userId,
-        set: { tokenHash: hash, isRevoked: false },
+        set: {
+          tokenHash: hash,
+          isRevoked: false,
+          expiresAt: sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '3 months'`,
+        },
       });
 
     return token;
@@ -65,31 +69,24 @@ export class TokenService {
   hashToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
   }
-  async isRefreshTokenValid(
-    refreshToken: string,
-    userId: string,
-  ): Promise<boolean> {
+  async validateRefreshToken(refreshToken: string): Promise<string | null> {
     const hashedToken = this.hashToken(refreshToken);
     const NOW = new Date(Date.now());
     const storedToken = await this.db.query.refreshToken.findFirst({
-      where: and(
-        eq(schema.refreshToken.tokenHash, hashedToken),
-        eq(schema.refreshToken.userId, userId),
-      ),
+      where: and(eq(schema.refreshToken.tokenHash, hashedToken)),
       columns: {
         isRevoked: true,
         tokenHash: true,
         expiresAt: true,
+        userId: true,
       },
     });
-    if (
-      !storedToken ||
-      storedToken.isRevoked === true ||
-      storedToken.expiresAt <= NOW
-    ) {
-      return false;
+    const expiresAt = new Date(storedToken.expiresAt);
+
+    if (!storedToken || storedToken.isRevoked === true || expiresAt <= NOW) {
+      return null;
     }
 
-    return true;
+    return storedToken?.userId;
   }
 }

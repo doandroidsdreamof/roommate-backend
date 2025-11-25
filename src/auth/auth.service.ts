@@ -66,16 +66,18 @@ export class AuthService {
   }
 
   async refreshToken(dto: RefreshTokenDTO) {
-    // TODO just get refreshToken from controller
-    const { refreshToken, userId, email } = dto;
-    const isTokenValid = await this.tokenService.isRefreshTokenValid(
-      refreshToken,
-      userId,
-    );
-    if (!isTokenValid) {
+    const { refreshToken } = dto;
+    const userId = await this.tokenService.validateRefreshToken(refreshToken);
+    this.logger.log(userId)
+    if (!userId) {
       throw new UnauthorizedException();
     }
-    const accessToken = this.tokenService.createAccessToken(userId, email);
+    const user = await this.usersService.findById(userId);
+
+    const accessToken = this.tokenService.createAccessToken(
+      user.id,
+      user.email,
+    );
     return { accessToken: accessToken };
   }
 }

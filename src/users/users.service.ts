@@ -50,6 +50,15 @@ export class UsersService {
       });
     return user;
   }
+  async findById(
+    userId: string,
+  ): Promise<typeof schema.users.$inferSelect | null> {
+    const user = await this.db.query.users.findFirst({
+      where: eq(schema.users.id, userId),
+    });
+
+    return user ?? null;
+  }
 
   async findByEmail(email: string) {
     return await this.db.query.users.findFirst({

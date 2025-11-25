@@ -45,6 +45,7 @@ export class OtpService {
     return otp;
   }
   async verifyOtp(email: string, code: string): Promise<boolean> {
+    // TODO refactor SELECT
     const [verification] = await this.db
       .select()
       .from(schema.verifications)

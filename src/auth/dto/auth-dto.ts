@@ -13,8 +13,6 @@ export const verifyOtpValidationSchema = z.object({
 
 export const refreshTokenValidationSchema = z.object({
   refreshToken: z.string().min(5), //TODO move it to config
-  userId: z.string(),
-  email: z.email({ message: 'Invalid email address' }),
 });
 
 export const logoutValidationSchema = z.object({
