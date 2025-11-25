@@ -20,24 +20,24 @@ export class AuthController {
   @Post('otp')
   @UsePipes(new ZodValidationPipe(otpValidationSchema))
   requestOtp(@Body() dto: OtpDTO) {
-    return this.authService.sendOtp({ ...dto });
+    return this.authService.sendOtp(dto);
   }
 
   @Post('authenticate')
   @UsePipes(new ZodValidationPipe(verifyOtpValidationSchema))
   authenticate(@Body() dto: VerifyOtpDTO) {
-    return this.authService.authenticate({ ...dto });
+    return this.authService.authenticate(dto);
   }
   @UseGuards(AuthGuard)
   @Post('logout')
   @UsePipes(new ZodValidationPipe(logoutValidationSchema))
   logout(@Body() dto: LogoutDTO) {
-    return this.authService.logout({ ...dto });
+    return this.authService.logout(dto);
   }
   // TODO rate-limitter
   @Post('refresh')
   @UsePipes(new ZodValidationPipe(refreshTokenValidationSchema))
   refreshToken(@Body() dto: RefreshTokenDTO) {
-    return this.authService.refreshToken({ ...dto });
+    return this.authService.refreshToken(dto);
   }
 }

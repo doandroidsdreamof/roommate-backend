@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomInt } from 'crypto';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { OTP_LENGTH } from 'src/constants/contants';
+import { OTP_LENGTH } from 'src/constants/configuration';
 import * as schema from '../../database/schema';
 import { VERIFICATION_STATUS } from '../../database/schema';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
