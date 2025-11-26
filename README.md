@@ -35,7 +35,8 @@
 
 - [x] JWT Guard decorator
 - [x] Token rotation on refresh
-- [ ] Seeder
+- [ ] Seeder for locations
+- [ ] Swagger setup
 - [x] `POST /auth/refresh` endpoint
 - [x] `POST /auth/logout` endpoint
 

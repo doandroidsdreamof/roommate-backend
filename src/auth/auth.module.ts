@@ -15,6 +15,7 @@ import { AuthController } from './auth.controller';
     UsersModule,
     DrizzleModule,
     JwtModule.registerAsync({
+      global: true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -25,5 +26,6 @@ import { AuthController } from './auth.controller';
   ],
   controllers: [AuthController],
   providers: [AuthService, OtpService, TokenService],
+  exports: [JwtModule],
 })
 export class AuthModule {}

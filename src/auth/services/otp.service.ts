@@ -3,9 +3,9 @@ import { randomInt } from 'crypto';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { OTP_LENGTH } from 'src/constants/configuration';
 import * as schema from '../../database/schema';
-import { VERIFICATION_STATUS } from '../../database/schema';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { and, eq, gt, sql } from 'drizzle-orm';
+import { VERIFICATION_STATUS } from 'src/constants/enums';
 
 @Injectable()
 export class OtpService {

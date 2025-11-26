@@ -68,7 +68,7 @@ export class AuthService {
   async refreshToken(dto: RefreshTokenDTO) {
     const { refreshToken } = dto;
     const userId = await this.tokenService.validateRefreshToken(refreshToken);
-    this.logger.log(userId)
+    this.logger.log(userId);
     if (!userId) {
       throw new UnauthorizedException();
     }

@@ -1,8 +1,10 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from '../database/schema';
+import { CreateProfileDto } from './dto/profile-dto';
+import { ProfileService } from './services/profile.service';
 
 @Injectable()
 export class UsersService {
@@ -10,6 +12,7 @@ export class UsersService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: NodePgDatabase<typeof schema>,
+    private profileService: ProfileService,
   ) {}
 
   async getUsername(email: string): Promise<string | undefined> {
@@ -39,6 +42,19 @@ export class UsersService {
     });
 
     return user ?? null;
+  }
+
+  async createProfile(userId: string, createProfileDto: CreateProfileDto) {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const profile = await this.profileService.insertProfile(
+      userId,
+      createProfileDto,
+    );
+
+    return profile;
   }
 
   async findByEmail(email: string) {
