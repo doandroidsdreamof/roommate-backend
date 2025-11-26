@@ -55,9 +55,8 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ### Tasks
 
-- [x] Profile schema 
-- [ ] Profile CRUD endpoints
-- [ ] Lifestyle preferences (enums)
+- [x] Profile schema
+- [x] Profile CRUD endpoints
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
@@ -70,6 +69,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [ ] Listing schema based on location
 - [ ] Listing CRUD endpoints
+- [ ] Lifestyle preferences (enums)
 - [ ] One listing per user constraint
 - [ ] Max 10 images per listing
 - [ ] Listing status (active/inactive/rented)
