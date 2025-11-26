@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -10,7 +12,14 @@ import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
-import { CreateProfileDto, createProfileSchema } from './dto/profile-dto';
+import {
+  CreateProfileDto,
+  createProfileSchema,
+  UpdateAddressDto,
+  updateAddressSchema,
+  UpdatePhotoDto,
+  updateProfilePhotoSchema,
+} from './dto/profile-dto';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -25,5 +34,28 @@ export class UsersController {
     createProfileDto: CreateProfileDto,
   ) {
     return this.usersService.createProfile(userId, createProfileDto);
+  }
+
+  @Get('profile')
+  getProfile(@AuthUser('sub') userId: string) {
+    return this.usersService.getProfile(userId);
+  }
+
+  @Patch('profile/photo')
+  updatePhoto(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(updateProfilePhotoSchema))
+    updatePhotoDto: UpdatePhotoDto,
+  ) {
+    return this.usersService.updatePhoto(userId, updatePhotoDto);
+  }
+
+  @Patch('profile/address')
+  updateAddress(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(updateAddressSchema))
+    updateAddressDto: UpdateAddressDto,
+  ) {
+    return this.usersService.updateAddress(userId, updateAddressDto);
   }
 }

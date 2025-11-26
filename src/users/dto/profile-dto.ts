@@ -26,8 +26,23 @@ export const createProfileSchema = z.object({
     .max(100, 'District must be at most 100 characters'),
 });
 
-export const updateProfileSchema = createProfileSchema.partial().extend({
+export const updateProfilePhotoSchema = createProfileSchema.partial().extend({
   photoUrl: z.url('Must be a valid URL').optional(),
 });
 
+export const updateAddressSchema = z.object({
+  city: z
+    .string()
+    .min(1, 'City is required')
+    .max(100, 'City must be at most 100 characters'),
+
+  district: z
+    .string()
+    .min(1, 'District is required')
+    .max(100, 'District must be at most 100 characters'),
+});
+
+// Export types
 export type CreateProfileDto = z.infer<typeof createProfileSchema>;
+export type UpdatePhotoDto = z.infer<typeof updateProfilePhotoSchema>;
+export type UpdateAddressDto = z.infer<typeof updateAddressSchema>;

@@ -3,7 +3,11 @@ import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from '../database/schema';
-import { CreateProfileDto } from './dto/profile-dto';
+import {
+  CreateProfileDto,
+  UpdateAddressDto,
+  UpdatePhotoDto,
+} from './dto/profile-dto';
 import { ProfileService } from './services/profile.service';
 
 @Injectable()
@@ -55,6 +59,20 @@ export class UsersService {
     );
 
     return profile;
+  }
+
+  async getProfile(userId: string) {
+    return await this.profileService.findProfile(userId);
+  }
+
+  async updateAddress(userId: string, updateAddressDto: UpdateAddressDto) {
+    return await this.profileService.updateProfileAddress(
+      userId,
+      updateAddressDto,
+    );
+  }
+  async updatePhoto(userId: string, updatePhotoDto: UpdatePhotoDto) {
+    return await this.profileService.updateProfilePhoto(userId, updatePhotoDto);
   }
 
   async findByEmail(email: string) {

@@ -60,7 +60,7 @@ export const profile = pgTable('profile', {
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: 'cascade' }),
-  name: varchar('name', { length: 30 }).notNull(), //TODO make it unique
+  name: varchar('name', { length: 30 }).notNull().unique(), //TODO make it unique
   ageRange: ageRangeEnum('age_range').notNull(),
   gender: genderEnum('gender').notNull(),
   city: varchar('city', { length: 100 }).notNull(), // TODO aggregated full address may good idea with latitude and longitude values
@@ -69,7 +69,7 @@ export const profile = pgTable('profile', {
   photoVerified: boolean('photo_verified').notNull().default(false),
   accountStatus: accountStatusEnum('account_status')
     .notNull()
-    .default('active'),
+    .default(ACCOUNT_STATUS.ACTIVE),
   lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
   ...timestamps,
 });
@@ -201,10 +201,9 @@ export const profileRelations = relations(profile, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
 export type User = InferSelectModel<typeof users>;
-
 export type Verification = InferSelectModel<typeof verifications>;
-
 export type RefreshToken = InferSelectModel<typeof refreshToken>;
 export type Province = InferSelectModel<typeof provinces>;
 export type County = InferSelectModel<typeof counties>;
