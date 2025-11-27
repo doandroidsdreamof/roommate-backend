@@ -20,6 +20,12 @@ import {
   UpdatePhotoDto,
   updateProfilePhotoSchema,
 } from './dto/profile-dto';
+import {
+  CreatePreferencesDto,
+  createPreferencesSchema,
+  UpdatePreferencesDto,
+  updatePreferencesSchema,
+} from './dto/preference.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -39,6 +45,29 @@ export class UsersController {
   @Get('profile')
   getProfile(@AuthUser('sub') userId: string) {
     return this.usersService.getProfile(userId);
+  }
+
+  @Post('preference')
+  @HttpCode(HttpStatus.CREATED)
+  createPreference(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(createPreferencesSchema))
+    createPreferenceDto: CreatePreferencesDto,
+  ) {
+    return this.usersService.createPreferences(userId, createPreferenceDto);
+  }
+  @Get('preference')
+  getPreference(@AuthUser('sub') userId: string) {
+    return this.usersService.getPreference(userId);
+  }
+
+  @Patch('preference')
+  updatePreference(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(updatePreferencesSchema))
+    updatePreferenceDto: UpdatePreferencesDto,
+  ) {
+    return this.usersService.updatePreference(userId, updatePreferenceDto);
   }
 
   @Patch('profile/photo')

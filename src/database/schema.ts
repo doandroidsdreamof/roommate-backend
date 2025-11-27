@@ -15,6 +15,11 @@ import {
   ACCOUNT_STATUS,
   AGE_RANGES,
   GENDER,
+  GENDER_PREFERENCE,
+  HOUSING_SEARCH_TYPE,
+  PET_COMPATIBILITY,
+  PET_OWNERSHIP,
+  SMOKING_HABIT,
   VERIFICATION_STATUS,
 } from 'src/constants/enums';
 import { getEnumValues } from 'src/helpers/getEnumValues';
@@ -42,6 +47,47 @@ export const accountStatusEnum = pgEnum(
   'account_status',
   getEnumValues(ACCOUNT_STATUS),
 );
+
+export const housingSearchTypeEnum = pgEnum(
+  'housing_search_type',
+  getEnumValues(HOUSING_SEARCH_TYPE),
+);
+
+export const genderPreferenceEnum = pgEnum(
+  'gender_preference',
+  getEnumValues(GENDER_PREFERENCE),
+);
+
+export const smokingHabitEnum = pgEnum(
+  'smoking_habit',
+  getEnumValues(SMOKING_HABIT),
+);
+
+export const petOwnershipEnum = pgEnum(
+  'pet_ownership',
+  getEnumValues(PET_OWNERSHIP),
+);
+
+export const petCompatibilityEnum = pgEnum(
+  'pet_compatibility',
+  getEnumValues(PET_COMPATIBILITY),
+);
+
+export const preferences = pgTable('preferences', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  housingSearchType: housingSearchTypeEnum('housing_search_type').notNull(),
+  budgetMin: varchar('budget_min', { length: 20 }), // TODO consider min and max value types
+  budgetMax: varchar('budget_max', { length: 20 }),
+  genderPreference: genderPreferenceEnum('gender_preference'),
+  smokingHabit: smokingHabitEnum('smoking_habit'),
+  petOwnership: petOwnershipEnum('pet_ownership'),
+  petCompatibility: petCompatibilityEnum('pet_compatibility'),
+  ...timestamps,
+});
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -180,6 +226,7 @@ export const usersRelations = relations(users, ({ one }) => ({
   verifications: one(verifications),
   refreshToken: one(refreshToken),
   profile: one(profile),
+  preferences: one(preferences),
 }));
 
 export const verificationsRelations = relations(verifications, ({ one }) => ({
@@ -202,6 +249,14 @@ export const profileRelations = relations(profile, ({ one }) => ({
   }),
 }));
 
+export const preferencesRelations = relations(preferences, ({ one }) => ({
+  user: one(users, {
+    fields: [preferences.userId],
+    references: [users.id],
+  }),
+}));
+
+export type Preferences = InferSelectModel<typeof preferences>;
 export type User = InferSelectModel<typeof users>;
 export type Verification = InferSelectModel<typeof verifications>;
 export type RefreshToken = InferSelectModel<typeof refreshToken>;

@@ -9,6 +9,11 @@ import {
   UpdatePhotoDto,
 } from './dto/profile-dto';
 import { ProfileService } from './services/profile.service';
+import { PreferenceService } from './services/preference.service';
+import {
+  CreatePreferencesDto,
+  UpdatePreferencesDto,
+} from './dto/preference.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +22,7 @@ export class UsersService {
     @Inject(DrizzleAsyncProvider)
     private db: NodePgDatabase<typeof schema>,
     private profileService: ProfileService,
+    private preferenceService: PreferenceService,
   ) {}
 
   async getUsername(email: string): Promise<string | undefined> {
@@ -49,10 +55,7 @@ export class UsersService {
   }
 
   async createProfile(userId: string, createProfileDto: CreateProfileDto) {
-    const user = await this.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    await this.validateUserExists(userId);
     const profile = await this.profileService.insertProfile(
       userId,
       createProfileDto,
@@ -75,6 +78,10 @@ export class UsersService {
     return await this.profileService.updateProfilePhoto(userId, updatePhotoDto);
   }
 
+  async getPreference(userId: string) {
+    return await this.preferenceService.findPreferences(userId);
+  }
+
   async findByEmail(email: string) {
     return await this.db.query.users.findFirst({
       where: eq(schema.users.email, email),
@@ -84,5 +91,34 @@ export class UsersService {
         email: true,
       },
     });
+  }
+
+  async createPreferences(
+    userId: string,
+    createPreferencesDto: CreatePreferencesDto,
+  ) {
+    await this.validateUserExists(userId);
+    return this.preferenceService.insertPreferences(
+      userId,
+      createPreferencesDto,
+    );
+  }
+
+  async updatePreference(
+    userId: string,
+    updatePreferencesDto: UpdatePreferencesDto,
+  ) {
+    await this.validateUserExists(userId);
+    return this.preferenceService.updatePreferences(
+      userId,
+      updatePreferencesDto,
+    );
+  }
+
+  private async validateUserExists(userId: string): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
