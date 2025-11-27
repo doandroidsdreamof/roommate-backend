@@ -41,7 +41,6 @@
 - [x] `POST /auth/logout` endpoint
 
 ### Notes
-
 ```
 Access Token:  JWT, stateless
 Refresh Token: Opaque string, hashed in DB, 90-day expiry
@@ -49,7 +48,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ---
 
-## Phase 2: User Profile
+## Phase 2: User Profile & Preferences
 
 > User identity and preferences system. Foundation for matching algorithm.
 
@@ -57,22 +56,24 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [x] Profile schema
 - [x] Profile CRUD endpoints
+- [x] Preferences schema
+- [x] Preferences CRUD endpoints
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
 
-## Phase 3: Listings
+## Phase 3: Postings
 
-> Property listing system with geospatial search capability.
+> Property posting system with geospatial search capability.
 
 ### Tasks
 
-- [ ] Listing schema based on location
-- [ ] Listing CRUD endpoints
-- [ ] Lifestyle preferences (enums)
-- [ ] One listing per user constraint
-- [ ] Max 10 images per listing
-- [ ] Listing status (active/inactive/rented)
+- [ ] Posting schema based on location
+- [ ] Posting CRUD endpoints
+- [ ] Posting type (offering_room, looking_for_room, looking_for_roommate)
+- [ ] One posting per user constraint
+- [ ] Max 10 images per posting
+- [ ] Posting status (active/inactive/rented)
 
 ## Phase 4: Discovery & Matching
 
@@ -88,7 +89,6 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [ ] Exclude seen/blocked users
 
 ### Algorithm Phases
-
 ```
 Phase 1: Proximity + basic filters
 Phase 2: Lifestyle preference scoring
@@ -115,7 +115,6 @@ Phase 3: ML recommendations (future)
 ### E2EE Design
 
 > Messages are encrypted on sender's device and decrypted on receiver's device. Server only stores encrypted data it cannot read.
-
 ```
 Key Exchange: Diffie-Hellman
 
@@ -137,7 +136,6 @@ Flow:
 - [ ] Bot prevention
 
 ### Rate Limiting Strategy
-
 ```
 Layer 1 - Nginx:   IP-based throttling
 Layer 2 - Redis:   User-based limits
@@ -151,7 +149,7 @@ Limits:
 
 ## Phase 7: Maps Integration
 
-> Location services for listings and discovery.
+> Location services for postings and discovery.
 
 ### Tasks
 
@@ -175,7 +173,6 @@ Limits:
 - [ ] Backup strategy (cron)
 
 ### Docker Services
-
 ```yaml
 services:
   api: NestJS application
