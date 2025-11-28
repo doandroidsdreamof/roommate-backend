@@ -22,9 +22,9 @@ import { users } from './users.schema';
 
 export const postingImages = pgTable('posting_images', {
   id: uuid('id').defaultRandom().primaryKey(),
-  postingId: uuid('posting_id')
+  postingSpecsId: uuid('posting_specs_id')
     .notNull()
-    .references(() => postings.id, { onDelete: 'cascade' }),
+    .references(() => postingSpecs.id, { onDelete: 'cascade' }),
   imageUrl: text('image_url').notNull(),
   isVerified: boolean('is_verified').default(false),
   displayOrder: integer('display_order').notNull(),
@@ -74,7 +74,7 @@ export const postings = pgTable('postings', {
 
   // Metadata
   bookmarkCount: integer('bookmark_count').default(0).notNull(),
-  viewCount: integer('view_count').default(0).notNull(),
+  viewCount: integer('view_count').default(0).notNull(), // TODO one view count per user
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 
   ...createdAndUpdatedTimestamps,

@@ -97,8 +97,8 @@ export const postingSpecsRelations = relations(postingSpecs, ({ one }) => ({
 }));
 
 export const postingImagesRelations = relations(postingImages, ({ one }) => ({
-  posting: one(postings, {
-    fields: [postingImages.postingId],
+  postingSpecs: one(postings, {
+    fields: [postingImages.postingSpecsId],
     references: [postings.id],
   }),
 }));

@@ -71,6 +71,7 @@ export const preferences = pgTable('preferences', {
   ...createdAndUpdatedTimestamps,
 });
 
+//*  junction table users <=> userBookmarks <=> postings
 export const userBookmarks = pgTable('user_bookmarks', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
