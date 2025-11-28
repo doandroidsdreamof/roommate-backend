@@ -7,7 +7,7 @@ import {
   provinces,
 } from './locations.schema';
 import { postingImages, postings, postingSpecs } from './postings.schema';
-import { preferences, profile, users } from './users.schema';
+import { preferences, profile, userBookmarks, users } from './users.schema';
 
 // Location Relations
 export const provincesRelations = relations(provinces, ({ many }) => ({
@@ -44,6 +44,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profile),
   preferences: one(preferences),
   postings: many(postings),
+  bookmarks: many(userBookmarks),
 }));
 
 export const verificationsRelations = relations(verifications, ({ one }) => ({
@@ -98,6 +99,17 @@ export const postingSpecsRelations = relations(postingSpecs, ({ one }) => ({
 export const postingImagesRelations = relations(postingImages, ({ one }) => ({
   posting: one(postings, {
     fields: [postingImages.postingId],
+    references: [postings.id],
+  }),
+}));
+
+export const userBookmarksRelations = relations(userBookmarks, ({ one }) => ({
+  user: one(users, {
+    fields: [userBookmarks.userId],
+    references: [users.id],
+  }),
+  posting: one(postings, {
+    fields: [userBookmarks.postingId],
     references: [postings.id],
   }),
 }));

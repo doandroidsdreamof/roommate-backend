@@ -73,8 +73,8 @@ export const postings = pgTable('postings', {
   availableFrom: timestamp('available_from', { withTimezone: true }).notNull(),
 
   // Metadata
+  bookmarkCount: integer('bookmark_count').default(0).notNull(),
   viewCount: integer('view_count').default(0).notNull(),
-  favoriteCount: integer('favorite_count').default(0).notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 
   ...timestamps,

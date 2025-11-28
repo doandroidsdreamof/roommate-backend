@@ -18,6 +18,7 @@ import {
   petOwnershipEnum,
   smokingHabitEnum,
 } from './enums.schema';
+import { postings } from './postings.schema';
 
 export const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true })
@@ -76,5 +77,17 @@ export const preferences = pgTable('preferences', {
   petOwnership: petOwnershipEnum('pet_ownership'),
   petCompatibility: petCompatibilityEnum('pet_compatibility'),
   alcoholConsumption: alcoholConsumptionEnum('alcohol_consumption'),
+  ...timestamps,
+});
+
+export const userBookmarks = pgTable('user_bookmarks', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  postingId: uuid('posting_id')
+    .notNull()
+    .references(() => postings.id, { onDelete: 'cascade' }),
+  notes: text('notes'),
   ...timestamps,
 });

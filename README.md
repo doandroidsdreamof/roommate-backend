@@ -41,6 +41,7 @@
 - [x] `POST /auth/logout` endpoint
 
 ### Notes
+
 ```
 Access Token:  JWT, stateless
 Refresh Token: Opaque string, hashed in DB, 90-day expiry
@@ -58,6 +59,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Profile CRUD endpoints
 - [x] Preferences schema
 - [x] Preferences CRUD endpoints
+- [ ] Pagination (posting lists)
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
@@ -70,6 +72,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [x] Posting schema based on location
 - [ ] Posting CRUD endpoints
+- [ ] Bookmark feature and count of it for posts
 - [x] Posting type (offering_room, looking_for_room, looking_for_roommate)
 - [x] Posting status (active/inactive/rented)
 
@@ -80,13 +83,13 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 ### Tasks
 
 - [ ] Location-based feed
-- [ ] Pagination
 - [ ] Swipe actions (like/pass)
 - [ ] Match on mutual like
 - [ ] Preference filtering
 - [ ] Exclude seen/blocked users
 
 ### Algorithm Phases
+
 ```
 Phase 1: Proximity + basic filters
 Phase 2: Lifestyle preference scoring
@@ -113,6 +116,7 @@ Phase 3: ML recommendations (future)
 ### E2EE Design
 
 > Messages are encrypted on sender's device and decrypted on receiver's device. Server only stores encrypted data it cannot read.
+
 ```
 Key Exchange: Diffie-Hellman
 
@@ -134,6 +138,7 @@ Flow:
 - [ ] Bot prevention
 
 ### Rate Limiting Strategy
+
 ```
 Layer 1 - Nginx:   IP-based throttling
 Layer 2 - Redis:   User-based limits
@@ -171,6 +176,7 @@ Limits:
 - [ ] Backup strategy (cron)
 
 ### Docker Services
+
 ```yaml
 services:
   api: NestJS application
