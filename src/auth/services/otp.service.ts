@@ -1,11 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomInt } from 'crypto';
+import { and, eq, gt, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { OTP_LENGTH } from 'src/constants/configuration';
-import * as schema from '../../database/schema';
-import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import { and, eq, gt, sql } from 'drizzle-orm';
 import { VERIFICATION_STATUS } from 'src/constants/enums';
+import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
+import * as schema from 'src/database/schema';
 
 @Injectable()
 export class OtpService {

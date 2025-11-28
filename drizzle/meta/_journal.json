@@ -43,6 +43,13 @@
       "when": 1764265174670,
       "tag": "0005_chief_jazinda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1764344690157,
+      "tag": "0006_tricky_ken_ellis",
+      "breakpoints": true
     }
   ]
 }

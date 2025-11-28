@@ -68,12 +68,12 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ### Tasks
 
-- [ ] Posting schema based on location
+- [x] Posting schema based on location
 - [ ] Posting CRUD endpoints
-- [ ] Posting type (offering_room, looking_for_room, looking_for_roommate)
-- [ ] One posting per user constraint
+- [x] Posting type (offering_room, looking_for_room, looking_for_roommate)
+- [ ] five active posting per user constraint
 - [ ] Max 10 images per posting
-- [ ] Posting status (active/inactive/rented)
+- [x] Posting status (active/inactive/rented)
 
 ## Phase 4: Discovery & Matching
 
@@ -82,7 +82,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 ### Tasks
 
 - [ ] Location-based feed
-- [ ] Cursor pagination
+- [ ] Pagination
 - [ ] Swipe actions (like/pass)
 - [ ] Match on mutual like
 - [ ] Preference filtering

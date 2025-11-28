@@ -18,10 +18,16 @@ import { AuthController } from './auth.controller';
       global: true,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '4h' }, // TODO hardcoded config
-      }),
+      useFactory: (configService: ConfigService) => {
+        const isDev = configService.get('NODE_ENV') === 'development';
+
+        return {
+          secret: configService.get('JWT_SECRET'),
+          signOptions: {
+            expiresIn: isDev ? '365d' : '4h', // 1 year in dev
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

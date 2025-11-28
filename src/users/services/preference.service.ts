@@ -9,7 +9,7 @@ import { DrizzleQueryError, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DatabaseError } from 'pg';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import * as schema from '../../database/schema';
+import * as schema from 'src/database/schema';
 import {
   CreatePreferencesDto,
   UpdatePreferencesDto,

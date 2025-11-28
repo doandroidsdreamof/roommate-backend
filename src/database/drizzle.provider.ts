@@ -15,6 +15,14 @@ export const drizzleProvider = [
       const pool = new Pool({
         connectionString,
       });
+      try {
+        const client = await pool.connect();
+        console.log('✅ Database connected successfully');
+        client.release();
+      } catch (error) {
+        console.error('❌ Database connection failed:', error);
+        throw error;
+      }
       return drizzle(pool, { schema, logger: true }) as NodePgDatabase<
         typeof schema
       >;

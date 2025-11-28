@@ -2,18 +2,18 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import * as schema from '../database/schema';
+import * as schema from 'src/database/schema';
+import {
+  CreatePreferencesDto,
+  UpdatePreferencesDto,
+} from './dto/preference.dto';
 import {
   CreateProfileDto,
   UpdateAddressDto,
   UpdatePhotoDto,
 } from './dto/profile-dto';
-import { ProfileService } from './services/profile.service';
 import { PreferenceService } from './services/preference.service';
-import {
-  CreatePreferencesDto,
-  UpdatePreferencesDto,
-} from './dto/preference.dto';
+import { ProfileService } from './services/profile.service';
 
 @Injectable()
 export class UsersService {

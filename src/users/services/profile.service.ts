@@ -8,7 +8,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import * as schema from '../../database/schema';
+import * as schema from 'src/database/schema';
 import {
   CreateProfileDto,
   UpdateAddressDto,
