@@ -19,16 +19,7 @@ import {
   smokingHabitEnum,
 } from './enums.schema';
 import { postings } from './postings.schema';
-
-export const timestamps = {
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-};
+import { createdAndUpdatedTimestamps } from './shared-types';
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -40,7 +31,7 @@ export const users = pgTable('users', {
   isPhoneVerified: boolean('is_phone_verified').default(false).notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   isAnonymized: boolean('is_anonymized').default(false).notNull(),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const profile = pgTable('profile', {
@@ -60,7 +51,7 @@ export const profile = pgTable('profile', {
     .notNull()
     .default(ACCOUNT_STATUS.ACTIVE),
   lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const preferences = pgTable('preferences', {
@@ -77,7 +68,7 @@ export const preferences = pgTable('preferences', {
   petOwnership: petOwnershipEnum('pet_ownership'),
   petCompatibility: petCompatibilityEnum('pet_compatibility'),
   alcoholConsumption: alcoholConsumptionEnum('alcohol_consumption'),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const userBookmarks = pgTable('user_bookmarks', {
@@ -89,5 +80,5 @@ export const userBookmarks = pgTable('user_bookmarks', {
     .notNull()
     .references(() => postings.id, { onDelete: 'cascade' }),
   notes: text('notes'),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });

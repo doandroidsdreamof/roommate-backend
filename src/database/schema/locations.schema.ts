@@ -1,5 +1,5 @@
 import { char, integer, pgTable, serial, varchar } from 'drizzle-orm/pg-core';
-import { timestamps } from './users.schema';
+import { createdAndUpdatedTimestamps } from './shared-types';
 
 /* 
 Location Hierarchy:
@@ -12,7 +12,7 @@ provinces (il)
 export const provinces = pgTable('provinces', {
   plateCode: integer('plate_code').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const counties = pgTable('counties', {
@@ -21,7 +21,7 @@ export const counties = pgTable('counties', {
   provincePlateCode: integer('province_plate_code')
     .notNull()
     .references(() => provinces.plateCode, { onDelete: 'restrict' }),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const districts = pgTable('districts', {
@@ -30,7 +30,7 @@ export const districts = pgTable('districts', {
   countyId: integer('county_id')
     .notNull()
     .references(() => counties.id, { onDelete: 'cascade' }),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const neighborhoods = pgTable('neighborhoods', {
@@ -40,5 +40,5 @@ export const neighborhoods = pgTable('neighborhoods', {
   districtId: integer('district_id')
     .notNull()
     .references(() => districts.id, { onDelete: 'cascade' }),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });

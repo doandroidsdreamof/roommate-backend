@@ -64,6 +64,13 @@
       "when": 1764350595917,
       "tag": "0008_late_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1764352117420,
+      "tag": "0009_milky_leper_queen",
+      "breakpoints": true
     }
   ]
 }

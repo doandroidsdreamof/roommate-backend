@@ -17,7 +17,8 @@ import {
   postingTypeEnum,
 } from './enums.schema';
 import { neighborhoods } from './locations.schema';
-import { timestamps, users } from './users.schema';
+import { createdAndUpdatedTimestamps } from './shared-types';
+import { users } from './users.schema';
 
 export const postingImages = pgTable('posting_images', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -27,10 +28,9 @@ export const postingImages = pgTable('posting_images', {
   imageUrl: text('image_url').notNull(),
   isVerified: boolean('is_verified').default(false),
   displayOrder: integer('display_order').notNull(),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
-// TODO refactor postings schema
 export const postings = pgTable('postings', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id')
@@ -77,7 +77,7 @@ export const postings = pgTable('postings', {
   viewCount: integer('view_count').default(0).notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const postingSpecs = pgTable('posting_specs', {
@@ -119,12 +119,8 @@ export const postingSpecs = pgTable('posting_specs', {
 
   hasPets: boolean('has_pets'),
   currentPetOwnership: petOwnershipEnum('current_pet_ownership'),
-
-  // Extended Information
   availableUntil: timestamp('available_until', { withTimezone: true }),
-  houseRules: text('house_rules'),
-  amenities: text('amenities'),
   nearbyTransport: text('nearby_transport'),
 
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });

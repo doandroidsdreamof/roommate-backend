@@ -13,4 +13,4 @@ export * from './relations';
 // Export all types
 export * from './types';
 
-export { timestamps } from './users.schema';
+export { createdAndUpdatedTimestamps } from './shared-types';

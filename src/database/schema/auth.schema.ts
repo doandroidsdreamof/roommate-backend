@@ -8,8 +8,9 @@ import {
 } from 'drizzle-orm/pg-core';
 import { VERIFICATION_STATUS } from 'src/constants/enums';
 import { verificationStatus } from './enums.schema';
-import { timestamps, users } from './users.schema';
+import { users } from './users.schema';
 import { sql } from 'drizzle-orm';
+import { createdAndUpdatedTimestamps } from './shared-types';
 
 export const verifications = pgTable('verifications', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -24,7 +25,7 @@ export const verifications = pgTable('verifications', {
   maxAttempts: integer('max_attempts').default(3).notNull(),
   code: varchar('code', { length: 6 }),
   codeExpiresAt: timestamp('code_expires_at'),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
 
 export const refreshToken = pgTable('refresh_tokens', {
@@ -38,5 +39,5 @@ export const refreshToken = pgTable('refresh_tokens', {
     .default(sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '3 months'`)
     .notNull(),
   isRevoked: boolean('is_revoked').default(false).notNull(),
-  ...timestamps,
+  ...createdAndUpdatedTimestamps,
 });
