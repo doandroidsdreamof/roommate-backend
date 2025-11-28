@@ -36,6 +36,7 @@ export class PreferenceService {
       this.logger.log(`Preferences created for user: ${userId}`);
       return preference;
     } catch (error) {
+      // TODO making exception filter for this structure may a good idea
       if (error instanceof DrizzleQueryError) {
         if (error.cause instanceof DatabaseError) {
           if (error.cause.code === '23505') {

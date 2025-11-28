@@ -62,3 +62,10 @@ export const PET_COMPATIBILITY = {
   NO: 'no',
   DOESNT_MATTER: 'doesnt_matter',
 } as const;
+
+export const ALCOHOL_CONSUMPTION = {
+  NEVER: 'never',
+  OCCASIONALLY: 'occasionally',
+  SOCIALLY: 'socially',
+  REGULARLY: 'regularly',
+} as const;

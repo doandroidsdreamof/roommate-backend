@@ -50,6 +50,13 @@
       "when": 1764344690157,
       "tag": "0006_tricky_ken_ellis",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1764346598666,
+      "tag": "0007_broken_supreme_intelligence",
+      "breakpoints": true
     }
   ]
 }

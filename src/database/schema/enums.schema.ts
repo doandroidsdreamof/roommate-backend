@@ -2,6 +2,7 @@ import { pgEnum } from 'drizzle-orm/pg-core';
 import {
   ACCOUNT_STATUS,
   AGE_RANGES,
+  ALCOHOL_CONSUMPTION,
   GENDER,
   GENDER_PREFERENCE,
   HOUSING_SEARCH_TYPE,
@@ -70,4 +71,9 @@ export const postingStatusEnum = pgEnum('posting_status', [
 export const occupantGenderCompositionEnum = pgEnum(
   'occupant_gender_composition',
   ['male_only', 'female_only', 'mixed', 'not_specified'],
+);
+
+export const alcoholConsumptionEnum = pgEnum(
+  'alcohol_consumption',
+  getEnumValues(ALCOHOL_CONSUMPTION),
 );

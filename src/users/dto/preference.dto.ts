@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  ALCOHOL_CONSUMPTION,
   GENDER_PREFERENCE,
   HOUSING_SEARCH_TYPE,
   PET_COMPATIBILITY,
@@ -16,6 +17,7 @@ export const createPreferencesSchema = z.object({
   smokingHabit: z.enum(SMOKING_HABIT).optional(),
   petOwnership: z.enum(PET_OWNERSHIP).optional(),
   petCompatibility: z.enum(PET_COMPATIBILITY).optional(),
+  alcoholConsumption: z.enum(ALCOHOL_CONSUMPTION).optional(),
 });
 
 export const updatePreferencesSchema = z.object({
@@ -26,6 +28,7 @@ export const updatePreferencesSchema = z.object({
   smokingHabit: z.enum(SMOKING_HABIT).optional(),
   petOwnership: z.enum(PET_OWNERSHIP).optional(),
   petCompatibility: z.enum(PET_COMPATIBILITY).optional(),
+  alcoholConsumption: z.enum(ALCOHOL_CONSUMPTION).optional(),
 });
 
 export type CreatePreferencesDto = z.infer<typeof createPreferencesSchema>;

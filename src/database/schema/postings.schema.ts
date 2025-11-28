@@ -12,11 +12,9 @@ import {
   ageRangeEnum,
   genderPreferenceEnum,
   occupantGenderCompositionEnum,
-  petCompatibilityEnum,
   petOwnershipEnum,
   postingStatusEnum,
   postingTypeEnum,
-  smokingHabitEnum,
 } from './enums.schema';
 import { neighborhoods } from './locations.schema';
 import { timestamps, users } from './users.schema';
@@ -27,13 +25,13 @@ export const postings = pgTable('postings', {
     .notNull()
     .references(() => users.id, { onDelete: 'restrict' }),
 
-  // Basic Info
+  // Basic Info (REQUIRED)
   type: postingTypeEnum('type').notNull(),
   status: postingStatusEnum('status').default('active').notNull(),
   title: varchar('title', { length: 100 }).notNull(),
   description: text('description').notNull(),
 
-  // Location
+  // Location (REQUIRED)
   city: varchar('city', { length: 100 }).notNull(),
   district: varchar('district', { length: 100 }).notNull(),
   neighborhoodId: integer('neighborhood_id')
@@ -42,46 +40,46 @@ export const postings = pgTable('postings', {
   latitude: numeric('latitude', { precision: 10, scale: 7 }).notNull(),
   longitude: numeric('longitude', { precision: 10, scale: 7 }).notNull(),
 
-  // Pricing
-  rentAmount: integer('rent_amount'),
-  depositAmount: integer('deposit_amount'),
-  billsIncluded: boolean('bills_included').default(false),
+  // Pricing (REQUIRED)
+  rentAmount: integer('rent_amount').notNull(),
+  depositAmount: integer('deposit_amount').notNull(),
+  billsIncluded: boolean('bills_included').default(false).notNull(),
 
-  // Property Details
-  roomCount: integer('room_count'),
-  bathroomCount: integer('bathroom_count'),
-  squareMeters: integer('square_meters'),
-  floor: integer('floor'),
-  totalFloors: integer('total_floors'),
-  isFurnished: boolean('is_furnished'),
-  hasBalcony: boolean('has_balcony'),
-  hasParking: boolean('has_parking'),
-  hasElevator: boolean('has_elevator'),
+  // Property Details (REQUIRED)
+  roomCount: integer('room_count').notNull(),
+  bathroomCount: integer('bathroom_count').notNull(),
+  squareMeters: integer('square_meters').notNull(),
+  floor: integer('floor').notNull(),
+  totalFloors: integer('total_floors').notNull(),
+  isFurnished: boolean('is_furnished').notNull(),
+  hasBalcony: boolean('has_balcony').notNull(),
+  hasParking: boolean('has_parking').notNull(),
+  hasElevator: boolean('has_elevator').notNull(),
 
-  // Occupancy
+  // Occupancy (OPTIONAL - depends on posting type)
   currentOccupants: integer('current_occupants'),
   totalCapacity: integer('total_capacity'),
   availableRooms: integer('available_rooms'),
 
-  // Current Occupants Demographics
+  // Current Occupants Demographics (OPTIONAL)
   occupantGenderComposition: occupantGenderCompositionEnum(
     'occupant_gender_composition',
   ),
   occupantAgeRange: ageRangeEnum('occupant_age_range'),
 
   // Roommate Preferences
-  preferredRoommateGender: genderPreferenceEnum('preferred_roommate_gender'),
+  preferredRoommateGender: genderPreferenceEnum(
+    'preferred_roommate_gender',
+  ).notNull(),
   preferredRoommateAgeRange: ageRangeEnum('preferred_roommate_age_range'),
 
-  // Lifestyle Preferences
-  preferredSmokingHabit: smokingHabitEnum('preferred_smoking_habit'),
-  currentSmokingHabit: smokingHabitEnum('current_smoking_habit'),
-  preferredPetCompatibility: petCompatibilityEnum(
-    'preferred_pet_compatibility',
-  ),
+  smokingAllowed: boolean('smoking_allowed'), //TODO it can be enum. e.g not allowed common spaces etc.
+  alcoholFriendly: boolean('alcohol_friendly'),
+  hasPets: boolean('has_pets'),
+
   currentPetOwnership: petOwnershipEnum('current_pet_ownership'),
 
-  // Dates
+  // Dates (REQUIRED)
   availableFrom: timestamp('available_from', { withTimezone: true }).notNull(),
   availableUntil: timestamp('available_until', { withTimezone: true }),
 

@@ -10,6 +10,7 @@ import { ACCOUNT_STATUS } from 'src/constants/enums';
 import {
   accountStatusEnum,
   ageRangeEnum,
+  alcoholConsumptionEnum,
   genderEnum,
   genderPreferenceEnum,
   housingSearchTypeEnum,
@@ -74,5 +75,6 @@ export const preferences = pgTable('preferences', {
   smokingHabit: smokingHabitEnum('smoking_habit'),
   petOwnership: petOwnershipEnum('pet_ownership'),
   petCompatibility: petCompatibilityEnum('pet_compatibility'),
+  alcoholConsumption: alcoholConsumptionEnum('alcohol_consumption'),
   ...timestamps,
 });
