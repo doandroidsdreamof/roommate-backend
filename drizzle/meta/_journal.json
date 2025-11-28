@@ -57,6 +57,13 @@
       "when": 1764346598666,
       "tag": "0007_broken_supreme_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764350595917,
+      "tag": "0008_late_dagger",
+      "breakpoints": true
     }
   ]
 }

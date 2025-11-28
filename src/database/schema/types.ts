@@ -6,7 +6,7 @@ import {
   neighborhoods,
   provinces,
 } from './locations.schema';
-import { postings } from './postings.schema';
+import { postingImages, postings, postingSpecs } from './postings.schema';
 import { preferences, profile, users } from './users.schema';
 
 // User Types
@@ -26,3 +26,5 @@ export type Neighborhood = InferSelectModel<typeof neighborhoods>;
 
 // Posting Types
 export type Posting = InferSelectModel<typeof postings>;
+export type PostingSpecs = InferSelectModel<typeof postingSpecs>;
+export type PostingImage = InferSelectModel<typeof postingImages>;
