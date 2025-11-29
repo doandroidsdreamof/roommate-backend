@@ -3,15 +3,26 @@ import { createdAndUpdatedTimestamps } from './shared-types';
 
 /* 
 Location Hierarchy:
-provinces (il)
-└── counties (ilçe)
-    └── districts (belde / merkez / belediye)
-        └── neighborhoods (mahalle + posta kodu)
+countries (ülke)
+└── provinces (il)
+    └── counties (ilçe)
+        └── districts (belde / merkez / belediye)
+            └── neighborhoods (mahalle + posta kodu)
 */
+
+export const countries = pgTable('countries', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull().unique(),
+  code: char('code', { length: 2 }).notNull().unique(),
+  ...createdAndUpdatedTimestamps,
+});
 
 export const provinces = pgTable('provinces', {
   plateCode: integer('plate_code').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
+  countryId: integer('country_id')
+    .notNull()
+    .references(() => countries.id, { onDelete: 'restrict' }),
   ...createdAndUpdatedTimestamps,
 });
 

@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { DrizzleModule } from './database/drizzle.module';
 import { EmailModule } from './mail/email.module';
 import { UsersModule } from './users/users.module';
+import { PostingsModule } from './postings/postings.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module';
       }),
     }),
     EmailModule,
+    PostingsModule,
   ],
   controllers: [],
   providers: [],

@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import { refreshToken, verifications } from './auth.schema';
 import {
   counties,
+  countries,
   districts,
   neighborhoods,
   provinces,
@@ -16,7 +17,15 @@ import {
 } from './users.schema';
 
 // Location Relations
-export const provincesRelations = relations(provinces, ({ many }) => ({
+export const countriesRelations = relations(countries, ({ many }) => ({
+  provinces: many(provinces),
+}));
+
+export const provincesRelations = relations(provinces, ({ one, many }) => ({
+  country: one(countries, {
+    fields: [provinces.countryId],
+    references: [countries.id],
+  }),
   counties: many(counties),
 }));
 

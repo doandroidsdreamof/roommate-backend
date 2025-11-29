@@ -6,8 +6,10 @@ import {
   GENDER,
   GENDER_PREFERENCE,
   HOUSING_SEARCH_TYPE,
+  OCCUPANT_GENDER_COMPOSITION,
   PET_COMPATIBILITY,
   PET_OWNERSHIP,
+  POSTING_STATUS,
   SMOKING_HABIT,
   VERIFICATION_STATUS,
 } from 'src/constants/enums';
@@ -24,7 +26,6 @@ export const accountStatusEnum = pgEnum(
   getEnumValues(ACCOUNT_STATUS),
 );
 
-// User Profile
 export const ageRangeEnum = pgEnum('age_range', getEnumValues(AGE_RANGES));
 export const genderEnum = pgEnum('gender', getEnumValues(GENDER));
 
@@ -61,16 +62,14 @@ export const postingTypeEnum = pgEnum('posting_type', [
   'looking_for_roommate',
 ]);
 
-export const postingStatusEnum = pgEnum('posting_status', [
-  'active',
-  'inactive',
-  'rented',
-  'expired',
-]);
+export const postingStatusEnum = pgEnum(
+  'posting_status',
+  getEnumValues(POSTING_STATUS),
+);
 
 export const occupantGenderCompositionEnum = pgEnum(
   'occupant_gender_composition',
-  ['male_only', 'female_only', 'mixed', 'not_specified'],
+  getEnumValues(OCCUPANT_GENDER_COMPOSITION),
 );
 
 export const alcoholConsumptionEnum = pgEnum(

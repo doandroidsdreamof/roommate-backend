@@ -83,6 +83,7 @@ export class UsersController {
   }
 
   @Patch('preference')
+  @HttpCode(HttpStatus.OK)
   updatePreference(
     @AuthUser('sub') userId: string,
     @Body(new ZodValidationPipe(updatePreferencesSchema))
@@ -92,6 +93,7 @@ export class UsersController {
   }
 
   @Patch('profile/photo')
+  @HttpCode(HttpStatus.OK)
   updatePhoto(
     @AuthUser('sub') userId: string,
     @Body(new ZodValidationPipe(updateProfilePhotoSchema))
@@ -101,6 +103,7 @@ export class UsersController {
   }
 
   @Patch('profile/address')
+  @HttpCode(HttpStatus.OK)
   updateAddress(
     @AuthUser('sub') userId: string,
     @Body(new ZodValidationPipe(updateAddressSchema))

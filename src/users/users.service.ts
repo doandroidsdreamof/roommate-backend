@@ -6,7 +6,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -171,6 +171,26 @@ export class UsersService {
       userId,
       updatePreferencesDto,
     );
+  }
+
+  async incrementPostingCount(userId: string): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({ postingCount: sql`${schema.users.postingCount} + 1` })
+      .where(eq(schema.users.id, userId));
+
+    this.logger.debug(`Incremented posting count for user ${userId}`);
+  }
+
+  async decrementPostingCount(userId: string): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({
+        postingCount: sql`GREATEST(${schema.users.postingCount} - 1, 0)`, // Prevent negative
+      })
+      .where(eq(schema.users.id, userId));
+
+    this.logger.debug(`Decremented posting count for user ${userId}`);
   }
 
   private async validateUserExists(userId: string): Promise<void> {

@@ -1,5 +1,6 @@
 import {
   boolean,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -30,7 +31,8 @@ export const users = pgTable('users', {
   isEmailVerified: boolean('is_email_verified').default(false).notNull(),
   isPhoneVerified: boolean('is_phone_verified').default(false).notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
-  isAnonymized: boolean('is_anonymized').default(false).notNull(),
+  isAnonymized: boolean('is_anonymized').default(false).notNull(), //* for analytics etc.
+  postingCount: integer('posting_count').default(0).notNull(),
   ...createdAndUpdatedTimestamps,
 });
 

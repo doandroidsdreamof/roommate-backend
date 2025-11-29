@@ -37,6 +37,7 @@
 - [x] Token rotation on refresh
 - [ ] Seeder for locations
 - [ ] Swagger setup
+- [ ] Consistent return types
 - [x] `POST /auth/refresh` endpoint
 - [x] `POST /auth/logout` endpoint
 
@@ -59,7 +60,6 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Profile CRUD endpoints
 - [x] Preferences schema
 - [x] Preferences CRUD endpoints
-- [ ] Pagination (posting lists)
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
@@ -71,7 +71,11 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 ### Tasks
 
 - [x] Posting schema based on location
-- [ ] Posting CRUD endpoints
+- [x] Posting create/updated CRUD endpoints
+- [ ] Posting image update CRUD endpoints
+- [ ] Posting delete/posting_status
+- [ ] Pagination (posting lists)
+- [x] Preventing multiple postings in the same location
 - [ ] Bookmark feature and count of it for posts
 - [x] Posting type (offering_room, looking_for_room, looking_for_roommate)
 - [x] Posting status (active/inactive/rented)

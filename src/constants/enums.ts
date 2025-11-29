@@ -69,3 +69,22 @@ export const ALCOHOL_CONSUMPTION = {
   SOCIALLY: 'socially',
   REGULARLY: 'regularly',
 } as const;
+
+// Add these missing enums
+export const POSTING_TYPE = {
+  OFFERING_ROOM: 'offering_room',
+  LOOKING_FOR_ROOM: 'looking_for_room',
+  LOOKING_FOR_ROOMMATE: 'looking_for_roommate',
+} as const;
+
+export const POSTING_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  RENTED: 'rented',
+} as const;
+
+export const OCCUPANT_GENDER_COMPOSITION = {
+  ALL_MALE: 'all_male',
+  ALL_FEMALE: 'all_female',
+  MIXED: 'mixed',
+} as const;
