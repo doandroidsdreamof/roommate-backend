@@ -7,7 +7,13 @@ import {
   provinces,
 } from './locations.schema';
 import { postingImages, postings, postingSpecs } from './postings.schema';
-import { preferences, profile, userBookmarks, users } from './users.schema';
+import {
+  preferences,
+  profile,
+  userBlocks,
+  userBookmarks,
+  users,
+} from './users.schema';
 
 // User Types
 export type User = InferSelectModel<typeof users>;
@@ -29,3 +35,4 @@ export type Posting = InferSelectModel<typeof postings>;
 export type PostingSpecs = InferSelectModel<typeof postingSpecs>;
 export type PostingImage = InferSelectModel<typeof postingImages>;
 export type UserBookmark = InferSelectModel<typeof userBookmarks>;
+export type UserBlocks = InferSelectModel<typeof userBlocks>;

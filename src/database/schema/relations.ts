@@ -7,7 +7,13 @@ import {
   provinces,
 } from './locations.schema';
 import { postingImages, postings, postingSpecs } from './postings.schema';
-import { preferences, profile, userBookmarks, users } from './users.schema';
+import {
+  preferences,
+  profile,
+  userBlocks,
+  userBookmarks,
+  users,
+} from './users.schema';
 
 // Location Relations
 export const provincesRelations = relations(provinces, ({ many }) => ({
@@ -111,5 +117,16 @@ export const userBookmarksRelations = relations(userBookmarks, ({ one }) => ({
   posting: one(postings, {
     fields: [userBookmarks.postingId],
     references: [postings.id],
+  }),
+}));
+
+export const userBlocksRelations = relations(userBlocks, ({ one }) => ({
+  blocker: one(users, {
+    fields: [userBlocks.blockerId],
+    references: [users.id],
+  }),
+  blocked: one(users, {
+    fields: [userBlocks.blockedId],
+    references: [users.id],
   }),
 }));

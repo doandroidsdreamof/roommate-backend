@@ -83,3 +83,14 @@ export const userBookmarks = pgTable('user_bookmarks', {
   notes: text('notes'),
   ...createdAndUpdatedTimestamps,
 });
+
+export const userBlocks = pgTable('user_blocks', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  blockerId: uuid('blocker_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  blockedId: uuid('blocked_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  ...createdAndUpdatedTimestamps,
+});

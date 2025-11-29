@@ -133,7 +133,7 @@ Flow:
 
 ### Tasks
 
-- [ ] Block user endpoint
+- [x] Block/unblock user endpoint
 - [ ] Rate limiting (Redis)
 - [ ] Bot prevention
 

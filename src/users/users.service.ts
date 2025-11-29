@@ -1,5 +1,12 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -14,6 +21,7 @@ import {
 } from './dto/profile-dto';
 import { PreferenceService } from './services/preference.service';
 import { ProfileService } from './services/profile.service';
+import { BlockUserDto } from './dto/blocks.dto';
 
 @Injectable()
 export class UsersService {
@@ -52,6 +60,56 @@ export class UsersService {
     });
 
     return user ?? null;
+  }
+
+  async blockUser(userId: string, blockUserDto: BlockUserDto) {
+    const { blockedId } = blockUserDto;
+
+    if (userId === blockedId) {
+      throw new BadRequestException();
+    }
+
+    const isBlockExist = await this.db.query.userBlocks.findFirst({
+      where: and(
+        eq(schema.userBlocks.blockerId, userId),
+        eq(schema.userBlocks.blockedId, blockedId),
+      ),
+    });
+
+    if (isBlockExist) {
+      throw new ConflictException();
+    }
+
+    await this.db.insert(schema.userBlocks).values({
+      blockedId: blockedId,
+      blockerId: userId,
+    });
+
+    return { message: 'User blocked successfully' };
+  }
+
+  async unblockUser(userId: string, unblockUserDto: BlockUserDto) {
+    const { blockedId } = unblockUserDto;
+
+    if (userId === blockedId) {
+      throw new BadRequestException();
+    }
+
+    const result = await this.db
+      .delete(schema.userBlocks)
+      .where(
+        and(
+          eq(schema.userBlocks.blockedId, blockedId),
+          eq(schema.userBlocks.blockerId, userId),
+        ),
+      )
+      .returning();
+
+    if (result.length === 0) {
+      throw new NotFoundException('Block not found');
+    }
+
+    return { message: 'User unblocked successfully' };
   }
 
   async createProfile(userId: string, createProfileDto: CreateProfileDto) {

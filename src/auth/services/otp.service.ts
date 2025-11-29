@@ -16,6 +16,7 @@ export class OtpService {
   ) {}
 
   async insertOtp(email: string, optCode: string) {
+    //* onConflictDoUpdate => equivalent of the upsert
     const [result] = await this.db
       .insert(schema.verifications)
       .values({
