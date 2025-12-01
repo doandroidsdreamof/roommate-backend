@@ -35,7 +35,7 @@
 
 - [x] JWT Guard decorator
 - [x] Token rotation on refresh
-- [ ] Seeder for locations
+- [ ] Seeder for locations & prod strategy
 - [ ] Swagger setup
 - [ ] Consistent return types
 - [x] `POST /auth/refresh` endpoint
@@ -75,8 +75,9 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Posting image update CRUD endpoints
 - [x] Posting delete/posting_status
 - [ ] Pagination (posting lists)
+- [ ] Pagination GET bookmarks
 - [x] Preventing multiple postings in the same location
-- [ ] Bookmark feature and count of it for posts
+- [x] Bookmark feature and count of it for posts
 - [x] Posting type (offering_room, looking_for_room, looking_for_roommate)
 - [x] Posting status (active/inactive/rented)
 

@@ -28,6 +28,7 @@ import {
   updatePreferencesSchema,
 } from './dto/preference.dto';
 import { BlockUserDto, blockUserSchema } from './dto/blocks.dto';
+import { bookmarkPostingSchema, BookmarkPostingDto } from './dto/bookmarks.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -110,5 +111,30 @@ export class UsersController {
     updateAddressDto: UpdateAddressDto,
   ) {
     return this.usersService.updateAddress(userId, updateAddressDto);
+  }
+
+  @Post('bookmarks')
+  @HttpCode(HttpStatus.CREATED)
+  bookmarkPosting(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(bookmarkPostingSchema))
+    bookmarkDto: BookmarkPostingDto,
+  ) {
+    return this.usersService.bookmarkPosting(userId, bookmarkDto);
+  }
+
+  @Delete('bookmarks')
+  @HttpCode(HttpStatus.OK)
+  unbookmarkPosting(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(bookmarkPostingSchema))
+    bookmarkDto: BookmarkPostingDto,
+  ) {
+    return this.usersService.unbookmarkPosting(userId, bookmarkDto);
+  }
+  @Get('bookmarks')
+  @HttpCode(HttpStatus.OK)
+  getUserBookmarks(@AuthUser('sub') userId: string) {
+    return this.usersService.getUserBookmarks(userId);
   }
 }

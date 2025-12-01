@@ -82,7 +82,6 @@ export const userBookmarks = pgTable('user_bookmarks', {
   postingId: uuid('posting_id')
     .notNull()
     .references(() => postings.id, { onDelete: 'cascade' }),
-  notes: text('notes'),
   ...createdAndUpdatedTimestamps,
 });
 

@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,6 +23,7 @@ import {
 import { PreferenceService } from './services/preference.service';
 import { ProfileService } from './services/profile.service';
 import { BlockUserDto } from './dto/blocks.dto';
+import { BookmarkPostingDto } from './dto/bookmarks.dto';
 
 @Injectable()
 export class UsersService {
@@ -198,5 +200,129 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+  }
+
+  async bookmarkPosting(userId: string, bookmarkDto: BookmarkPostingDto) {
+    const { postingId } = bookmarkDto;
+
+    // TODO code duplication and ownership guards
+    const posting = await this.db.query.postings.findFirst({
+      where: and(
+        eq(schema.postings.id, postingId),
+        sql`${schema.postings.deletedAt} IS NULL`,
+      ),
+    });
+
+    if (!posting) {
+      throw new NotFoundException();
+    }
+
+    const existingBookmark = await this.db.query.userBookmarks.findFirst({
+      where: and(
+        eq(schema.userBookmarks.userId, userId),
+        eq(schema.userBookmarks.postingId, postingId),
+      ),
+    });
+
+    if (existingBookmark) {
+      throw new ConflictException('Posting already bookmarked');
+    }
+
+    try {
+      await this.db.transaction(async (tx) => {
+        // Create bookmark
+        await tx.insert(schema.userBookmarks).values({
+          userId,
+          postingId,
+        });
+
+        // Increment bookmark count
+        await tx
+          .update(schema.postings)
+          .set({
+            bookmarkCount: sql`${schema.postings.bookmarkCount} + 1`,
+          })
+          .where(eq(schema.postings.id, postingId));
+      });
+
+      return {
+        message: 'Posting bookmarked successfully',
+      };
+    } catch (error) {
+      this.logger.error('Failed to bookmark posting', error);
+      throw new InternalServerErrorException('Failed to bookmark posting');
+    }
+  }
+
+  async unbookmarkPosting(userId: string, bookmarkDto: BookmarkPostingDto) {
+    const { postingId } = bookmarkDto;
+
+    const existingBookmark = await this.db.query.userBookmarks.findFirst({
+      where: and(
+        eq(schema.userBookmarks.userId, userId),
+        eq(schema.userBookmarks.postingId, postingId),
+      ),
+    });
+
+    if (!existingBookmark) {
+      throw new NotFoundException();
+    }
+
+    try {
+      await this.db.transaction(async (tx) => {
+        await tx
+          .delete(schema.userBookmarks)
+          .where(eq(schema.userBookmarks.id, existingBookmark.id));
+
+        // Decrement bookmark count
+        await tx
+          .update(schema.postings)
+          .set({
+            bookmarkCount: sql`GREATEST(${schema.postings.bookmarkCount} - 1, 0)`,
+          })
+          .where(eq(schema.postings.id, postingId));
+      });
+
+      return {
+        message: 'Posting unbookmarked successfully',
+      };
+    } catch (error) {
+      this.logger.error('Failed to unbookmark posting', error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  // TODO pagination
+  async getUserBookmarks(userId: string) {
+    const bookmarks = await this.db.query.userBookmarks.findMany({
+      where: eq(schema.userBookmarks.userId, userId),
+      with: {
+        posting: {
+          columns: {
+            id: true,
+            title: true,
+            coverImageUrl: true,
+            city: true,
+            district: true,
+            rentAmount: true,
+            availableFrom: true,
+            viewCount: true,
+            status: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: (bookmarks, { desc }) => [desc(bookmarks.createdAt)],
+    });
+
+    return {
+      bookmarks: bookmarks.map((b) => ({
+        id: b.id,
+        postingId: b.postingId,
+        bookmarkedAt: b.createdAt,
+        posting: b.posting,
+      })),
+      total: bookmarks.length,
+    };
   }
 }
