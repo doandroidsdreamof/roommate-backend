@@ -49,18 +49,18 @@ export class UsersController {
   blockUser(
     @AuthUser('sub') userId: string,
     @Body(new ZodValidationPipe(blockUserSchema))
-    bkockUserDTO: BlockUserDto,
+    blockUserDto: BlockUserDto,
   ) {
-    return this.usersService.blockUser(userId, bkockUserDTO);
+    return this.usersService.blockUser(userId, blockUserDto);
   }
 
   @Delete('unblock')
   unblockUser(
     @AuthUser('sub') userId: string,
     @Body(new ZodValidationPipe(blockUserSchema))
-    bkockUserDTO: BlockUserDto,
+    blockUserDto: BlockUserDto,
   ) {
-    return this.usersService.unblockUser(userId, bkockUserDTO);
+    return this.usersService.unblockUser(userId, blockUserDto);
   }
 
   @Get('profile')

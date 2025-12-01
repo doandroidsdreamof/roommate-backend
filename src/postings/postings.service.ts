@@ -12,7 +12,13 @@ import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { validateOwnership } from 'src/helpers/validateOwnership';
 import { UsersService } from 'src/users/users.service';
-import { CreatePostingDto, UpdatePostingDto } from './dto/postings.dto';
+import {
+  ClosePostingDto,
+  CreatePostingDto,
+  UpdatePostingDto,
+  UpdatePostingImagesDto,
+} from './dto/postings.dto';
+import { POSTING_STATUS } from 'src/constants/enums';
 
 @Injectable()
 export class PostingsService {
@@ -40,6 +46,7 @@ export class PostingsService {
             ...postingData,
             latitude: postingData.latitude.toString(),
             longitude: postingData.longitude.toString(),
+            status: POSTING_STATUS.ACTIVE,
             availableFrom: new Date(postingData.availableFrom),
           })
           .returning();
@@ -62,13 +69,10 @@ export class PostingsService {
         // 3. Insert posting images (if existed)
         if (images && images.length > 0) {
           this.logger.debug(`Inserting ${images.length} images...`);
-          await tx.insert(schema.postingImages).values(
-            images.map((img, index) => ({
-              postingSpecsId: postingSpec.id,
-              imageUrl: img.url,
-              displayOrder: index,
-            })),
-          );
+          await tx.insert(schema.postingImages).values({
+            postingSpecsId: postingSpec.id,
+            images: images,
+          });
           this.logger.debug(`${images.length} images inserted`);
         }
 
@@ -181,5 +185,87 @@ export class PostingsService {
         'You already have an active posting in this neighborhood. Please deactivate it before creating a new one.',
       );
     }
+  }
+
+  async updatePostingsImages(
+    userId: string,
+    postingId: string,
+    postingImageDto: UpdatePostingImagesDto,
+  ) {
+    const { postingImageId, images } = postingImageDto;
+    const existingPosting = await this.findPostingById(postingId);
+    validateOwnership(existingPosting.userId, userId, 'posting_image');
+
+    const currentRecord = await this.db
+      .select({ images: schema.postingImages.images })
+      .from(schema.postingImages)
+      .where(eq(schema.postingImages.id, postingImageId))
+      .limit(1);
+
+    if (!currentRecord[0]) {
+      throw new NotFoundException();
+    }
+    //* do not update if there is no URL change
+    const hasChanges = images.some((newImg) => {
+      const existingImg = currentRecord[0].images.find(
+        (img) => img.order === newImg.order,
+      );
+      return !existingImg || existingImg.url !== newImg.url;
+    });
+
+    if (!hasChanges) {
+      return { message: 'No changes detected' };
+    }
+
+    // TODO test for SQL injection
+    await this.db
+      .update(schema.postingImages)
+      .set({
+        images: sql`(
+        SELECT jsonb_agg(
+          COALESCE(
+            (
+              SELECT to_jsonb(u)
+              FROM jsonb_to_recordset(${JSON.stringify(images)}::jsonb) 
+                AS u(url text, "order" int)
+              WHERE u.order = (elem->>'order')::int
+            ),
+            elem
+          )
+          ORDER BY (elem->>'order')::int
+        )
+        FROM jsonb_array_elements(images) elem
+      )`,
+      })
+      .where(eq(schema.postingImages.id, postingImageId));
+  }
+
+  async closePosting(
+    userId: string,
+    postingId: string,
+    closePostingDto: ClosePostingDto,
+  ) {
+    const { status } = closePostingDto;
+    const existingPosting = await this.findPostingById(postingId);
+
+    validateOwnership(existingPosting.userId, userId, 'posting');
+
+    if (existingPosting.deletedAt) {
+      throw new ConflictException('Posting is already closed');
+    }
+
+    await this.db
+      .update(schema.postings)
+      .set({
+        status,
+        deletedAt: new Date(),
+      })
+      .where(eq(schema.postings.id, postingId));
+
+    this.logger.log(`Posting ${postingId} closed with status: ${status}`);
+
+    return {
+      message: `Posting closed successfully as ${status}`,
+    };
   }
 }

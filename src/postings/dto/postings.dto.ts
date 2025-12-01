@@ -1,25 +1,44 @@
 import { z } from 'zod';
 import {
   POSTING_TYPE,
-  POSTING_STATUS,
   GENDER_PREFERENCE,
   AGE_RANGES,
   OCCUPANT_GENDER_COMPOSITION,
   PET_OWNERSHIP,
+  POSTING_STATUS,
 } from 'src/constants/enums';
 import { getEnumValues } from 'src/helpers/getEnumValues';
 
-const postingTypeValues = getEnumValues(POSTING_TYPE);
-const postingStatusValues = getEnumValues(POSTING_STATUS);
 const genderPreferenceValues = getEnumValues(GENDER_PREFERENCE);
 const ageRangeValues = getEnumValues(AGE_RANGES);
 const occupantGenderCompositionValues = getEnumValues(
   OCCUPANT_GENDER_COMPOSITION,
 );
+const postingTypeValues = getEnumValues(POSTING_TYPE);
 const petOwnershipValues = getEnumValues(PET_OWNERSHIP);
 
-const postingImageSchema = z.object({
+const closeStatusValues = [
+  POSTING_STATUS.INACTIVE,
+  POSTING_STATUS.RENTED,
+] as const;
+
+export const closePostingSchema = z.object({
+  status: z.enum(closeStatusValues, {
+    message: 'Status must be either inactive or rented',
+  }),
+});
+
+export const postingImageSchema = z.object({
   url: z.url('Must be a valid URL'),
+  order: z.number().max(5), // TODO hardcoded config. It will be change based on scale of app
+});
+
+export const postingImageUpdateSchema = z.object({
+  postingImageId: z.uuid(),
+  images: z
+    .array(postingImageSchema)
+    .max(5, 'Maximum 5 images allowed')
+    .optional(),
 });
 
 const postingsSpecsSchema = z.object({
@@ -73,7 +92,7 @@ export const createPostingSchema = z.object({
   specs: postingsSpecsSchema,
   images: z
     .array(postingImageSchema)
-    .max(10, 'Maximum 10 images allowed')
+    .max(5, 'Maximum 5 images allowed') // TODO hardcoded config
     .optional(),
 });
 
@@ -100,3 +119,5 @@ export const updatePostingSchema = z
 
 export type CreatePostingDto = z.infer<typeof createPostingSchema>;
 export type UpdatePostingDto = z.infer<typeof updatePostingSchema>;
+export type UpdatePostingImagesDto = z.infer<typeof postingImageUpdateSchema>;
+export type ClosePostingDto = z.infer<typeof closePostingSchema>;

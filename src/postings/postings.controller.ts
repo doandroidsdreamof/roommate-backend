@@ -12,9 +12,13 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
 import {
+  ClosePostingDto,
+  closePostingSchema,
   CreatePostingDto,
   createPostingSchema,
+  postingImageUpdateSchema,
   UpdatePostingDto,
+  UpdatePostingImagesDto,
   updatePostingSchema,
 } from './dto/postings.dto';
 import { PostingsService } from './postings.service';
@@ -43,5 +47,35 @@ export class PostingsController {
     updatePostingDto: UpdatePostingDto,
   ) {
     return this.postingsService.update(userId, postingId, updatePostingDto);
+  }
+
+  @Patch(':id/images')
+  @HttpCode(HttpStatus.OK)
+  updateImages(
+    @AuthUser('sub') userId: string,
+    @Param('id') postingId: string,
+    @Body(new ZodValidationPipe(postingImageUpdateSchema))
+    updatePostingImageDto: UpdatePostingImagesDto,
+  ) {
+    return this.postingsService.updatePostingsImages(
+      userId,
+      postingId,
+      updatePostingImageDto,
+    );
+  }
+
+  @Patch(':id/close')
+  @HttpCode(HttpStatus.OK)
+  close(
+    @AuthUser('sub') userId: string,
+    @Param('id') postingId: string,
+    @Body(new ZodValidationPipe(closePostingSchema))
+    closePostingDto: ClosePostingDto,
+  ) {
+    return this.postingsService.closePosting(
+      userId,
+      postingId,
+      closePostingDto,
+    );
   }
 }

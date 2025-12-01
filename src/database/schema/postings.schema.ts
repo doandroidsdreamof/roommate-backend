@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  jsonb,
   numeric,
   pgTable,
   text,
@@ -25,9 +26,10 @@ export const postingImages = pgTable('posting_images', {
   postingSpecsId: uuid('posting_specs_id')
     .notNull()
     .references(() => postingSpecs.id, { onDelete: 'cascade' }),
-  imageUrl: text('image_url').notNull(),
+  images: jsonb('images')
+    .$type<Array<{ url: string; order: number }>>()
+    .notNull(),
   isVerified: boolean('is_verified').default(false),
-  displayOrder: integer('display_order').notNull(),
   ...createdAndUpdatedTimestamps,
 });
 

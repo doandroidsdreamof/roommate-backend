@@ -72,8 +72,8 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [x] Posting schema based on location
 - [x] Posting create/updated CRUD endpoints
-- [ ] Posting image update CRUD endpoints
-- [ ] Posting delete/posting_status
+- [x] Posting image update CRUD endpoints
+- [x] Posting delete/posting_status
 - [ ] Pagination (posting lists)
 - [x] Preventing multiple postings in the same location
 - [ ] Bookmark feature and count of it for posts
