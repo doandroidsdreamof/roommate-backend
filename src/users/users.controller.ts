@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -134,7 +135,10 @@ export class UsersController {
   }
   @Get('bookmarks')
   @HttpCode(HttpStatus.OK)
-  getUserBookmarks(@AuthUser('sub') userId: string) {
-    return this.usersService.getUserBookmarks(userId);
+  getUserBookmarks(
+    @AuthUser('sub') userId: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    return this.usersService.getUserBookmarks(userId, cursor, 20); // TODO hardcoded argument
   }
 }

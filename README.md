@@ -75,7 +75,8 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Posting image update CRUD endpoints
 - [x] Posting delete/posting_status
 - [ ] Pagination (posting lists)
-- [ ] Pagination GET bookmarks
+- [x] Pagination GET bookmarks
+- [ ] Search and Filtering endpoints for bookmarks
 - [x] Preventing multiple postings in the same location
 - [x] Bookmark feature and count of it for posts
 - [x] Posting type (offering_room, looking_for_room, looking_for_roommate)
@@ -175,7 +176,6 @@ Limits:
 - [ ] Nginx SSL configuration (Let's Encrypt)
 - [x] GitHub Actions CI
 - [ ] GitHub Actions CD
-- [ ] Database migration strategy
 - [ ] Health check endpoints
 - [ ] Structured logging
 - [ ] Backup strategy (cron)

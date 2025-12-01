@@ -17,6 +17,8 @@ const occupantGenderCompositionValues = getEnumValues(
 const postingTypeValues = getEnumValues(POSTING_TYPE);
 const petOwnershipValues = getEnumValues(PET_OWNERSHIP);
 
+// TODO test iso.datetime() <=> z.iso.datetime({ offset: true })
+
 const closeStatusValues = [
   POSTING_STATUS.INACTIVE,
   POSTING_STATUS.RENTED,

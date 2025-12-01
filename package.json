@@ -28,8 +28,8 @@
     "docker-up:prod": "NODE_ENV=production docker compose -f docker-compose.prod.yml up --build",
     "docker-up:prod:detached": "NODE_ENV=production docker compose -f docker-compose.prod.yml up -d --build",
     "docker-down:prod": "NODE_ENV=production docker compose -f docker-compose.prod.yml down",
-    "seed:locations": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/locations.seeder.ts"
-
+    "seed:locations": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/locations.seeder.ts",
+    "seed:bookmarks": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/bookmarks.seeder.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

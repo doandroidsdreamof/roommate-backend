@@ -292,10 +292,18 @@ export class UsersService {
     }
   }
 
-  // TODO pagination
-  async getUserBookmarks(userId: string) {
+  // TODO separated service for bookmarks
+  // TODO return last timeStamp as nextCursor
+  // TODO how to use with UUIDs => Composite Values?
+  // TODO tests for pagination
+  async getUserBookmarks(userId: string, cursor: string, limit = 20) {
     const bookmarks = await this.db.query.userBookmarks.findMany({
-      where: eq(schema.userBookmarks.userId, userId),
+      where: and(
+        eq(schema.userBookmarks.userId, userId),
+        cursor
+          ? sql`${schema.userBookmarks.createdAt} < ${new Date(cursor)}` //* is it safe?
+          : undefined,
+      ),
       with: {
         posting: {
           columns: {
@@ -313,16 +321,20 @@ export class UsersService {
         },
       },
       orderBy: (bookmarks, { desc }) => [desc(bookmarks.createdAt)],
+      limit: limit + 1,
     });
+    const hasMoreItem = bookmarks.length > limit;
+    const items = hasMoreItem ? bookmarks.slice(0, limit) : bookmarks;
 
     return {
-      bookmarks: bookmarks.map((b) => ({
+      bookmarks: items.map((b) => ({
         id: b.id,
         postingId: b.postingId,
         bookmarkedAt: b.createdAt,
         posting: b.posting,
       })),
       total: bookmarks.length,
+      hasMoreItem,
     };
   }
 }
