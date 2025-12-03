@@ -9,7 +9,7 @@ export const updateBookmarkNotesSchema = z.object({
 });
 
 export const paginationQuerySchema = z.object({
-  cursor: z.iso.datetime({ offset: true }), // 2020-01-01T06:15:00+02:00  ✅
+  cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
 });
 

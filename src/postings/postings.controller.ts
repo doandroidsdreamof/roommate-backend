@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -22,11 +24,16 @@ import {
   updatePostingSchema,
 } from './dto/postings.dto';
 import { PostingsService } from './postings.service';
+import { ListsService } from './services/lists.service';
+import { ListsQueryDto, listsQuerySchema } from './dto/lists.dto';
 
 @Controller('postings')
 @UseGuards(AuthGuard)
 export class PostingsController {
-  constructor(private readonly postingsService: PostingsService) {}
+  constructor(
+    private readonly postingsService: PostingsService,
+    private readonly listsService: ListsService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -77,5 +84,13 @@ export class PostingsController {
       postingId,
       closePostingDto,
     );
+  }
+
+  @Get('lists')
+  @HttpCode(HttpStatus.OK)
+  getLists(
+    @Query(new ZodValidationPipe(listsQuerySchema)) query: ListsQueryDto,
+  ) {
+    return this.listsService.getLists(query);
   }
 }

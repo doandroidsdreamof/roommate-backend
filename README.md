@@ -74,9 +74,9 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Posting create/updated CRUD endpoints
 - [x] Posting image update CRUD endpoints
 - [x] Posting delete/posting_status
-- [ ] Pagination (posting lists)
+- [x] Pagination (posting lists)
+- [ ] Search and Filtering endpoints for lists
 - [x] Pagination GET bookmarks
-- [ ] Search and Filtering endpoints for bookmarks
 - [x] Preventing multiple postings in the same location
 - [x] Bookmark feature and count of it for posts
 - [x] Posting type (offering_room, looking_for_room, looking_for_roommate)

@@ -11,6 +11,9 @@ import { and, eq, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { paginateResults } from 'src/helpers/cursorPagination';
+import { BlockUserDto } from './dto/blocks.dto';
+import { BookmarkPostingDto, PaginationQueryDto } from './dto/bookmarks.dto';
 import {
   CreatePreferencesDto,
   UpdatePreferencesDto,
@@ -22,8 +25,6 @@ import {
 } from './dto/profile-dto';
 import { PreferenceService } from './services/preference.service';
 import { ProfileService } from './services/profile.service';
-import { BlockUserDto } from './dto/blocks.dto';
-import { BookmarkPostingDto } from './dto/bookmarks.dto';
 
 @Injectable()
 export class UsersService {
@@ -296,7 +297,8 @@ export class UsersService {
   // TODO return last timeStamp as nextCursor
   // TODO how to use with UUIDs => Composite Values?
   // TODO tests for pagination
-  async getUserBookmarks(userId: string, cursor: string, limit = 20) {
+  async getUserBookmarks(userId: string, paginationDto: PaginationQueryDto) {
+    const { limit, cursor } = paginationDto;
     const bookmarks = await this.db.query.userBookmarks.findMany({
       where: and(
         eq(schema.userBookmarks.userId, userId),
@@ -323,9 +325,9 @@ export class UsersService {
       orderBy: (bookmarks, { desc }) => [desc(bookmarks.createdAt)],
       limit: limit + 1,
     });
-    const hasMoreItem = bookmarks.length > limit;
-    const items = hasMoreItem ? bookmarks.slice(0, limit) : bookmarks;
+    const { items, nextCursor, hasMore } = paginateResults(bookmarks, limit);
 
+    // TODO return type
     return {
       bookmarks: items.map((b) => ({
         id: b.id,
@@ -333,8 +335,8 @@ export class UsersService {
         bookmarkedAt: b.createdAt,
         posting: b.posting,
       })),
-      total: bookmarks.length,
-      hasMoreItem,
+      nextCursor,
+      hasMore,
     };
   }
 }

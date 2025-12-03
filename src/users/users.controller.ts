@@ -29,8 +29,14 @@ import {
   updatePreferencesSchema,
 } from './dto/preference.dto';
 import { BlockUserDto, blockUserSchema } from './dto/blocks.dto';
-import { bookmarkPostingSchema, BookmarkPostingDto } from './dto/bookmarks.dto';
+import {
+  bookmarkPostingSchema,
+  BookmarkPostingDto,
+  PaginationQueryDto,
+  paginationQuerySchema,
+} from './dto/bookmarks.dto';
 
+// TODO refactor child service bindings inject them like usersService
 @Controller('users')
 @UseGuards(AuthGuard)
 export class UsersController {
@@ -133,12 +139,14 @@ export class UsersController {
   ) {
     return this.usersService.unbookmarkPosting(userId, bookmarkDto);
   }
+  // TODO validation
   @Get('bookmarks')
   @HttpCode(HttpStatus.OK)
   getUserBookmarks(
     @AuthUser('sub') userId: string,
-    @Query('cursor') cursor?: string,
+    @Query(new ZodValidationPipe(paginationQuerySchema))
+    query: PaginationQueryDto,
   ) {
-    return this.usersService.getUserBookmarks(userId, cursor, 20); // TODO hardcoded argument
+    return this.usersService.getUserBookmarks(userId, query);
   }
 }
