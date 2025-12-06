@@ -2,7 +2,7 @@
 
 ## Architecture
 
-[![](https://mermaid.ink/img/pako:eNplT1tvgjAU_ivkPKMTkYt9WDLdsi3RRVcSklEfqhyRKNSUEnXqfx-X4XT24fSc73baIyxEiEBguRG7xYpLpXkDlmrFGW5iTFVQX7Mau2a0Vuvx9OZ5E3rSPqI43d-RPr2l6loBQQ0zSkcPo8Hsji_92ucL9YKyaE-T99l_1qeBj3MqFmtU2itXuOOHmyCf1il8Po_VeBo0DWNjzDIeYfYrb4hajmGcXcdUD7gwQVVv9lRIpZiITEUS6XQU_LWFFnSIZBwCUTJHHRKUCS9HOJYJDNQKE2RAijbkcs2ApefCs-XplxBJY5Mij1ZAlnyTFVO-DYs_P8c8kjy5oBLTEOVQ5KkCYphVBpAj7IG07K7Ztm3D7fZd0zRMy9XhAMTqGG3T6fX7tuk6vZ5hOWcdvqu1nbbrWOcfUQWmaw?type=png)](https://mermaid.live/edit#pako:eNplT1tvgjAU_ivkPKMTkYt9WDLdsi3RRVcSklEfqhyRKNSUEnXqfx-X4XT24fSc73baIyxEiEBguRG7xYpLpXkDlmrFGW5iTFVQX7Mau2a0Vuvx9OZ5E3rSPqI43d-RPr2l6loBQQ0zSkcPo8Hsji_92ucL9YKyaE-T99l_1qeBj3MqFmtU2itXuOOHmyCf1il8Po_VeBo0DWNjzDIeYfYrb4hajmGcXcdUD7gwQVVv9lRIpZiITEUS6XQU_LWFFnSIZBwCUTJHHRKUCS9HOJYJDNQKE2RAijbkcs2ApefCs-XplxBJY5Mij1ZAlnyTFVO-DYs_P8c8kjy5oBLTEOVQ5KkCYphVBpAj7IG07K7Ztm3D7fZd0zRMy9XhAMTqGG3T6fX7tuk6vZ5hOWcdvqu1nbbrWOcfUQWmaw)
+[![](https://mermaid.ink/img/pako:eNplT8tuwjAQ_JVozwERQl4-VGpp1VYqFTSRItXmYMgSIkiMHEdAKf_exCkUig_j3ZnZWfsAc5EgEFisxXa-5FIZ0QMrjPoM1xkWirbXtOUuFaPTuft-iaJx-G28p1mxuxHj8FpqURNU4_SGb-aMj6cwog0Y9-PX6X81DmmMs1DMV6iMZ65wy_dXQXHYpvDZLFOjCT0VjI2wLHmK5a_9JLR2TLLyMkY_4KxQjVd7NKMdY1GqVGI4eaN_Ze0FE1KZJUCUrNCEHGXOmxYOTQIDtcQcGZC6TLhcMWDFsZ7Z8OJTiPw0JkWVLoEs-Lqsu2qT1H9-zHgqeX5mJRYJyqGoCgWkH-gMIAfYAem4fbvrupbfD3zbtmzHN2EPxOlZXdsbBIFr-95gYDne0YQvvbbX9T3n-AMo16QL?type=png)](https://mermaid.live/edit#pako:eNplT8tuwjAQ_JVozwERQl4-VGpp1VYqFTSRItXmYMgSIkiMHEdAKf_exCkUig_j3ZnZWfsAc5EgEFisxXa-5FIZ0QMrjPoM1xkWirbXtOUuFaPTuft-iaJx-G28p1mxuxHj8FpqURNU4_SGb-aMj6cwog0Y9-PX6X81DmmMs1DMV6iMZ65wy_dXQXHYpvDZLFOjCT0VjI2wLHmK5a_9JLR2TLLyMkY_4KxQjVd7NKMdY1GqVGI4eaN_Ze0FE1KZJUCUrNCEHGXOmxYOTQIDtcQcGZC6TLhcMWDFsZ7Z8OJTiPw0JkWVLoEs-Lqsu2qT1H9-zHgqeX5mJRYJyqGoCgWkH-gMIAfYAem4fbvrupbfD3zbtmzHN2EPxOlZXdsbBIFr-95gYDne0YQvvbbX9T3n-AMo16QL)
 
 ---
 
@@ -30,16 +30,19 @@
 - [x] OTP generation and verification
 - [x] JWT access tokens
 - [x] Refresh tokens (hashed, 90-day expiry)
+- [x] JWT Guard decorator
+- [x] Token rotation on refresh
+- [x] `POST /auth/refresh` endpoint
+- [x] `POST /auth/logout` endpoint
 
 ### Remaining
 
-- [x] JWT Guard decorator
-- [x] Token rotation on refresh
-- [ ] Seeder for locations & prod strategy
+- [x] Seeder for locations
 - [ ] Swagger setup
 - [ ] Consistent return types
-- [x] `POST /auth/refresh` endpoint
-- [x] `POST /auth/logout` endpoint
+- [ ] Image upload service
+- [ ] Image compression
+- [ ] NSFW filtering
 
 ### Notes
 
@@ -60,9 +63,6 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Profile CRUD endpoints
 - [x] Preferences schema
 - [x] Preferences CRUD endpoints
-- [ ] Image upload service
-- [ ] Image compression
-- [ ] NSFW filtering
 
 ## Phase 3: Postings
 
@@ -75,6 +75,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Posting image update CRUD endpoints
 - [x] Posting delete/posting_status
 - [x] Pagination (posting lists)
+- [ ] Location endpoint for getting neighborhoodsID
 - [ ] Search and Filtering endpoints for lists
 - [x] Pagination GET bookmarks
 - [x] Preventing multiple postings in the same location
@@ -88,18 +89,60 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ### Tasks
 
-- [ ] Location-based feed
-- [ ] Swipe actions (like/pass)
-- [ ] Match on mutual like
-- [ ] Preference filtering
-- [ ] Exclude seen/blocked users
+#### Core
+
+- [ ] `swipes` table
+- [ ] `matches` table
+- [ ] `POST /swipes` endpoint
+- [ ] `GET /matches` endpoint (list matches)
+- [ ] `DELETE /matches/:id` endpoint (unmatch)
+
+#### Feed Generation
+
+- [ ] `GET /discovery/feed` endpoint
+- [ ] Location-based filtering
+- [ ] Gender preference filtering
+- [ ] Budget/lifestyle preference filtering
+- [ ] Exclude swiped profiles
+- [ ] Exclude blocked users (bidirectional)
+- [ ] Pagination support
+
+#### Ranking Algorithm
+
+- [ ] Basic scoring system:
+  - Location match
+  - Preference compatibility
+  - Profile popularity
+  - Recent activity
+- [ ] ORDER BY score logic
+
+#### Optimizations
+
+- [ ] Redis cache for "swiped users" sets
+- [ ] Query indexes on swipes table
+- [ ] Archive old swipes (>6 months)
+
+#### Analytics
+
+- [ ] Track swipe behavior (view duration, time to decision)
+- [ ] Track match quality (unmatch rate, time to unmatch)
+- [ ] Monitor algorithm effectiveness
+
+### Edge Cases
+
+- [ ] Self-swipe prevention
+- [ ] Duplicate swipe prevention
+- [ ] Race condition on match creation
+- [ ] Deleted/blocked user handling
+- [ ] Re-match after unmatch
 
 ### Algorithm Phases
 
 ```
-Phase 1: Proximity + basic filters
-Phase 2: Lifestyle preference scoring
-Phase 3: ML recommendations (future)
+Phase 1: Location + basic filters
+Phase 2: + Lifestyle preference scoring
+Phase 3: + Collaborative filtering (Apache AGE extension?)
+Phase 4: + ML recommendations (future)
 ```
 
 ---
@@ -131,6 +174,32 @@ Flow:
   2. Sender encrypts message on their phone
   3. Server stores encrypted message (until it is delivered e.g. for offline users)
   4. Receiver decrypts on their phone
+```
+
+## Phase 5.5: Notifications
+
+> Push notifications for matches and messages when users are offline.
+
+### Tasks
+
+- [ ] `user_devices` table (device_token, platform, user_id)
+- [ ] `notifications` table (user_id, type, title, body, read_at, created_at)
+- [ ] `POST /devices/register` endpoint
+- [ ] `GET /notifications` endpoint
+- [ ] `PUT /notifications/:id/read` endpoint
+- [ ] RabbitMQ notification consumer
+- [ ] FCM integration (Android push)
+- [ ] APNs integration (iOS push)
+- [ ] Firebase project setup
+- [ ] APNs certificate setup
+- [ ] Rate limiting (max 5 push/day per user)
+- [ ] Auto-delete notifications older than 30 days
+
+### Notification Types
+
+```
+- New match (when offline)
+- New message (when offline)
 ```
 
 ## Phase 6: Safety & Moderation

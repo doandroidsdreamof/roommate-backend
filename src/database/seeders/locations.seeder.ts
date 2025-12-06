@@ -2,21 +2,158 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '../schema';
 import 'dotenv/config';
+import * as fs from 'fs';
+import * as path from 'path';
 
-// TODO use all data
-async function seedLocations() {
-  const connectionString = process.env.DATABASE_URL_LOCAL;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL_LOCAL,
+});
 
-  console.log('seeder ~ process.env.DATABASE_URL:', connectionString);
+const db = drizzle(pool, { schema });
 
-  const pool = new Pool({
-    connectionString: connectionString,
-  });
-
-  const db = drizzle(pool, { schema });
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function clearLocationData() {
   try {
-    console.log('Seeding country...');
+    console.log('🗑️  Clearing all location data...\n');
+    console.log('Deleting neighborhoods...');
+    await db.delete(schema.neighborhoods);
+    console.log(`✓ Deleted neighborhoods`);
+    console.log('Deleting districts...');
+    await db.delete(schema.districts);
+    console.log(`✓ Deleted districts`);
+    console.log('Deleting counties...');
+    await db.delete(schema.counties);
+    console.log(`✓ Deleted counties`);
+    console.log('Deleting provinces...');
+    await db.delete(schema.provinces);
+    console.log(`✓ Deleted provinces`);
+    await db.delete(schema.countries);
+    console.log('\n✨ All location data cleared successfully!');
+  } catch (error) {
+    console.error('❌ Error clearing data:', error);
+    throw error;
+  } finally {
+    await pool.end();
+  }
+}
+
+interface Neighborhood {
+  name: string;
+  code: string;
+}
+
+interface District {
+  name: string;
+  neighborhoods: Neighborhood[];
+}
+
+interface County {
+  name: string;
+  districts: District[];
+}
+
+interface Province {
+  name: string;
+  counties: County[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const locationData: Province[] = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, '../../../districts/districts.json'),
+    'utf-8',
+  ),
+);
+
+const PLATE_CODES: Record<string, number> = {
+  ADANA: 1,
+  ADIYAMAN: 2,
+  AFYONKARAHİSAR: 3,
+  AĞRI: 4,
+  AMASYA: 5,
+  ANKARA: 6,
+  ANTALYA: 7,
+  ARTVİN: 8,
+  AYDIN: 9,
+  BALIKESİR: 10,
+  BİLECİK: 11,
+  BİNGÖL: 12,
+  BİTLİS: 13,
+  BOLU: 14,
+  BURDUR: 15,
+  BURSA: 16,
+  ÇANAKKALE: 17,
+  ÇANKIRI: 18,
+  ÇORUM: 19,
+  DENİZLİ: 20,
+  DİYARBAKIR: 21,
+  EDİRNE: 22,
+  ELAZIĞ: 23,
+  ERZİNCAN: 24,
+  ERZURUM: 25,
+  ESKİŞEHİR: 26,
+  GAZİANTEP: 27,
+  GİRESUN: 28,
+  GÜMÜŞHANE: 29,
+  HAKKARİ: 30,
+  HATAY: 31,
+  ISPARTA: 32,
+  MERSİN: 33,
+  İSTANBUL: 34,
+  İZMİR: 35,
+  KARS: 36,
+  KASTAMONU: 37,
+  KAYSERİ: 38,
+  KIRKLARELİ: 39,
+  KIRŞEHİR: 40,
+  KOCAELİ: 41,
+  KONYA: 42,
+  KÜTAHYA: 43,
+  MALATYA: 44,
+  MANİSA: 45,
+  KAHRAMANMARAŞ: 46,
+  MARDİN: 47,
+  MUĞLA: 48,
+  MUŞ: 49,
+  NEVŞEHİR: 50,
+  NİĞDE: 51,
+  ORDU: 52,
+  RİZE: 53,
+  SAKARYA: 54,
+  SAMSUN: 55,
+  SİİRT: 56,
+  SİNOP: 57,
+  SİVAS: 58,
+  TEKİRDAĞ: 59,
+  TOKAT: 60,
+  TRABZON: 61,
+  TUNCELİ: 62,
+  ŞANLIURFA: 63,
+  UŞAK: 64,
+  VAN: 65,
+  YOZGAT: 66,
+  ZONGULDAK: 67,
+  AKSARAY: 68,
+  BAYBURT: 69,
+  KARAMAN: 70,
+  KIRIKKALE: 71,
+  BATMAN: 72,
+  ŞIRNAK: 73,
+  BARTIN: 74,
+  ARDAHAN: 75,
+  IĞDIR: 76,
+  YALOVA: 77,
+  KARABÜK: 78,
+  KİLİS: 79,
+  OSMANİYE: 80,
+  DÜZCE: 81,
+};
+
+async function seedLocations() {
+  try {
+    console.log('Creating Turkey...');
+    // clearLocationData().catch(console.error);
+
     const [turkey] = await db
       .insert(schema.countries)
       .values({
@@ -24,115 +161,57 @@ async function seedLocations() {
         code: 'TR',
       })
       .returning();
-    console.log(`Country created: ${turkey.name}`);
-    console.log(' Seeding provinces...');
 
-    const [istanbul] = await db
-      .insert(schema.provinces)
-      .values({
-        plateCode: 34,
-        name: 'Istanbul',
-        countryId: turkey.id,
-      })
-      .returning();
+    console.log(`Country created: ${turkey.name}\n`);
 
-    const [ankara] = await db
-      .insert(schema.provinces)
-      .values({
-        plateCode: 6,
-        name: 'Ankara',
-        countryId: turkey.id,
-      })
-      .returning();
+    for (const provinceData of locationData) {
+      console.log(`Processing: ${provinceData.name}`);
 
-    console.log(` Provinces created: ${istanbul.name}, ${ankara.name}`);
+      const plateCode = PLATE_CODES[provinceData.name];
 
-    console.log(' Seeding counties...');
-    const [kadikoy] = await db
-      .insert(schema.counties)
-      .values({
-        name: 'Kadıköy',
-        provincePlateCode: istanbul.plateCode,
-      })
-      .returning();
+      const [province] = await db
+        .insert(schema.provinces)
+        .values({
+          name: provinceData.name,
+          plateCode: plateCode,
+          countryId: turkey.id,
+        })
+        .returning();
 
-    const [besiktas] = await db
-      .insert(schema.counties)
-      .values({
-        name: 'Beşiktaş',
-        provincePlateCode: istanbul.plateCode,
-      })
-      .returning();
+      for (const countyData of provinceData.counties) {
+        const [county] = await db
+          .insert(schema.counties)
+          .values({
+            name: countyData.name,
+            provincePlateCode: province.plateCode,
+          })
+          .returning();
 
-    const [cankaya] = await db
-      .insert(schema.counties)
-      .values({
-        name: 'Çankaya',
-        provincePlateCode: ankara.plateCode,
-      })
-      .returning();
+        for (const districtData of countyData.districts) {
+          const [district] = await db
+            .insert(schema.districts)
+            .values({
+              name: districtData.name,
+              countyId: county.id,
+            })
+            .returning();
 
-    console.log(
-      `Counties created: ${kadikoy.name}, ${besiktas.name}, ${cankaya.name}`,
-    );
-    console.log('Seeding districts...');
+          const neighborhoodValues = districtData.neighborhoods.map((n) => ({
+            name: n.name,
+            postalCode: n.code,
+            districtId: district.id,
+          }));
 
-    const [kadikoyCentral] = await db
-      .insert(schema.districts)
-      .values({
-        name: 'Kadıköy Merkez',
-        countyId: kadikoy.id,
-      })
-      .returning();
+          await db.insert(schema.neighborhoods).values(neighborhoodValues);
+        }
+      }
 
-    const [besiktasCentral] = await db
-      .insert(schema.districts)
-      .values({
-        name: 'Beşiktaş Merkez',
-        countyId: besiktas.id,
-      })
-      .returning();
+      console.log(`  ✓ ${provinceData.name} completed`);
+    }
 
-    const [cankayaCentral] = await db
-      .insert(schema.districts)
-      .values({
-        name: 'Çankaya Merkez',
-        countyId: cankaya.id,
-      })
-      .returning();
-
-    console.log(`Districts created: 3 districts`);
-
-    console.log('Seeding neighborhoods...');
-    const neighborhoods = await db
-      .insert(schema.neighborhoods)
-      .values([
-        { name: 'Moda', code: '34710', districtId: kadikoyCentral.id },
-        { name: 'Fenerbahçe', code: '34726', districtId: kadikoyCentral.id },
-        { name: 'Göztepe', code: '34730', districtId: kadikoyCentral.id },
-        { name: 'Bostancı', code: '34744', districtId: kadikoyCentral.id },
-
-        { name: 'Ortaköy', code: '34347', districtId: besiktasCentral.id },
-        { name: 'Bebek', code: '34342', districtId: besiktasCentral.id },
-        { name: 'Etiler', code: '34337', districtId: besiktasCentral.id },
-
-        { name: 'Kızılay', code: '06420', districtId: cankayaCentral.id },
-        { name: 'Çayyolu', code: '06810', districtId: cankayaCentral.id },
-        { name: 'Bahçelievler', code: '06490', districtId: cankayaCentral.id },
-      ])
-      .returning();
-
-    console.log(`Neighborhoods created: ${neighborhoods.length} neighborhoods`);
-
-    console.log('\n Location seeding completed successfully!');
-    console.log('\n📊 Summary:');
-    console.log(`   Countries: 1`);
-    console.log(`   Provinces: 2`);
-    console.log(`   Counties: 3`);
-    console.log(`   Districts: 3`);
-    console.log(`   Neighborhoods: ${neighborhoods.length}`);
+    console.log('\n✨ Seeding completed successfully!');
   } catch (error) {
-    console.error('❌ Seeding failed:', error);
+    console.error('❌ Error:', error);
     throw error;
   } finally {
     await pool.end();

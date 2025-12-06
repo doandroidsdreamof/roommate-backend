@@ -15,7 +15,9 @@ export class ListsService {
   ) {}
 
   async getLists(query: ListsQueryDto) {
+    // TODO implement builder pattern for optional params
     const { cursor, limit } = query;
+
     const listsItems = await this.db.query.postings.findMany({
       where: and(
         sql`${schema.postings.deletedAt} IS NULL`,

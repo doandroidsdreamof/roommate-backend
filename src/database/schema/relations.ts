@@ -91,7 +91,7 @@ export const preferencesRelations = relations(preferences, ({ one }) => ({
 }));
 
 // Posting Relations
-export const postingsRelations = relations(postings, ({ one, many }) => ({
+export const postingsRelations = relations(postings, ({ one }) => ({
   user: one(users, {
     fields: [postings.userId],
     references: [users.id],
@@ -101,7 +101,6 @@ export const postingsRelations = relations(postings, ({ one, many }) => ({
     references: [neighborhoods.id],
   }),
   specs: one(postingSpecs),
-  images: many(postingImages),
 }));
 
 export const postingSpecsRelations = relations(postingSpecs, ({ one }) => ({
@@ -112,9 +111,9 @@ export const postingSpecsRelations = relations(postingSpecs, ({ one }) => ({
 }));
 
 export const postingImagesRelations = relations(postingImages, ({ one }) => ({
-  postingSpecs: one(postings, {
+  postingSpecs: one(postingSpecs, {
     fields: [postingImages.postingSpecsId],
-    references: [postings.id],
+    references: [postingSpecs.id],
   }),
 }));
 
