@@ -1,10 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { and, eq, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
-import { ListsQueryDto } from '../dto/lists.dto';
-import { and, sql } from 'drizzle-orm';
 import { paginateResults } from 'src/helpers/cursorPagination';
+import { QueryBuilder } from 'src/query-builder/query.builder';
+import { ListsQueryDto } from '../dto/lists.dto';
 
 @Injectable()
 export class ListsService {
@@ -15,33 +16,115 @@ export class ListsService {
   ) {}
 
   async getLists(query: ListsQueryDto) {
-    // TODO implement builder pattern for optional params
-    const { cursor, limit } = query;
+    const { limit } = query;
+    const conditions = new QueryBuilder()
+      .addRange({
+        min: query.minRent,
+        max: query.maxRent,
+        column: schema.postings.rentAmount,
+      })
+      .addRange({
+        min: query.minRooms,
+        max: query.maxRooms,
+        column: schema.postings.roomCount,
+      })
+      .addRange({
+        min: query.minSquareMeters,
+        max: query.maxSquareMeters,
+        column: schema.postings.squareMeters,
+      })
 
-    const listsItems = await this.db.query.postings.findMany({
-      where: and(
-        sql`${schema.postings.deletedAt} IS NULL`,
-        cursor
-          ? sql`${schema.postings.createdAt} < ${new Date(cursor)}`
-          : undefined,
-      ),
-      columns: {
-        viewCount: true,
-        availableFrom: true,
-        city: true,
-        id: true,
-        title: true,
-        bookmarkCount: true,
-        coverImageUrl: true,
-        createdAt: true,
-        rentAmount: true,
-        roomCount: true,
-        district: true,
-        preferredRoommateGender: true,
-      },
-      limit: limit + 1,
-    });
-    const { items, nextCursor, hasMore } = paginateResults(listsItems, limit);
+      .addExactMatch({ value: query.city, column: schema.postings.city })
+      .addExactMatch({
+        value: query.district,
+        column: schema.postings.district,
+      })
+      .addExactMatch({
+        value: query.neighborhoodId,
+        column: schema.postings.neighborhoodId,
+      })
+      .addExactMatch({
+        value: query.preferredRoommateGender,
+        column: schema.postings.preferredRoommateGender,
+      })
+
+      // Booleans
+      .addBoolean({
+        value: query.isFurnished,
+        column: schema.postings.isFurnished,
+      })
+      .addBoolean({
+        value: query.hasParking,
+        column: schema.postingSpecs.hasParking,
+      })
+      .addBoolean({
+        value: query.hasBalcony,
+        column: schema.postingSpecs.hasBalcony,
+      })
+      .addBoolean({
+        value: query.hasElevator,
+        column: schema.postingSpecs.hasElevator,
+      })
+      .addBoolean({
+        value: query.billsIncluded,
+        column: schema.postingSpecs.billsIncluded,
+      })
+      .addBoolean({
+        value: query.smokingAllowed,
+        column: schema.postingSpecs.smokingAllowed,
+      })
+      .addBoolean({
+        value: query.alcoholFriendly,
+        column: schema.postingSpecs.alcoholFriendly,
+      })
+      .addBoolean({ value: query.hasPets, column: schema.postingSpecs.hasPets })
+
+      .addSearch({
+        query: query.search,
+        columns: [schema.postings.title, schema.postingSpecs.description],
+      })
+
+      .addPagination({
+        cursor: query.cursor,
+        column: schema.postings.createdAt,
+      })
+
+      .build();
+
+    this.logger.log('conditions: ', conditions);
+
+    const listsItems = await this.db
+      .select({
+        viewCount: schema.postings.viewCount,
+        availableFrom: schema.postings.availableFrom,
+        city: schema.postings.city,
+        id: schema.postings.id,
+        title: schema.postings.title,
+        bookmarkCount: schema.postings.bookmarkCount,
+        coverImageUrl: schema.postings.coverImageUrl,
+        createdAt: schema.postings.createdAt,
+        rentAmount: schema.postings.rentAmount,
+        roomCount: schema.postings.roomCount,
+        district: schema.postings.district,
+        preferredRoommateGender: schema.postings.preferredRoommateGender,
+        specs: schema.postingSpecs,
+      })
+      .from(schema.postings)
+      .leftJoin(
+        schema.postingSpecs,
+        eq(schema.postings.id, schema.postingSpecs.postingId),
+      )
+      .where(
+        conditions
+          ? and(isNull(schema.postings.deletedAt), conditions)
+          : isNull(schema.postings.deletedAt),
+      )
+      .limit(limit + 1);
+    const { items, nextCursor, hasMore } = paginateResults(
+      listsItems,
+      limit,
+      'createdAt',
+    );
 
     return {
       lists: items.map((item) => ({

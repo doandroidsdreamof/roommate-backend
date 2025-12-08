@@ -38,8 +38,7 @@
 ### Remaining
 
 - [x] Seeder for locations
-- [ ] Swagger setup
-- [ ] Consistent return types
+- [x] Swagger setup
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
@@ -75,8 +74,8 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Posting image update CRUD endpoints
 - [x] Posting delete/posting_status
 - [x] Pagination (posting lists)
-- [ ] Location endpoint for getting neighborhoodsID
-- [ ] Search and Filtering endpoints for lists
+- [x] Location endpoint for getting neighborhoodsID
+- [x] Search and Filtering endpoints for lists
 - [x] Pagination GET bookmarks
 - [x] Preventing multiple postings in the same location
 - [x] Bookmark feature and count of it for posts
