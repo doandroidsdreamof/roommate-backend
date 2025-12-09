@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME} 
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - '127.0.0.1:5432:5432' # do not expose LAN
     volumes:
@@ -27,22 +27,23 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     container_name: roommate-app-dev
     restart: unless-stopped
-    ports:  
+    ports:
       - '127.0.0.1:3000:3000'
+      - '127.0.0.1:9229:9229' # DEBUG PORT
     environment:
       NODE_ENV: development
       PORT: 3000
       DATABASE_URL: ${DATABASE_URL}
       APP_NAME: ${APP_NAME}
     volumes:
-      - .:/app # Sync your code changes || The container's /app is actually pointing to your local folder
-      - /app/node_modules # keep container's node_modules
+      - .:/usr/src/app # Sync your code changes || The container's /app is actually pointing to your local folder
+      - /usr/src/app/node_modules # keep container's node_modules
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - roommate-network
-    command: npm run start:dev
+    command: npm run start:debug
 
 volumes:
   postgres_data_dev:

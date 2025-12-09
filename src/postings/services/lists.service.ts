@@ -91,8 +91,6 @@ export class ListsService {
 
       .build();
 
-    this.logger.log('conditions: ', conditions);
-
     const listsItems = await this.db
       .select({
         viewCount: schema.postings.viewCount,
@@ -125,11 +123,8 @@ export class ListsService {
       limit,
       'createdAt',
     );
-
     return {
-      lists: items.map((item) => ({
-        ...item,
-      })),
+      lists: items,
       nextCursor,
       hasMore,
     };

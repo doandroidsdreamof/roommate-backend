@@ -3,7 +3,7 @@
 
 FROM node:20-alpine
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -19,14 +19,13 @@ RUN npm ci
 COPY . .
 
 # Change ownership to unprivileged user
-RUN chown -R nestjs:nodejs /app
+RUN chown -R nestjs:nodejs /usr/src/app
 
 # Switch to non-root user
 USER nestjs
 
-
-# Expose port
-EXPOSE 3000
+# Expose ports
+EXPOSE 3000 9229
 
 # Start in development mode with hot reload
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start"]
