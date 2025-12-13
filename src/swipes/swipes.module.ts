@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { SwipesService } from './swipes.service';
-import { SwipesController } from './swipes.controller';
 import { DrizzleModule } from 'src/database/drizzle.module';
-import { MatchesService } from 'src/matches/matches.service';
-import { UsersService } from 'src/users/users.service';
+import { MatchesModule } from 'src/matches/matches.module';
+import { UsersModule } from 'src/users/users.module';
+import { SwipesController } from './swipes.controller';
+import { SwipesService } from './swipes.service';
 
 @Module({
-  imports: [DrizzleModule],
+  imports: [DrizzleModule, MatchesModule, UsersModule],
   controllers: [SwipesController],
-  providers: [SwipesService, MatchesService, UsersService],
+  providers: [SwipesService],
 })
 export class SwipesModule {}

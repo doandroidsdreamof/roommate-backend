@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { FeedsService } from './feeds.service';
 import { FeedsController } from './feeds.controller';
 import { DrizzleModule } from 'src/database/drizzle.module';
-import { UsersService } from 'src/users/users.service';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [DrizzleModule],
+  imports: [DrizzleModule, UsersModule],
   controllers: [FeedsController],
-  providers: [FeedsService, UsersService],
+  providers: [FeedsService],
 })
 export class FeedsModule {}
