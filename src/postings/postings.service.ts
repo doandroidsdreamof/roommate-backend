@@ -217,7 +217,6 @@ export class PostingsService {
       return { message: 'No changes detected' };
     }
 
-    // TODO test for SQL injection
     await this.db
       .update(schema.postingImages)
       .set({

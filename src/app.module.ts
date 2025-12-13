@@ -7,6 +7,10 @@ import { EmailModule } from './mail/email.module';
 import { UsersModule } from './users/users.module';
 import { PostingsModule } from './postings/postings.module';
 import { LocationsModule } from './locations/locations.module';
+import { RedisModule } from './redis/redis.module';
+import { FeedsModule } from './feeds/feeds.module';
+import { SwipesModule } from './swipes/swipes.module';
+import { MatchesModule } from './matches/matches.module';
 
 @Module({
   imports: [
@@ -35,6 +39,10 @@ import { LocationsModule } from './locations/locations.module';
     EmailModule,
     PostingsModule,
     LocationsModule,
+    RedisModule,
+    FeedsModule,
+    SwipesModule,
+    MatchesModule,
   ],
   controllers: [],
   providers: [],

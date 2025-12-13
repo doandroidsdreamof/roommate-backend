@@ -134,6 +134,27 @@
       "when": 1765049747666,
       "tag": "0018_rapid_omega_red",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1765653576971,
+      "tag": "0019_amusing_hercules",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1765654778403,
+      "tag": "0020_harsh_strong_guy",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1765662158258,
+      "tag": "0021_condemned_quentin_quire",
+      "breakpoints": true
     }
   ]
 }

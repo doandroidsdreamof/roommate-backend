@@ -11,6 +11,7 @@ import {
   PET_OWNERSHIP,
   POSTING_STATUS,
   SMOKING_HABIT,
+  SWIPE_ACTIONS,
   VERIFICATION_STATUS,
 } from 'src/constants/enums';
 import { getEnumValues } from 'src/helpers/getEnumValues';
@@ -76,3 +77,5 @@ export const alcoholConsumptionEnum = pgEnum(
   'alcohol_consumption',
   getEnumValues(ALCOHOL_CONSUMPTION),
 );
+
+export const swipesEnum = pgEnum('actions', getEnumValues(SWIPE_ACTIONS));

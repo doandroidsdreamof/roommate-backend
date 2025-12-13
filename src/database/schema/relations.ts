@@ -15,6 +15,8 @@ import {
   userBookmarks,
   users,
 } from './users.schema';
+import { swipes } from './swipes.schema';
+import { matches } from './matches.schema';
 
 // Location Relations
 export const countriesRelations = relations(countries, ({ many }) => ({
@@ -135,6 +137,28 @@ export const userBlocksRelations = relations(userBlocks, ({ one }) => ({
   }),
   blocked: one(users, {
     fields: [userBlocks.blockedId],
+    references: [users.id],
+  }),
+}));
+
+export const swipesRelations = relations(swipes, ({ one }) => ({
+  swiper: one(users, {
+    fields: [swipes.swiperId],
+    references: [users.id],
+  }),
+  swiped: one(users, {
+    fields: [swipes.swipedId],
+    references: [users.id],
+  }),
+}));
+
+export const matchesRelations = relations(matches, ({ one }) => ({
+  userFrist: one(users, {
+    fields: [matches.userFirstId],
+    references: [users.id],
+  }),
+  userSecond: one(users, {
+    fields: [matches.userSecondId],
     references: [users.id],
   }),
 }));

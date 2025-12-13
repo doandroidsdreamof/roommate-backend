@@ -14,11 +14,15 @@ import {
   userBookmarks,
   users,
 } from './users.schema';
+import { swipes } from './swipes.schema';
+import { matches } from './matches.schema';
 
 // User Types
 export type User = InferSelectModel<typeof users>;
 export type Profile = InferSelectModel<typeof profile>;
 export type Preferences = InferSelectModel<typeof preferences>;
+export type UserBookmark = InferSelectModel<typeof userBookmarks>;
+export type UserBlocks = InferSelectModel<typeof userBlocks>;
 
 // Auth Types
 export type Verification = InferSelectModel<typeof verifications>;
@@ -34,5 +38,7 @@ export type Neighborhood = InferSelectModel<typeof neighborhoods>;
 export type Posting = InferSelectModel<typeof postings>;
 export type PostingSpecs = InferSelectModel<typeof postingSpecs>;
 export type PostingImage = InferSelectModel<typeof postingImages>;
-export type UserBookmark = InferSelectModel<typeof userBookmarks>;
-export type UserBlocks = InferSelectModel<typeof userBlocks>;
+
+// Swipes and Matches
+export type Swipes = InferSelectModel<typeof swipes>;
+export type Matches = InferSelectModel<typeof matches>;

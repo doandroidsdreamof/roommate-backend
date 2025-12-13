@@ -6,6 +6,8 @@ export * from './auth.schema';
 export * from './locations.schema';
 export * from './postings.schema';
 export * from './users.schema';
+export * from './swipes.schema';
+export * from './matches.schema';
 
 // Export all relations
 export * from './relations';

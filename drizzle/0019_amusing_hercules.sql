@@ -1,0 +1,1 @@
+CREATE TYPE "public"."actions" AS ENUM('pass', 'like');

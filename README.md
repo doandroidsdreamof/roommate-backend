@@ -90,15 +90,15 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 #### Core
 
-- [ ] `swipes` table
-- [ ] `matches` table
-- [ ] `POST /swipes` endpoint
-- [ ] `GET /matches` endpoint (list matches)
-- [ ] `DELETE /matches/:id` endpoint (unmatch)
+- [x] `swipes` table
+- [x] `matches` table
+- [x] `POST /swipes` endpoint
+- [x] `GET /matches` endpoint (list matches)
+- [x] `DELETE /matches/:id` endpoint (unmatch)
 
 #### Feed Generation
 
-- [ ] `GET /discovery/feed` endpoint
+- [x] `GET /feed` endpoint
 - [ ] Location-based filtering
 - [ ] Gender preference filtering
 - [ ] Budget/lifestyle preference filtering
@@ -117,7 +117,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 #### Optimizations
 
-- [ ] Redis cache for "swiped users" sets
+- [ ] Redis cache for feed sets
 - [ ] Query indexes on swipes table
 - [ ] Archive old swipes (>6 months)
 

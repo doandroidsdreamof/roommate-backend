@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
-      - '127.0.0.1:5432:5432' # do not expose LAN
+      - '127.0.0.1:5432:5432' # do not expose all LAN
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
@@ -20,7 +20,22 @@ services:
     networks:
       - roommate-network
 
-  # NestJS Application (Development)
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: roommate-redis-dev
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - roommate-network
+
+  # NestJS 
   app:
     build:
       context: .

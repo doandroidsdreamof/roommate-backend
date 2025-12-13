@@ -88,3 +88,8 @@ export const OCCUPANT_GENDER_COMPOSITION = {
   ALL_FEMALE: 'all_female',
   MIXED: 'mixed',
 } as const;
+
+export const SWIPE_ACTIONS = {
+  PASS: 'pass',
+  LIKE: 'like',
+} as const;
