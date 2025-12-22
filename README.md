@@ -92,15 +92,15 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [x] `swipes` table
 - [x] `matches` table
-- [x] `POST /swipes` endpoint
-- [x] `GET /matches` endpoint (list matches)
-- [x] `DELETE /matches/:id` endpoint (unmatch)
+- [ ] `POST /swipes` endpoint
+- [ ] `GET /matches` endpoint (list matches)
+- [ ] `DELETE /matches/:id` endpoint (unmatch)
 
 #### Feed Generation
 
 - [x] `GET /feed` endpoint
-- [ ] Location-based filtering
-- [ ] Gender preference filtering
+- [x] Location-based filtering
+- [x] Gender preference filtering
 - [ ] Budget/lifestyle preference filtering
 - [ ] Exclude swiped profiles
 - [ ] Exclude blocked users (bidirectional)

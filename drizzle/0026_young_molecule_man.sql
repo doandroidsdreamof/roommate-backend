@@ -1,0 +1,2 @@
+CREATE INDEX "preferences_housing_type_idx" ON "preferences" USING btree ("housing_search_type");--> statement-breakpoint
+CREATE INDEX "profile_city_gender_status_idx" ON "profile" USING btree ("city","gender","account_status") WHERE "profile"."account_status" = 'active';
