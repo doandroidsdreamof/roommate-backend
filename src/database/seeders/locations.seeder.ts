@@ -1,41 +1,8 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from '../schema';
 import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL_LOCAL,
-});
-
-const db = drizzle(pool, { schema });
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function clearLocationData() {
-  try {
-    console.log('🗑️  Clearing all location data...\n');
-    console.log('Deleting neighborhoods...');
-    await db.delete(schema.neighborhoods);
-    console.log(`✓ Deleted neighborhoods`);
-    console.log('Deleting districts...');
-    await db.delete(schema.districts);
-    console.log(`✓ Deleted districts`);
-    console.log('Deleting counties...');
-    await db.delete(schema.counties);
-    console.log(`✓ Deleted counties`);
-    console.log('Deleting provinces...');
-    await db.delete(schema.provinces);
-    console.log(`✓ Deleted provinces`);
-    await db.delete(schema.countries);
-    console.log('\n✨ All location data cleared successfully!');
-  } catch (error) {
-    console.error('❌ Error clearing data:', error);
-    throw error;
-  } finally {
-    await pool.end();
-  }
-}
+import * as schema from '../schema';
+import { seederDb as db } from './seed-db-instance';
 
 interface Neighborhood {
   name: string;
@@ -213,8 +180,6 @@ async function seedLocations() {
   } catch (error) {
     console.error('❌ Error:', error);
     throw error;
-  } finally {
-    await pool.end();
   }
 }
 

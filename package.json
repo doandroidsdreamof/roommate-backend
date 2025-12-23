@@ -31,7 +31,8 @@
     "seed:locations": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/locations.seeder.ts",
     "seed:bookmarks": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/bookmarks.seeder.ts",
     "seed:postings": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/postings.seeder.ts",
-    "seed:users": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/users.seeder.ts"
+    "seed:users": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/users.seeder.ts",
+    "seed:swipes-matches": "node -r dotenv/config --loader esbuild-register/loader -r esbuild-register src/database/seeders/swipes-matches.seeder.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

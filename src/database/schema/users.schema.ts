@@ -24,19 +24,27 @@ import { postings } from './postings.schema';
 import { createdAndUpdatedTimestamps } from './shared-types';
 import { sql } from 'drizzle-orm';
 
-export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  phoneNumber: varchar('phone_number', { length: 20 }).unique(),
-  username: varchar('username', { length: 100 }).unique(),
-  isActive: boolean('is_active').default(true).notNull(),
-  isEmailVerified: boolean('is_email_verified').default(false).notNull(),
-  isPhoneVerified: boolean('is_phone_verified').default(false).notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true }),
-  isAnonymized: boolean('is_anonymized').default(false).notNull(), //* for analytics etc.
-  postingCount: integer('posting_count').default(0).notNull(),
-  ...createdAndUpdatedTimestamps,
-});
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    phoneNumber: varchar('phone_number', { length: 20 }).unique(),
+    username: varchar('username', { length: 100 }).unique(),
+    isActive: boolean('is_active').default(true).notNull(),
+    isEmailVerified: boolean('is_email_verified').default(false).notNull(),
+    isPhoneVerified: boolean('is_phone_verified').default(false).notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+    isAnonymized: boolean('is_anonymized').default(false).notNull(), //* for analytics etc.
+    postingCount: integer('posting_count').default(0).notNull(),
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [
+    index('users_not_deleted_idx')
+      .on(table.id)
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
 
 export const profile = pgTable(
   'profile',
@@ -61,9 +69,11 @@ export const profile = pgTable(
   },
   (table) => [
     index('profile_user_id_idx').on(table.userId),
-    index('profile_city_gender_status_idx')
-      .on(table.city, table.gender, table.accountStatus)
-      .where(sql`${table.accountStatus} = 'active'`),
+    index('profile_city_gender_status_idx').on(
+      table.city,
+      table.gender,
+      table.accountStatus,
+    ),
   ],
 );
 
@@ -86,7 +96,12 @@ export const preferences = pgTable(
     ...createdAndUpdatedTimestamps,
   },
   (table) => [
+    index('preferences_user_id_idx').on(table.userId),
     index('preferences_housing_type_idx').on(table.housingSearchType),
+    index('preferences_user_housing_idx').on(
+      table.userId,
+      table.housingSearchType,
+    ),
   ],
 );
 
@@ -111,13 +126,20 @@ export const userBookmarks = pgTable(
   ],
 );
 
-export const userBlocks = pgTable('user_blocks', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  blockerId: uuid('blocker_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  blockedId: uuid('blocked_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  ...createdAndUpdatedTimestamps,
-});
+export const userBlocks = pgTable(
+  'user_blocks',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    blockerId: uuid('blocker_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    blockedId: uuid('blocked_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [
+    index('user_blocks_blocker_idx').on(table.blockerId),
+    index('user_blocks_blocked_idx').on(table.blockedId),
+  ],
+);

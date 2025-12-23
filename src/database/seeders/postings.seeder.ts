@@ -1,13 +1,6 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from '../schema';
 import 'dotenv/config';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL_LOCAL,
-});
-
-const db = drizzle(pool, { schema });
+import * as schema from '../schema';
+import { seederDb as db } from './seed-db-instance';
 
 const USER_ID = '5a0a2ed6-b674-4fec-a553-979df73dc792';
 const NUM_POSTINGS = 10;
@@ -57,7 +50,6 @@ function getDistrictsForCity(city: string): string[] {
 
 async function seedPostings() {
   try {
-    console.log('🏠 Starting postings seed...\n');
 
     const neighborhoods = await db.query.neighborhoods.findMany({
       limit: 10,
@@ -148,11 +140,8 @@ async function seedPostings() {
   } catch (error) {
     console.error('❌ Error:', error);
     throw error;
-  } finally {
-    await pool.end();
   }
 }
-
 async function main() {
   await seedPostings();
 }

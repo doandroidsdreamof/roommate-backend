@@ -1,0 +1,1 @@
+CREATE INDEX "preferences_user_housing_idx" ON "preferences" USING btree ("user_id","housing_search_type");

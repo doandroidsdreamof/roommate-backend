@@ -1,13 +1,6 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from '../schema';
 import 'dotenv/config';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL_LOCAL,
-});
-
-const db = drizzle(pool, { schema });
+import * as schema from '../schema';
+import { seederDb as db } from './seed-db-instance';
 
 const NUM_USERS = 50000;
 
@@ -203,8 +196,6 @@ async function seedUsers() {
   } catch (error) {
     console.error('❌ Error:', error);
     throw error;
-  } finally {
-    await pool.end();
   }
 }
 

@@ -101,19 +101,20 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] `GET /feed` endpoint
 - [x] Location-based filtering
 - [x] Gender preference filtering
-- [ ] Budget/lifestyle preference filtering
-- [ ] Exclude swiped profiles
-- [ ] Exclude blocked users (bidirectional)
-- [ ] Pagination support
+- [x] Budget/lifestyle preference filtering
+- [x] Exclude swiped profiles
+- [x] Exclude blocked users (bidirectional)
+
+[![](https://mermaid.ink/img/pako:eNpNkEFvgjAUx79K805bggZwUtfDksXpLjss6i4rHip9AhFaUkqmM373QYFtPby8_y-_1770ComWCAyOhf5KMmEsedvEirRna9t0x1NUaITFNaLc35PJ5IkstbJ4tvwVLfmo0Yxg3w8OyanvWhd8jTbJyKrI0_xQoGOD2rXOW52ToqlzrWr-XFXF5R8Y1D_gBraJNshddTuMWk-coY3lXSGHS49HpWOdsdNV6POdOGHXktAfBMf7tZS84xu0jVGk_4DeiBV4kJpcArOmQQ9KNKXoIlw7IwabYYkxsLaVwpxiiNWtnamE-tS6HMeMbtIM2FEUdZuaSrYf_ZKL1IjylxpUEs1SN8oCCwLqLgF2hTOwKJzOZosgmIeL0PejKPDgAiykdDqjD4808qOQRtH85sG3e9WfLuj89gPuAp5F?type=png)](https://mermaid.live/edit#pako:eNpNkEFvgjAUx79K805bggZwUtfDksXpLjss6i4rHip9AhFaUkqmM373QYFtPby8_y-_1770ComWCAyOhf5KMmEsedvEirRna9t0x1NUaITFNaLc35PJ5IkstbJ4tvwVLfmo0Yxg3w8OyanvWhd8jTbJyKrI0_xQoGOD2rXOW52ToqlzrWr-XFXF5R8Y1D_gBraJNshddTuMWk-coY3lXSGHS49HpWOdsdNV6POdOGHXktAfBMf7tZS84xu0jVGk_4DeiBV4kJpcArOmQQ9KNKXoIlw7IwabYYkxsLaVwpxiiNWtnamE-tS6HMeMbtIM2FEUdZuaSrYf_ZKL1IjylxpUEs1SN8oCCwLqLgF2hTOwKJzOZosgmIeL0PejKPDgAiykdDqjD4808qOQRtH85sG3e9WfLuj89gPuAp5F)
 
 #### Ranking Algorithm
 
-- [ ] Basic scoring system:
+- [x] Basic scoring system:
   - Location match
   - Preference compatibility
   - Profile popularity
   - Recent activity
-- [ ] ORDER BY score logic
+- [x] ORDER BY score logic
 
 #### Optimizations
 

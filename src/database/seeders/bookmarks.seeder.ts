@@ -1,13 +1,6 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
 import * as schema from '../schema';
 import { UserBookmark } from '../schema';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL_LOCAL,
-});
-
-const db = drizzle(pool, { schema });
+import { seederDb as db } from './seed-db-instance';
 
 async function seedBookmarks() {
   const userId = '5a0a2ed6-b674-4fec-a553-979df73dc792';
@@ -32,7 +25,6 @@ async function seedBookmarks() {
   }
 
   console.log('Done => Inserted 500 bookmarks');
-  await pool.end();
 }
 
 void seedBookmarks();

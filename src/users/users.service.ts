@@ -7,7 +7,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -338,5 +338,31 @@ export class UsersService {
       nextCursor,
       hasMore,
     };
+  }
+  async getBlockedUserIds(userId: string): Promise<string[]> {
+    try {
+      const blockedIds = await this.db
+        .selectDistinct({
+          blockerId: schema.userBlocks.blockerId,
+          blockedId: schema.userBlocks.blockedId,
+        })
+        .from(schema.userBlocks)
+        .where(
+          or(
+            eq(schema.userBlocks.blockedId, userId),
+            eq(schema.userBlocks.blockerId, userId),
+          ),
+        );
+
+      const allRelatedIds = blockedIds.flatMap((item) => [
+        item.blockerId,
+        item.blockedId,
+      ]);
+
+      return [...new Set(allRelatedIds)].filter((id) => id !== userId);
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException('An unexpected error occurred');
+    }
   }
 }

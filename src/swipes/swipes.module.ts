@@ -8,6 +8,7 @@ import { SwipesService } from './swipes.service';
 @Module({
   imports: [DrizzleModule, MatchesModule, UsersModule],
   controllers: [SwipesController],
+  exports: [SwipesService],
   providers: [SwipesService],
 })
 export class SwipesModule {}

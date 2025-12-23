@@ -19,5 +19,6 @@ export const swipes = pgTable(
   (table) => [
     unique('unique_swipe').on(table.swiperId, table.swipedId),
     index('swiper_idx').on(table.swiperId),
+    index('swiped_idx').on(table.swipedId),
   ],
 );
