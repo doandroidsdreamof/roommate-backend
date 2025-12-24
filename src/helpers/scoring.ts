@@ -43,11 +43,3 @@ export function getHoursSinceActive(lastActiveAt: Date | null): number {
   if (!lastActiveAt) return Infinity;
   return (Date.now() - lastActiveAt.getTime()) / (1000 * 60 * 60);
 }
-
-/**
- * Parse budget string to number (handles "5000", "5.000", etc)
- */
-export function parseBudget(budget: string | null): number {
-  if (!budget) return 0;
-  return parseInt(budget.replace(/[^0-9]/g, '')) || 0;
-}

@@ -5,10 +5,10 @@ import {
   ALCOHOL_LEVELS,
   calculateBudgetOverlap,
   getHoursSinceActive,
-  parseBudget,
 } from '../../helpers/scoring';
 
 // TODO properly design here strategy pattern may useful
+// TODO magic numbers
 @Injectable()
 export class FeedScorerService {
   /**
@@ -58,10 +58,11 @@ export class FeedScorerService {
    * Based on budget range overlap
    */
   private scoreBudget(context: FeedContext, candidate: EligibleUser): number {
-    const userMin = parseBudget(context.preferences?.budgetMin);
-    const userMax = parseBudget(context.preferences?.budgetMax) || 999999; // TODO refactor
-    const candidateMin = parseBudget(candidate.budgetMin);
-    const candidateMax = parseBudget(candidate.budgetMax) || 999999;
+    const userMin = context.preferences?.budgetMin;
+    const userMax = context.preferences?.budgetMax;
+
+    const candidateMin = candidate.budgetMin;
+    const candidateMax = candidate.budgetMax;
 
     const overlapPercent = calculateBudgetOverlap(
       userMin,

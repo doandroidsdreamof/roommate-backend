@@ -83,12 +83,20 @@ export const profileRelations = relations(profile, ({ one }) => ({
     fields: [profile.userId],
     references: [users.id],
   }),
+  preferences: one(preferences, {
+    fields: [profile.userId],
+    references: [preferences.userId],
+  }),
 }));
 
 export const preferencesRelations = relations(preferences, ({ one }) => ({
   user: one(users, {
     fields: [preferences.userId],
     references: [users.id],
+  }),
+  profile: one(profile, {
+    fields: [preferences.userId],
+    references: [profile.userId],
   }),
 }));
 

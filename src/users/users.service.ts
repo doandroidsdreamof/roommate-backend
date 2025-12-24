@@ -365,4 +365,23 @@ export class UsersService {
       throw new InternalServerErrorException('An unexpected error occurred');
     }
   }
+  async isBlockedRelationship(
+    userId: string,
+    targetUserId: string,
+  ): Promise<boolean> {
+    const block = await this.db.query.userBlocks.findFirst({
+      where: or(
+        and(
+          eq(schema.userBlocks.blockerId, userId),
+          eq(schema.userBlocks.blockedId, targetUserId),
+        ),
+        and(
+          eq(schema.userBlocks.blockerId, targetUserId),
+          eq(schema.userBlocks.blockedId, userId),
+        ),
+      ),
+    });
+
+    return !!block;
+  }
 }

@@ -29,8 +29,8 @@ export type EligibleUser = {
   photoUrl: string | null;
   photoVerified: boolean;
   lastActiveAt: Date | null;
-  budgetMin: string | null;
-  budgetMax: string | null;
+  budgetMin: number | null;
+  budgetMax: number | null;
   smokingHabit: (typeof schema.preferences.$inferSelect)['smokingHabit'];
   petOwnership: (typeof schema.preferences.$inferSelect)['petOwnership'];
   petCompatibility: (typeof schema.preferences.$inferSelect)['petCompatibility'];

@@ -92,9 +92,9 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [x] `swipes` table
 - [x] `matches` table
-- [ ] `POST /swipes` endpoint
-- [ ] `GET /matches` endpoint (list matches)
-- [ ] `DELETE /matches/:id` endpoint (unmatch)
+- [x] `POST /swipes` endpoint
+- [x] `GET /matches` endpoint (list matches)
+- [x] `DELETE /matches/:id` endpoint (unmatch)
 
 #### Feed Generation
 

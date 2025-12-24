@@ -127,8 +127,8 @@ async function seedUsers() {
       }
 
       const budgetBase = getRandomInt(3000, 8000);
-      const budgetMin = budgetBase.toString();
-      const budgetMax = (budgetBase + getRandomInt(1000, 3000)).toString();
+      const budgetMin = budgetBase;
+      const budgetMax = budgetBase + getRandomInt(1000, 3000);
 
       await db.insert(schema.preferences).values({
         userId: user.id,

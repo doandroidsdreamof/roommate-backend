@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { SwipesService } from './swipes.service';
@@ -18,12 +19,14 @@ export class SwipesController {
   constructor(private readonly swipesService: SwipesService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(
+  @HttpCode(HttpStatus.OK)
+  swipeOnCandidate(
     @AuthUser('sub') userId: string,
-    @Body(new ZodValidationPipe(createSwipeSchema))
-    createSwipeDto: CreateSwipeDto,
+    @Body(new ZodValidationPipe(createSwipeSchema)) dto: CreateSwipeDto,
   ) {
-    return this.swipesService.create(userId, createSwipeDto);
+    return this.swipesService.swipeAction(userId, {
+      swipedId: dto.swipedId,
+      action: dto.action,
+    });
   }
 }

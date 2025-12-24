@@ -225,6 +225,13 @@
       "when": 1766530503696,
       "tag": "0031_organic_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1766606625121,
+      "tag": "0032_powerful_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

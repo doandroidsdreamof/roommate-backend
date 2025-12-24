@@ -86,8 +86,8 @@ export const preferences = pgTable(
       .unique()
       .references(() => users.id, { onDelete: 'cascade' }),
     housingSearchType: housingSearchTypeEnum('housing_search_type').notNull(),
-    budgetMin: varchar('budget_min', { length: 20 }),
-    budgetMax: varchar('budget_max', { length: 20 }),
+    budgetMin: integer('budget_min'),
+    budgetMax: integer('budget_max'),
     genderPreference: genderPreferenceEnum('gender_preference'),
     smokingHabit: smokingHabitEnum('smoking_habit'),
     petOwnership: petOwnershipEnum('pet_ownership'),
@@ -102,6 +102,7 @@ export const preferences = pgTable(
       table.userId,
       table.housingSearchType,
     ),
+    index('preferences_budget_range_idx').on(table.budgetMin, table.budgetMax),
   ],
 );
 
@@ -123,6 +124,7 @@ export const userBookmarks = pgTable(
       table.userId,
       table.createdAt.desc(),
     ),
+    index('user_bookmarks_posting_idx').on(table.postingId),
   ],
 );
 
@@ -141,5 +143,9 @@ export const userBlocks = pgTable(
   (table) => [
     index('user_blocks_blocker_idx').on(table.blockerId),
     index('user_blocks_blocked_idx').on(table.blockedId),
+    index('user_blocks_blocker_blocked_idx').on(
+      table.blockerId,
+      table.blockedId,
+    ),
   ],
 );
