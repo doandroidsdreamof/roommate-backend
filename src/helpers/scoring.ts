@@ -1,3 +1,5 @@
+import { ALCOHOL_CONSUMPTION } from 'src/constants/enums';
+
 export const SCORE_WEIGHTS = {
   LOCATION: 40,
   BUDGET: 30,
@@ -6,13 +8,11 @@ export const SCORE_WEIGHTS = {
   RECENCY: 5,
 } as const;
 
-type AlcoholLevel = 'never' | 'rarely' | 'socially' | 'regularly';
-
-export const ALCOHOL_LEVELS: Record<AlcoholLevel, number> = {
-  never: 0,
-  rarely: 1,
-  socially: 2,
-  regularly: 3,
+export const ALCOHOL_LEVELS: Record<string, number> = {
+  [ALCOHOL_CONSUMPTION.NEVER]: 0,
+  [ALCOHOL_CONSUMPTION.OCCASIONALLY]: 1,
+  [ALCOHOL_CONSUMPTION.SOCIALLY]: 2,
+  [ALCOHOL_CONSUMPTION.REGULARLY]: 3,
 } as const;
 /**
  * Calculate budget overlap percentage
@@ -37,9 +37,16 @@ export function calculateBudgetOverlap(
 }
 
 /**
- * Calculate hours since last activity
+ * Calculate days since last activity and current time
  */
-export function getHoursSinceActive(lastActiveAt: Date | null): number {
+export function getDaysSinceActive(lastActiveAt: Date | null): number {
   if (!lastActiveAt) return Infinity;
-  return (Date.now() - lastActiveAt.getTime()) / (1000 * 60 * 60);
+  const MS_PER_DAY = 86_400_000; // 1000 * 60 * 60 * 24 ms in a day
+
+  const now = Date.now();
+  const lastActiveTimestamp = lastActiveAt.getTime(); //  Returns the stored time value in milliseconds since midnight, January 1, 1970 UTC.
+  const daysSince = now - lastActiveTimestamp;
+  const result = Math.floor(daysSince / MS_PER_DAY);
+
+  return result;
 }

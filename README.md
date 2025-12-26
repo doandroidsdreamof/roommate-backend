@@ -130,8 +130,8 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 ### Edge Cases
 
-- [ ] Self-swipe prevention
-- [ ] Duplicate swipe prevention
+- [x] Self-swipe prevention
+- [x] Duplicate swipe prevention
 - [ ] Race condition on match creation
 - [ ] Deleted/blocked user handling
 - [ ] Re-match after unmatch

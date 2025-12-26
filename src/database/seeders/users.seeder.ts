@@ -1,206 +1,221 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import 'dotenv/config';
+import { fakerTR as faker } from '@faker-js/faker';
+import { eq, inArray } from 'drizzle-orm';
 import * as schema from '../schema';
 import { seederDb as db } from './seed-db-instance';
 
-const NUM_USERS = 50000;
+const NUM_USERS = 1_000_000;
+const BATCH_SIZE = 1000;
 
-const CITIES = ['İstanbul', 'Ankara', 'İzmir'];
+async function loadLocations(db): Promise<Record<string, string[]>> {
+  const locations = await db
+    .select({
+      provinceName: schema.provinces.name,
+      districtName: schema.districts.name,
+    })
+    .from(schema.districts)
+    .innerJoin(
+      schema.counties,
+      eq(schema.districts.countyId, schema.counties.id),
+    )
+    .innerJoin(
+      schema.provinces,
+      eq(schema.counties.provincePlateCode, schema.provinces.plateCode),
+    )
+    .where(inArray(schema.provinces.name, ['İSTANBUL', 'ANKARA', 'İZMİR']));
 
-const ISTANBUL_DISTRICTS = [
-  'Kadıköy',
-  'Beşiktaş',
-  'Şişli',
-  'Üsküdar',
-  'Beyoğlu',
-  'Fatih',
-  'Bakırköy',
-  'Maltepe',
-  'Kartal',
-  'Ataşehir',
-  'Sarıyer',
-  'Beykoz',
-  'Pendik',
-  'Ümraniye',
-  'Bahçelievler',
-];
+  const grouped: Record<string, string[]> = {};
 
-const ANKARA_DISTRICTS = [
-  'Çankaya',
-  'Keçiören',
-  'Mamak',
-  'Yenimahalle',
-  'Etimesgut',
-  'Sincan',
-  'Gölbaşı',
-  'Altındağ',
-  'Pursaklar',
-  'Elvankent',
-];
+  for (const loc of locations) {
+    if (!grouped[loc.provinceName]) {
+      grouped[loc.provinceName] = [];
+    }
+    grouped[loc.provinceName].push(loc.districtName);
+  }
 
-const IZMIR_DISTRICTS = [
-  'Karşıyaka',
-  'Bornova',
-  'Konak',
-  'Çeşme',
-  'Alsancak',
-  'Buca',
-  'Gaziemir',
-  'Balçova',
-  'Narlıdere',
-  'Bayraklı',
-];
-
-const NAMES = ['Ayşe', 'Fatma', 'Elif', 'Ender', 'Mücahit', 'Selin', 'Levent'];
-
-function getRandomElement<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-function getRandomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomBoolean(): boolean {
-  return Math.random() > 0.5;
-}
-
-function getDistrictsForCity(city: string): string[] {
-  if (city === 'İstanbul') return ISTANBUL_DISTRICTS;
-  if (city === 'Ankara') return ANKARA_DISTRICTS;
-  if (city === 'İzmir') return IZMIR_DISTRICTS;
-  return ['Center'];
-}
-
-function generateEmail(name: string, index: number): string {
-  return `${name.toLowerCase()}.${index}@example.com`;
+  return grouped;
 }
 
 async function seedUsers() {
-  try {
-    console.log('👥 Starting users seed...\n');
+  console.log('📍 Loading locations...');
+  const locationsByProvince = await loadLocations(db);
 
-    for (let i = 0; i < NUM_USERS; i++) {
-      const name = getRandomElement(NAMES);
-      const email = generateEmail(name, i);
-      const city = getRandomElement(CITIES);
-      const district = getRandomElement(getDistrictsForCity(city));
-      const gender = getRandomElement(['male', 'female']);
-      const ageRange = getRandomElement(['18-24', '25-30', '31-35', '36-40']);
+  console.log(`👥 Starting to seed ${NUM_USERS} users...\n`);
 
-      console.log(
-        `Creating user ${i + 1}/${NUM_USERS}: ${name} (${gender}, ${city}/${district})`,
+  const existingUsersCount = await db.$count(schema.users);
+  const startFrom = Math.floor(existingUsersCount / BATCH_SIZE);
+
+  for (let batch = startFrom; batch < NUM_USERS / BATCH_SIZE; batch++) {
+    const userBatch: (typeof schema.users.$inferInsert)[] = [];
+    const profileBatch: Omit<typeof schema.profile.$inferInsert, 'userId'>[] =
+      [];
+    const preferenceBatch: Omit<
+      typeof schema.preferences.$inferInsert,
+      'userId'
+    >[] = [];
+
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      const userIndex = batch * BATCH_SIZE + i;
+
+      const province = faker.helpers.weightedArrayElement([
+        { weight: 40, value: 'İSTANBUL' as const },
+        { weight: 15, value: 'ANKARA' as const },
+        { weight: 12, value: 'İZMİR' as const },
+      ]);
+
+      const district = faker.helpers.arrayElement(
+        locationsByProvince[province],
       );
 
-      const [user] = await db
-        .insert(schema.users)
-        .values({
-          email,
-          isEmailVerified: true,
-          isActive: true,
-        })
-        .returning();
+      const gender = faker.helpers.weightedArrayElement([
+        { weight: 49, value: 'male' as const },
+        { weight: 49, value: 'female' as const },
+        { weight: 2, value: 'other' as const },
+      ]);
 
-      await db.insert(schema.profile).values({
-        userId: user.id,
-        name,
-        ageRange,
+      const photoUrl = faker.helpers.maybe(() => faker.image.avatar(), {
+        probability: 0.7,
+      });
+      const budgetMin = faker.number.int({ min: 5000, max: 12000 });
+
+      userBatch.push({
+        email: `user${userIndex}@roommate.app`,
+        phoneNumber:
+          faker.helpers.maybe(
+            () => `+90${userIndex.toString().padStart(10, '0')}`, // Unique based on index
+            { probability: 0.3 },
+          ) ?? null,
+        isActive: true,
+        isEmailVerified: true,
+        isPhoneVerified: Math.random() < 0.2,
+      });
+
+      profileBatch.push({
+        name: faker.person.firstName(gender === 'male' ? 'male' : 'female'),
+        ageRange: faker.helpers.weightedArrayElement([
+          { weight: 25, value: '18-24' as const },
+          { weight: 35, value: '25-30' as const },
+          { weight: 20, value: '31-35' as const },
+          { weight: 12, value: '36-40' as const },
+          { weight: 5, value: '41-45' as const },
+          { weight: 3, value: '46-50' as const },
+        ]),
         gender,
-        city,
+        city: province,
         district,
-        photoVerified: getRandomBoolean(),
-        accountStatus: 'active',
-        lastActiveAt: new Date(
-          Date.now() - getRandomInt(0, 7) * 24 * 60 * 60 * 1000,
-        ),
-      } as typeof schema.profile.$inferInsert);
+        photoUrl: photoUrl ?? null,
+        photoVerified: photoUrl ? Math.random() < 0.3 : false,
+        accountStatus: 'active' as const,
+        lastActiveAt: faker.date.recent({ days: 30 }),
+      });
 
-      let genderPreference;
-      const rand = Math.random();
-      if (gender === 'female') {
-        if (rand < 0.7) genderPreference = 'female_only';
-        else if (rand < 0.9) genderPreference = 'mixed';
-        else genderPreference = 'male_only';
-      } else {
-        if (rand < 0.6) genderPreference = 'mixed';
-        else if (rand < 0.9) genderPreference = 'female_only';
-        else genderPreference = 'male_only';
-      }
-
-      const budgetBase = getRandomInt(3000, 8000);
-      const budgetMin = budgetBase;
-      const budgetMax = budgetBase + getRandomInt(1000, 3000);
-
-      await db.insert(schema.preferences).values({
-        userId: user.id,
-        housingSearchType: 'looking_for_roommate' as const,
+      preferenceBatch.push({
+        housingSearchType: faker.helpers.weightedArrayElement([
+          { weight: 60, value: 'looking_for_roommate' as const },
+          { weight: 30, value: 'looking_for_room' as const },
+          { weight: 10, value: 'offering_room' as const },
+        ]),
         budgetMin,
-        budgetMax,
-        genderPreference: genderPreference as
-          | 'female_only'
-          | 'male_only'
-          | 'any',
-        smokingHabit: getRandomElement(['social', 'no', 'regular'] as const),
-        petOwnership: getRandomElement([
-          'cat',
-          'dog',
-          'other',
-          'none',
-        ] as const),
-        petCompatibility: getRandomElement([
-          'no_bothered',
-          'yes_love_pets',
-          'no',
-          'doesnt_matter',
-        ] as const),
-        alcoholConsumption: getRandomElement([
-          'socially',
-          'regularly',
-          'never',
-          'occasionally',
-        ] as const),
-      } as typeof schema.preferences.$inferInsert);
-
-      if ((i + 1) % 500 === 0) {
-        console.log(`\n📊 Progress: ${i + 1}/${NUM_USERS} users created\n`);
-      }
+        budgetMax: budgetMin + faker.number.int({ min: 1000, max: 3000 }),
+        genderPreference:
+          faker.helpers.maybe(
+            () =>
+              faker.helpers.arrayElement([
+                'female_only',
+                'male_only',
+                'mixed',
+              ] as const),
+            { probability: 0.95 },
+          ) ?? null,
+        smokingHabit:
+          faker.helpers.maybe(
+            () =>
+              faker.helpers.weightedArrayElement([
+                { weight: 60, value: 'no' as const },
+                { weight: 30, value: 'social' as const },
+                { weight: 10, value: 'regular' as const },
+              ]),
+            { probability: 0.9 },
+          ) ?? null,
+        petOwnership:
+          faker.helpers.maybe(
+            () =>
+              faker.helpers.weightedArrayElement([
+                { weight: 70, value: 'none' as const },
+                { weight: 15, value: 'cat' as const },
+                { weight: 10, value: 'dog' as const },
+                { weight: 5, value: 'other' as const },
+              ]),
+            { probability: 0.9 },
+          ) ?? null,
+        petCompatibility:
+          faker.helpers.maybe(
+            () =>
+              faker.helpers.weightedArrayElement([
+                { weight: 40, value: 'doesnt_matter' as const },
+                { weight: 30, value: 'yes_love_pets' as const },
+                { weight: 20, value: 'no_bothered' as const },
+                { weight: 10, value: 'no' as const },
+              ]),
+            { probability: 0.9 },
+          ) ?? null,
+        alcoholConsumption:
+          faker.helpers.maybe(
+            () =>
+              faker.helpers.weightedArrayElement([
+                { weight: 40, value: 'socially' as const },
+                { weight: 30, value: 'occasionally' as const },
+                { weight: 20, value: 'never' as const },
+                { weight: 10, value: 'regularly' as const },
+              ]),
+            { probability: 0.9 },
+          ) ?? null,
+      });
     }
 
-    console.log('\n✨ Seeding completed successfully!');
-    console.log(`📊 Created ${NUM_USERS} users with profiles and preferences`);
+    const insertedUsers = await db
+      .insert(schema.users)
+      .values(userBatch)
+      .returning({ id: schema.users.id });
 
-    const maleCount = await db.query.profile.findMany({
-      where: (profile, { eq }) => eq(profile.gender, 'male'),
-    });
-    const femaleCount = await db.query.profile.findMany({
-      where: (profile, { eq }) => eq(profile.gender, 'female'),
-    });
+    const profilesWithIds: (typeof schema.profile.$inferInsert)[] =
+      profileBatch.map((profile, idx) => ({
+        ...profile,
+        userId: insertedUsers[idx].id,
+      }));
 
-    const istanbulCount = await db.query.profile.findMany({
-      where: (profile, { eq }) => eq(profile.city, 'İstanbul'),
-    });
-    const ankaraCount = await db.query.profile.findMany({
-      where: (profile, { eq }) => eq(profile.city, 'Ankara'),
-    });
-    const izmirCount = await db.query.profile.findMany({
-      where: (profile, { eq }) => eq(profile.city, 'İzmir'),
-    });
+    const preferencesWithIds: (typeof schema.preferences.$inferInsert)[] =
+      preferenceBatch.map((pref, idx) => ({
+        ...pref,
+        userId: insertedUsers[idx].id,
+      }));
 
-    console.log(`\n📈 Distribution:`);
-    console.log(`     Gender:`);
-    console.log(`     Male: ${maleCount.length}`);
-    console.log(`     Female: ${femaleCount.length}`);
-    console.log(`\n   Cities:`);
-    console.log(`     İstanbul: ${istanbulCount.length}`);
-    console.log(`     Ankara: ${ankaraCount.length}`);
-    console.log(`     İzmir: ${izmirCount.length}`);
-  } catch (error) {
-    console.error('❌ Error:', error);
-    throw error;
+    await Promise.all([
+      db.insert(schema.profile).values(profilesWithIds),
+      db.insert(schema.preferences).values(preferencesWithIds),
+    ]);
+
+    if ((batch + 1) % 10 === 0) {
+      const progress = ((((batch + 1) * BATCH_SIZE) / NUM_USERS) * 100).toFixed(
+        1,
+      );
+      console.log(
+        `📊 Progress: ${(batch + 1) * BATCH_SIZE}/${NUM_USERS} (${progress}%)`,
+      );
+    }
   }
+
+  console.log('\n✨ Seeding completed!');
 }
 
 async function main() {
   await seedUsers();
+  process.exit(0);
 }
 
 main().catch(console.error);

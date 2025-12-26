@@ -22,14 +22,21 @@ export class AuthService {
   async sendOtp(dto: OtpDTO) {
     const { email } = dto;
     const otpCode = this.otpService.generateOTP();
-    const savedOtp = await this.otpService.insertOtp(email, otpCode); //* use synced otp
-    const userName = await this.usersService.getUsername(email);
-
-    await this.emailService.sendOtpEmail({
-      email,
-      userName,
-      otp: savedOtp,
-    });
+    const [savedOtp, userName] = await Promise.all([
+      this.otpService.insertOtp(email, otpCode), //* use synced otp
+      this.usersService.getUsername(email),
+    ]);
+    // TODO bottleneck
+    // Fire and forget => Tradeoffs Can't tell user if email failed
+    this.emailService
+      .sendOtpEmail({
+        email,
+        userName: userName ?? 'User',
+        otp: savedOtp,
+      })
+      .catch((err) => {
+        this.logger.error(`Failed to send OTP email`, err);
+      });
     // TODO hardcoded response
     return { message: 'Check your email for OTP' };
   }

@@ -5,8 +5,14 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, gte, lte, ne } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import {
+  ACCOUNT_STATUS,
+  GENDER,
+  GENDER_PREFERENCE,
+  HOUSING_SEARCH_TYPE,
+} from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { MatchesService } from 'src/matches/matches.service';
@@ -82,6 +88,7 @@ export class FeedsService {
       ...likedIds,
       ...matchedIds,
     ]);
+
     return candidates.filter((c) => !excludedIds.has(c.userId));
   }
 
@@ -92,6 +99,7 @@ export class FeedsService {
     const scored = this.feedScorerService.scoreUsers(context, filtered);
     this.logger.log('scored', scored.length);
     const sorted = scored.sort((a, b) => b.score - a.score).slice(0, 21);
+    this.logger.log('=======>', sorted.length);
 
     // TODO: shuffle algorithm
     // TODO: Track shown users in Redis
@@ -101,9 +109,11 @@ export class FeedsService {
 
   private buildGenderFilter(context: FeedContext) {
     const pref = context.preferences?.genderPreference;
-    if (!pref || pref === 'mixed') return undefined;
-    if (pref === 'female_only') return eq(schema.profile.gender, 'female');
-    if (pref === 'male_only') return eq(schema.profile.gender, 'male');
+    if (!pref || pref === GENDER_PREFERENCE.MIXED) return undefined;
+    if (pref === GENDER_PREFERENCE.FEMALE_ONLY)
+      return eq(schema.profile.gender, GENDER.FEMALE);
+    if (pref === GENDER_PREFERENCE.MALE_ONLY)
+      return eq(schema.profile.gender, GENDER.MALE);
 
     return undefined;
   }
@@ -143,12 +153,19 @@ export class FeedsService {
           and(
             ne(schema.profile.userId, context.userId),
             eq(schema.profile.city, context.profile.city),
-            eq(schema.profile.accountStatus, 'active'),
-            eq(schema.preferences.housingSearchType, 'looking_for_roommate'),
+            eq(schema.profile.accountStatus, ACCOUNT_STATUS.ACTIVE),
+            eq(
+              schema.preferences.housingSearchType,
+              HOUSING_SEARCH_TYPE.LOOKING_FOR_ROOMMATE,
+            ),
             genderFilter,
+            and(
+              lte(schema.preferences.budgetMin, context.preferences.budgetMax),
+              gte(schema.preferences.budgetMax, context.preferences.budgetMin),
+            ),
           ),
-        );
-
+        )
+        .limit(1500);
       return result;
     } catch (error) {
       this.logger.error(error);

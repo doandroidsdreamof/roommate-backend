@@ -50,9 +50,10 @@ type ServiceResponse = {
 };
 
 @Injectable()
-export class ResponseInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T> | ErrorResponse>
-{
+export class ResponseInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T> | ErrorResponse
+> {
   private readonly logger = new Logger(ResponseInterceptor.name);
 
   intercept(
@@ -60,7 +61,7 @@ export class ResponseInterceptor<T>
     next: CallHandler<T>,
   ): Observable<ApiResponse<T> | ErrorResponse> {
     return next.handle().pipe(
-      map((data) => this._handleResponse(data as ServiceResponse, context)),
+      map((res) => this._handleResponse(res as ServiceResponse, context)),
       catchError((err: unknown) => {
         this.logger.error(err);
         if (err instanceof HttpException) {
@@ -84,11 +85,10 @@ export class ResponseInterceptor<T>
     const statusCode = res.statusCode;
     const timestamp = new Date().toISOString();
     const message = response?.message ?? 'Request successful';
-    const { message: _, ...data } = response ?? {};
 
     return {
       success: true,
-      data: Object.keys(data).length ? (data as T) : null,
+      data: response as T,
       message,
       timestamp,
       statusCode,

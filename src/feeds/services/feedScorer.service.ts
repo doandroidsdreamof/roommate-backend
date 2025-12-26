@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { EligibleUser, FeedContext, ScoredUser } from '../types';
+import { Injectable, Logger } from '@nestjs/common';
+import { PET_COMPATIBILITY, SMOKING_HABIT } from '../../constants/enums';
 import {
-  SCORE_WEIGHTS,
   ALCOHOL_LEVELS,
   calculateBudgetOverlap,
-  getHoursSinceActive,
+  getDaysSinceActive,
+  SCORE_WEIGHTS,
 } from '../../helpers/scoring';
+import { EligibleUser, FeedContext, ScoredUser } from '../types';
 
-// TODO properly design here strategy pattern may useful
-// TODO magic numbers
 @Injectable()
 export class FeedScorerService {
+  private readonly logger = new Logger(FeedScorerService.name);
   /**
    * Score all candidates based on compatibility
    */
@@ -46,10 +46,9 @@ export class FeedScorerService {
    */
   private scoreLocation(context: FeedContext, candidate: EligibleUser): number {
     if (context.profile.district === candidate.district) {
-      return SCORE_WEIGHTS.LOCATION; // Perfect match
+      return SCORE_WEIGHTS.LOCATION;
     }
 
-    // Same city already filtered, so this is different district
     return SCORE_WEIGHTS.LOCATION / 2;
   }
 
@@ -86,19 +85,13 @@ export class FeedScorerService {
   ): number {
     let score = 0;
 
-    // Smoking compatibility (7 points)
     score += this.scoreSmokingCompatibility(
       context.preferences?.smokingHabit,
       candidate.smokingHabit,
     );
 
-    // Pet compatibility (7 points)
-    score += this.scorePetCompatibility(
-      context.preferences?.petOwnership,
-      candidate.petCompatibility,
-    );
+    score += this.scorePetCompatibility(candidate.petCompatibility);
 
-    // Alcohol compatibility (6 points)
     score += this.scoreAlcoholCompatibility(
       context.preferences?.alcoholConsumption,
       candidate.alcoholConsumption,
@@ -117,40 +110,44 @@ export class FeedScorerService {
       return 7; // Perfect match
     }
 
-    // Partial compatibility
+    // Partial compatibility between NO and SOCIAL
     if (
-      (userHabit === 'non_smoker' && candidateHabit === 'occasional') ||
-      (userHabit === 'occasional' && candidateHabit === 'non_smoker')
+      (userHabit === SMOKING_HABIT.NO &&
+        candidateHabit === SMOKING_HABIT.SOCIAL) ||
+      (userHabit === SMOKING_HABIT.SOCIAL &&
+        candidateHabit === SMOKING_HABIT.NO)
     ) {
       return 3;
+    }
+
+    // Partial compatibility between SOCIAL and REGULAR
+    if (
+      (userHabit === SMOKING_HABIT.SOCIAL &&
+        candidateHabit === SMOKING_HABIT.REGULAR) ||
+      (userHabit === SMOKING_HABIT.REGULAR &&
+        candidateHabit === SMOKING_HABIT.SOCIAL)
+    ) {
+      return 2;
     }
 
     return 0;
   }
 
   private scorePetCompatibility(
-    userPetOwnership: string | null | undefined,
     candidatePetCompatibility: string | null,
   ): number {
-    if (!userPetOwnership || !candidatePetCompatibility) return 0;
+    if (!candidatePetCompatibility) return 0;
 
-    // User has no pets
-    if (userPetOwnership === 'no_pets') {
-      if (candidatePetCompatibility === 'no_pets_allowed') return 7;
-      if (candidatePetCompatibility === 'pet_friendly') return 4;
-    }
-
-    // User has pets
-    if (userPetOwnership === 'has_pets') {
-      if (candidatePetCompatibility === 'pet_friendly') return 7;
-      if (candidatePetCompatibility === 'no_pets_allowed') return 0;
-    }
+    if (candidatePetCompatibility === PET_COMPATIBILITY.NO) return 7;
+    if (candidatePetCompatibility === PET_COMPATIBILITY.DOESNT_MATTER) return 5;
+    if (candidatePetCompatibility === PET_COMPATIBILITY.NO_BOTHERED) return 2;
+    if (candidatePetCompatibility === PET_COMPATIBILITY.YES_LOVE_PETS) return 0;
 
     return 0;
   }
 
   private scoreAlcoholCompatibility(
-    userConsumption: string | null | undefined,
+    userConsumption: keyof typeof ALCOHOL_LEVELS | undefined,
     candidateConsumption: string | null,
   ): number {
     if (!userConsumption || !candidateConsumption) return 0;
@@ -161,21 +158,19 @@ export class FeedScorerService {
 
     // Check proximity in alcohol levels
     const userLevel =
-      userConsumption in ALCOHOL_LEVELS
-        ? ALCOHOL_LEVELS[userConsumption as keyof typeof ALCOHOL_LEVELS]
-        : -1;
+      userConsumption in ALCOHOL_LEVELS ? ALCOHOL_LEVELS[userConsumption] : -1;
 
     const candidateLevel =
       candidateConsumption in ALCOHOL_LEVELS
-        ? ALCOHOL_LEVELS[candidateConsumption as keyof typeof ALCOHOL_LEVELS]
+        ? ALCOHOL_LEVELS[candidateConsumption]
         : -1;
 
     if (userLevel === -1 || candidateLevel === -1) return 0;
 
     const difference = Math.abs(userLevel - candidateLevel);
 
-    if (difference === 1) return 3; // Adjacent levels
-    if (difference === 2) return 1; // Two levels apart
+    if (difference === 1) return 3; // Adjacent levels (e.g., never ↔ occasionally)
+    if (difference === 2) return 1; // Two levels apart (e.g., never ↔ socially)
 
     return 0;
   }
@@ -184,7 +179,6 @@ export class FeedScorerService {
    * Profile Quality Score (5 points max)
    * Photo: 2 points
    * Verified photo: +1 point
-   * (Bio would be +2 points but not in current schema)
    */
   private scoreProfileQuality(candidate: EligibleUser): number {
     let score = 0;
@@ -207,11 +201,11 @@ export class FeedScorerService {
    * Older: 0 points
    */
   private scoreRecency(candidate: EligibleUser): number {
-    const hoursSinceActive = getHoursSinceActive(candidate.lastActiveAt);
+    const daysSinceActive = getDaysSinceActive(candidate.lastActiveAt);
 
-    if (hoursSinceActive < 24) return 5; // Last day
-    if (hoursSinceActive < 72) return 3; // Last 3 days
-    if (hoursSinceActive < 168) return 1; // Last week
+    if (daysSinceActive < 1) return 5; // Last 24 hours
+    if (daysSinceActive < 3) return 3; // Last 3 days
+    if (daysSinceActive < 7) return 1; // Last 7 days
 
     return 0;
   }

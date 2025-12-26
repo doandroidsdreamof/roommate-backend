@@ -44,7 +44,7 @@ export const postings = pgTable(
       .references(() => users.id, { onDelete: 'restrict' }),
 
     // Basic Info
-    type: postingTypeEnum('type').notNull(),
+    type: postingTypeEnum('type').notNull(), // TODO redundant field
     status: postingStatusEnum('status').default('active').notNull(),
     title: varchar('title', { length: 100 }).notNull(),
 

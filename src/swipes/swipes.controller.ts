@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import { SwipesService } from './swipes.service';

@@ -39,8 +39,15 @@ export class UsersService {
   async getUsername(email: string): Promise<string | undefined> {
     const userName = await this.db.query.users.findFirst({
       where: eq(schema.users.email, email),
+      with: {
+        profile: {
+          columns: {
+            name: true,
+          },
+        },
+      },
     });
-    return userName?.username;
+    return userName?.profile?.name;
   }
 
   async createUser(email: string) {

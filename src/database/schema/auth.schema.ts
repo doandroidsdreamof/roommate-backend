@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   pgTable,
   timestamp,
@@ -28,16 +29,20 @@ export const verifications = pgTable('verifications', {
   ...createdAndUpdatedTimestamps,
 });
 
-export const refreshToken = pgTable('refresh_tokens', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  tokenHash: varchar('token_hash', { length: 64 }).notNull(),
-  expiresAt: timestamp('expires_at')
-    .default(sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '3 months'`)
-    .notNull(),
-  isRevoked: boolean('is_revoked').default(false).notNull(),
-  ...createdAndUpdatedTimestamps,
-});
+export const refreshToken = pgTable(
+  'refresh_tokens',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+    expiresAt: timestamp('expires_at')
+      .default(sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '3 months'`)
+      .notNull(),
+    isRevoked: boolean('is_revoked').default(false).notNull(),
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [index('refresh_token_hash_idx').on(table.tokenHash)],
+);

@@ -30,7 +30,6 @@ export const users = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     email: varchar('email', { length: 255 }).notNull().unique(),
     phoneNumber: varchar('phone_number', { length: 20 }).unique(),
-    username: varchar('username', { length: 100 }).unique(),
     isActive: boolean('is_active').default(true).notNull(),
     isEmailVerified: boolean('is_email_verified').default(false).notNull(),
     isPhoneVerified: boolean('is_phone_verified').default(false).notNull(),
