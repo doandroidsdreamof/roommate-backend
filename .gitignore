@@ -38,4 +38,5 @@ lerna-debug.log*
 .env
 
 districts
-.meta
+
+**/drizzle/meta/
