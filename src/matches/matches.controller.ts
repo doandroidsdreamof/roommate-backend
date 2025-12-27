@@ -2,14 +2,17 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   HttpCode,
   HttpStatus,
+  Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { MatchesService } from './matches.service';
+import { ZodValidationPipe } from 'src/pipes/validation-pipe';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import { GetMatchesDto, getMatchesValidationSchema } from './dto/matches.dto';
+import { MatchesService } from './matches.service';
 
 @Controller('matches')
 @UseGuards(AuthGuard)
@@ -18,8 +21,12 @@ export class MatchesController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  getMatches(@AuthUser('sub') userId: string) {
-    return this.matchesService.getMatches(userId);
+  getMatches(
+    @AuthUser('sub') userId: string,
+    @Query(new ZodValidationPipe(getMatchesValidationSchema))
+    query: GetMatchesDto,
+  ) {
+    return this.matchesService.getMatches(userId, query);
   }
 
   @Delete(':matchId')

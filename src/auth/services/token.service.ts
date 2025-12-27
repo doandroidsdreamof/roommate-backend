@@ -1,15 +1,11 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'crypto';
 import { and, eq, not, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 
 @Injectable()
 export class TokenService {
@@ -60,7 +56,7 @@ export class TokenService {
         ),
       );
     if (storedToken.rowCount === 0) {
-      throw new UnauthorizedException('Logout failed');
+      throw new DomainException('LOGOUT_FAILED');
     }
   }
 

@@ -1,19 +1,15 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { and, eq, sql, or } from 'drizzle-orm';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { and, eq, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 import { paginateResults } from 'src/helpers/cursorPagination';
 import { BlockUserDto } from './dto/blocks.dto';
-import { BookmarkPostingDto, PaginationQueryDto } from './dto/bookmarks.dto';
+import {
+  BookmarkPostingDto,
+  BookmarkPaginationQueryDto,
+} from './dto/bookmarks.dto';
 import {
   CreatePreferencesDto,
   UpdatePreferencesDto,
@@ -25,6 +21,7 @@ import {
 } from './dto/profile-dto';
 import { PreferenceService } from './services/preference.service';
 import { ProfileService } from './services/profile.service';
+import { validateOwnership } from 'src/helpers/validateOwnership';
 
 @Injectable()
 export class UsersService {
@@ -76,7 +73,7 @@ export class UsersService {
     const { blockedId } = blockUserDto;
 
     if (userId === blockedId) {
-      throw new BadRequestException();
+      throw new DomainException('CANNOT_BLOCK_SELF');
     }
 
     const isBlockExist = await this.db.query.userBlocks.findFirst({
@@ -87,7 +84,7 @@ export class UsersService {
     });
 
     if (isBlockExist) {
-      throw new ConflictException();
+      throw new DomainException('BLOCK_ALREADY_EXISTS');
     }
 
     await this.db.insert(schema.userBlocks).values({
@@ -102,7 +99,7 @@ export class UsersService {
     const { blockedId } = unblockUserDto;
 
     if (userId === blockedId) {
-      throw new BadRequestException();
+      throw new DomainException('BLOCK_NOT_FOUND');
     }
 
     const result = await this.db
@@ -206,14 +203,13 @@ export class UsersService {
   private async validateUserExists(userId: string): Promise<void> {
     const user = await this.findById(userId);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new DomainException('USER_NOT_FOUND');
     }
   }
 
   async bookmarkPosting(userId: string, bookmarkDto: BookmarkPostingDto) {
     const { postingId } = bookmarkDto;
 
-    // TODO code duplication and ownership guards
     const posting = await this.db.query.postings.findFirst({
       where: and(
         eq(schema.postings.id, postingId),
@@ -222,7 +218,7 @@ export class UsersService {
     });
 
     if (!posting) {
-      throw new NotFoundException();
+      throw new DomainException('POSTING_NOT_FOUND');
     }
 
     const existingBookmark = await this.db.query.userBookmarks.findFirst({
@@ -231,9 +227,10 @@ export class UsersService {
         eq(schema.userBookmarks.postingId, postingId),
       ),
     });
+    validateOwnership(userId, existingBookmark.userId, 'bookmarkPosting');
 
     if (existingBookmark) {
-      throw new ConflictException('Posting already bookmarked');
+      throw new DomainException('BOOKMARK_ALREADY_EXISTS');
     }
 
     try {
@@ -258,7 +255,7 @@ export class UsersService {
       };
     } catch (error) {
       this.logger.error('Failed to bookmark posting', error);
-      throw new InternalServerErrorException('Failed to bookmark posting');
+      throw new DomainException('BOOKMARK_FAILED', { operation: 'create' });
     }
   }
 
@@ -273,7 +270,7 @@ export class UsersService {
     });
 
     if (!existingBookmark) {
-      throw new NotFoundException();
+      throw new DomainException('BOOKMARK_NOT_FOUND');
     }
 
     try {
@@ -282,7 +279,6 @@ export class UsersService {
           .delete(schema.userBookmarks)
           .where(eq(schema.userBookmarks.id, existingBookmark.id));
 
-        // Decrement bookmark count
         await tx
           .update(schema.postings)
           .set({
@@ -296,11 +292,14 @@ export class UsersService {
       };
     } catch (error) {
       this.logger.error('Failed to unbookmark posting', error);
-      throw new InternalServerErrorException();
+      throw new DomainException('BOOKMARK_FAILED', { operation: 'delete' });
     }
   }
 
-  async getUserBookmarks(userId: string, paginationDto: PaginationQueryDto) {
+  async getUserBookmarks(
+    userId: string,
+    paginationDto: BookmarkPaginationQueryDto,
+  ) {
     const { limit, cursor } = paginationDto;
     const bookmarks = await this.db.query.userBookmarks.findMany({
       where: and(
@@ -330,7 +329,6 @@ export class UsersService {
     });
     const { items, nextCursor, hasMore } = paginateResults(bookmarks, limit);
 
-    // TODO return type
     return {
       bookmarks: items.map((b) => ({
         id: b.id,
@@ -365,7 +363,7 @@ export class UsersService {
       return [...new Set(allRelatedIds)].filter((id) => id !== userId);
     } catch (error) {
       this.logger.error(error);
-      throw new InternalServerErrorException('An unexpected error occurred');
+      throw new DomainException('DATABASE_ERROR');
     }
   }
   async isBlockedRelationship(

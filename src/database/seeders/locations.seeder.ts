@@ -119,7 +119,6 @@ const PLATE_CODES: Record<string, number> = {
 async function seedLocations() {
   try {
     console.log('Creating Turkey...');
-    // clearLocationData().catch(console.error);
 
     const [turkey] = await db
       .insert(schema.countries)

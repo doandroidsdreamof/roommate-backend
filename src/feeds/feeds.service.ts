@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, gte, lte, ne } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -15,6 +9,7 @@ import {
 } from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 import { MatchesService } from 'src/matches/matches.service';
 import { SwipesService } from 'src/swipes/swipes.service';
 import { UsersService } from 'src/users/users.service';
@@ -59,7 +54,7 @@ export class FeedsService {
     });
 
     if (!profile?.preferences) {
-      throw new NotFoundException('Context not found');
+      throw new DomainException('PREFERENCES_NOT_FOUND');
     }
 
     return {
@@ -97,14 +92,11 @@ export class FeedsService {
     const candidates = await this.fetchEligiblePool(context);
     const filtered = await this.applyExclusions(userId, candidates);
     const scored = this.feedScorerService.scoreUsers(context, filtered);
-    this.logger.log('scored', scored.length);
     const sorted = scored.sort((a, b) => b.score - a.score).slice(0, 21);
-    this.logger.log('=======>', sorted.length);
 
     // TODO: shuffle algorithm
-    // TODO: Track shown users in Redis
-    //  score, scoreBreakdown,
-    return sorted.map(({ ...user }) => user); //* return top 20
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return sorted.map(({ score, scoreBreakdown, ...user }) => user); //* return top 20
   }
 
   private buildGenderFilter(context: FeedContext) {
@@ -165,11 +157,11 @@ export class FeedsService {
             ),
           ),
         )
-        .limit(1500);
+        .limit(1000);
       return result;
     } catch (error) {
       this.logger.error(error);
-      throw new InternalServerErrorException('An unexpected error occurred');
+      throw new DomainException('DATABASE_ERROR');
     }
   }
 }

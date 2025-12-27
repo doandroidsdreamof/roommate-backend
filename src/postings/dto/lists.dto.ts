@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getEnumValues } from 'src/helpers/getEnumValues';
 import { GENDER_PREFERENCE } from 'src/constants/enums';
+import { paginationQuerySchema } from 'src/shared/schema';
 
 const genderPreferenceValues = getEnumValues(GENDER_PREFERENCE);
 
@@ -11,7 +12,7 @@ const optionalBooleanParam = z
 
 export const listsQuerySchema = z.object({
   // Pagination
-  cursor: z.string().optional(),
+  ...paginationQuerySchema.shape,
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
 
   // Location filters

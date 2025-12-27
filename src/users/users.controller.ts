@@ -32,8 +32,8 @@ import { BlockUserDto, blockUserSchema } from './dto/blocks.dto';
 import {
   bookmarkPostingSchema,
   BookmarkPostingDto,
-  PaginationQueryDto,
-  paginationQuerySchema,
+  BookmarkPaginationQueryDto,
+  bookmarkPaginationQuery,
 } from './dto/bookmarks.dto';
 
 @Controller('users')
@@ -142,8 +142,8 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   getUserBookmarks(
     @AuthUser('sub') userId: string,
-    @Query(new ZodValidationPipe(paginationQuerySchema))
-    query: PaginationQueryDto,
+    @Query(new ZodValidationPipe(bookmarkPaginationQuery))
+    query: BookmarkPaginationQueryDto,
   ) {
     return this.usersService.getUserBookmarks(userId, query);
   }

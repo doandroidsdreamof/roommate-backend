@@ -1,15 +1,10 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { POSTING_STATUS } from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 import { validateOwnership } from 'src/helpers/validateOwnership';
 import { UsersService } from 'src/users/users.service';
 import {
@@ -18,7 +13,6 @@ import {
   UpdatePostingDto,
   UpdatePostingImagesDto,
 } from './dto/postings.dto';
-import { POSTING_STATUS } from 'src/constants/enums';
 
 @Injectable()
 export class PostingsService {
@@ -87,10 +81,8 @@ export class PostingsService {
       };
     } catch (error) {
       this.logger.error('Failed to create posting', error);
-
       this.logger.warn('Transaction rolled back');
-
-      throw new InternalServerErrorException('Failed to create posting');
+      throw new DomainException('POSTING_CREATION_FAILED');
     }
   }
 
@@ -103,7 +95,7 @@ export class PostingsService {
     });
 
     if (!posting) {
-      throw new NotFoundException('Posting not found');
+      throw new DomainException('POSTING_NOT_FOUND');
     }
 
     return posting;
@@ -121,10 +113,6 @@ export class PostingsService {
 
     try {
       await this.db.transaction(async (tx) => {
-        this.logger.debug('Transaction started');
-
-        this.logger.debug('Updating posting...');
-
         const updateData = {
           ...postingData,
           ...(postingData.availableFrom !== undefined && {
@@ -137,10 +125,7 @@ export class PostingsService {
           .set(updateData)
           .where(eq(schema.postings.id, postingId));
 
-        this.logger.debug('Posting updated');
         if (specs && Object.keys(specs).length > 0) {
-          this.logger.debug('Updating posting specs...');
-
           const specsUpdateData = {
             ...specs,
             ...(specs.availableUntil !== undefined && {
@@ -163,11 +148,10 @@ export class PostingsService {
         message: 'Posting updated successfully',
       };
     } catch (error) {
-      this.logger.warn('Transaction rolled back');
-      throw new InternalServerErrorException('Failed to update posting');
+      this.logger.warn('Update posting: transaction rolled back');
+      throw new DomainException('POSTING_UPDATE_FAILED');
     }
   }
-  // TODO more robust mechanisms to check
   private async checkDuplicatePosting(
     userId: string,
     neighborhoodId: number,
@@ -181,9 +165,7 @@ export class PostingsService {
       ),
     });
     if (existingPosting) {
-      throw new ConflictException(
-        'You already have an active posting in this neighborhood. Please deactivate it before creating a new one.',
-      );
+      throw new DomainException('DUPLICATE_POSTING');
     }
   }
 
@@ -203,7 +185,7 @@ export class PostingsService {
       .limit(1);
 
     if (!currentRecord[0]) {
-      throw new NotFoundException();
+      throw new DomainException('POSTING_IMAGE_NOT_FOUND');
     }
     //* do not update if there is no URL change
     const hasChanges = images.some((newImg) => {
@@ -250,7 +232,7 @@ export class PostingsService {
     validateOwnership(existingPosting.userId, userId, 'posting');
 
     if (existingPosting.deletedAt) {
-      throw new ConflictException('Posting is already closed');
+      throw new DomainException('POSTING_ALREADY_CLOSED');
     }
 
     await this.db
@@ -260,8 +242,6 @@ export class PostingsService {
         deletedAt: new Date(),
       })
       .where(eq(schema.postings.id, postingId));
-
-    this.logger.log(`Posting ${postingId} closed with status: ${status}`);
 
     return {
       message: `Posting closed successfully as ${status}`,

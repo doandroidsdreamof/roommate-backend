@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
-import { UsersService } from './users.service';
-import { ProfileService } from './services/profile.service';
+import { DomainException } from 'src/exceptions/domain.exception';
 import { PreferenceService } from './services/preference.service';
+import { ProfileService } from './services/profile.service';
+import { UsersService } from './users.service';
 
-describe('UsersService - validateUserExists', () => {
+describe('UsersService', () => {
   let service: UsersService;
   const mockDb = {
     query: {
@@ -28,11 +28,11 @@ describe('UsersService - validateUserExists', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  it('should throw NotFoundException when user does not exist', async () => {
+  it('should throw DomainException when user does not exist', async () => {
     mockDb.query.users.findFirst.mockResolvedValue(null);
 
     await expect(service['validateUserExists']('1')).rejects.toThrow(
-      NotFoundException,
+      DomainException,
     );
   });
 });

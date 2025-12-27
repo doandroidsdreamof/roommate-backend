@@ -1,15 +1,10 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DrizzleQueryError, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DatabaseError } from 'pg';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 import {
   CreatePreferencesDto,
   UpdatePreferencesDto,
@@ -40,16 +35,10 @@ export class PreferenceService {
       if (error instanceof DrizzleQueryError) {
         if (error.cause instanceof DatabaseError) {
           if (error.cause.code === '23505') {
-            throw new ConflictException(
-              'Preferences already exist for this user',
-            );
+            throw new DomainException('PREFERENCES_ALREADY_EXIST');
           }
         }
       }
-      this.logger.error(
-        `Failed to create preferences for user ${userId}`,
-        error,
-      );
       throw error;
     }
   }
@@ -81,7 +70,7 @@ export class PreferenceService {
     });
 
     if (!preference) {
-      throw new NotFoundException('Preferences not found');
+      throw new DomainException('PREFERENCES_NOT_FOUND');
     }
 
     return preference;

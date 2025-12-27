@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -5,6 +6,7 @@ import { EmailService } from '../mail/email.service';
 import { OtpService } from './services/otp.service';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './services/token.service';
+import { DomainException } from 'src/exceptions/domain.exception';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -125,13 +127,13 @@ describe('AuthService', () => {
         'test@gmail.com',
       );
     });
-    it('should throw UnauthorizedException for invalid OTP', async () => {
+    it('should throw DomainException for invalid OTP', async () => {
       // Arrange
       const optDto = { email: 'test@gmail.com', otp: '123456' };
       mockOtpService.verifyOtp.mockResolvedValue(false);
       // Assert
       await expect(authService.authenticate(optDto)).rejects.toThrow(
-        new UnauthorizedException('Invalid OTP'),
+        new DomainException('INVALID_OTP'),
       );
     });
   });

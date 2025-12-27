@@ -1,18 +1,13 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, gte } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 import { MatchesService } from 'src/matches/matches.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateSwipeDto } from './dto/swipes.dto';
+import { SWIPE_ACTIONS } from 'src/constants/enums';
 
 /* 
 
@@ -39,21 +34,21 @@ export class SwipesService {
     const { action, swipedId } = createSwipeDto;
 
     if (userId === swipedId) {
-      throw new BadRequestException('Cannot swipe on yourself');
+      throw new DomainException('CANNOT_SWIPE_SELF');
     }
     const targetUser = await this.db.query.users.findFirst({
       where: eq(schema.users.id, swipedId),
     });
 
     if (!targetUser) {
-      throw new NotFoundException('User not found');
+      throw new DomainException('SWIPE_TARGET_NOT_FOUND');
     }
     const isBlocked = await this.usersService.isBlockedRelationship(
       userId,
       swipedId,
     );
     if (isBlocked) {
-      throw new BadRequestException('Cannot swipe on blocked user');
+      throw new DomainException('BLOCKED_USER_INTERACTION');
     }
     try {
       const [swipe] = await this.db
@@ -68,12 +63,12 @@ export class SwipesService {
           set: { action, updatedAt: new Date() },
         })
         .returning();
-      if (action === 'like') {
+      if (action === SWIPE_ACTIONS.LIKE) {
         const mutualLike = await this.db.query.swipes.findFirst({
           where: and(
             eq(schema.swipes.swiperId, swipedId),
             eq(schema.swipes.swipedId, userId),
-            eq(schema.swipes.action, 'like'),
+            eq(schema.swipes.action, SWIPE_ACTIONS.LIKE),
           ),
         });
 
@@ -86,7 +81,7 @@ export class SwipesService {
       return { swipe, matched: false };
     } catch (error) {
       this.logger.error('Swipe action failed', error);
-      throw new InternalServerErrorException('Failed to process swipe');
+      throw new DomainException('SWIPE_FAILED');
     }
   }
 
@@ -97,7 +92,7 @@ export class SwipesService {
       .where(
         and(
           eq(schema.swipes.swiperId, userId),
-          eq(schema.swipes.action, 'like'),
+          eq(schema.swipes.action, SWIPE_ACTIONS.LIKE),
         ),
       );
 
@@ -114,7 +109,7 @@ export class SwipesService {
       .where(
         and(
           eq(schema.swipes.swiperId, userId),
-          eq(schema.swipes.action, 'pass'),
+          eq(schema.swipes.action, SWIPE_ACTIONS.PASS),
           gte(schema.swipes.createdAt, thirtyDaysAgo),
         ),
       );

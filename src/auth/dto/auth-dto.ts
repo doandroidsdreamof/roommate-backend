@@ -1,8 +1,6 @@
 import { emailSchema, refreshToken } from 'src/shared/schema';
 import z from 'zod';
 
-// TODO code duplication
-// TODO hardcoded validation errors
 export const otpValidationSchema = z.object({
   ...emailSchema.shape,
 });

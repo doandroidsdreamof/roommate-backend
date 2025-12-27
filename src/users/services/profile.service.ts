@@ -1,14 +1,9 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { DomainException } from 'src/exceptions/domain.exception';
 import {
   CreateProfileDto,
   UpdateAddressDto,
@@ -29,7 +24,7 @@ export class ProfileService {
     });
 
     if (existingProfile) {
-      throw new ConflictException('Profile already exists for this user');
+      throw new DomainException('PROFILE_ALREADY_EXISTS');
     }
 
     const [profile] = await this.db
@@ -49,7 +44,7 @@ export class ProfileService {
     });
 
     if (!profile) {
-      throw new NotFoundException('Profile not found');
+      throw new DomainException('PROFILE_NOT_FOUND');
     }
 
     return profile;
@@ -60,7 +55,7 @@ export class ProfileService {
       where: eq(schema.profile.userId, userId),
     });
     if (!existingProfile) {
-      throw new NotFoundException('Profile not found');
+      throw new DomainException('PROFILE_NOT_FOUND');
     }
 
     const [updatedProfile] = await this.db
@@ -71,7 +66,6 @@ export class ProfileService {
       .where(eq(schema.profile.userId, userId))
       .returning();
 
-    this.logger.log(`Photo updated for user: ${userId}`);
     return updatedProfile;
   }
 
@@ -84,7 +78,7 @@ export class ProfileService {
     });
 
     if (!existingProfile) {
-      throw new NotFoundException('Profile not found');
+      throw new DomainException('PROFILE_NOT_FOUND');
     }
 
     const [updatedProfile] = await this.db
@@ -96,7 +90,6 @@ export class ProfileService {
       .where(eq(schema.profile.userId, userId))
       .returning();
 
-    this.logger.log(`Address updated for user: ${userId}`);
     return updatedProfile;
   }
 }

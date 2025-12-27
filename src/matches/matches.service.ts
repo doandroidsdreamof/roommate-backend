@@ -1,15 +1,12 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { and, eq, isNull, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { Matches } from 'src/database/schema';
-import { and, eq, isNull, or } from 'drizzle-orm';
+import { DomainException } from 'src/exceptions/domain.exception';
+import { paginateResults } from 'src/helpers/cursorPagination';
+import { GetMatchesDto } from './dto/matches.dto';
 
 @Injectable()
 export class MatchesService {
@@ -19,9 +16,10 @@ export class MatchesService {
     private db: NodePgDatabase<typeof schema>,
   ) {}
 
-  // TODO pagination
-  async getMatches(userId: string) {
+  async getMatches(userId: string, dto: GetMatchesDto) {
     try {
+      const { cursor } = dto;
+      const LIMIT = 20;
       const matches = await this.db.query.matches.findMany({
         where: and(
           or(
@@ -29,12 +27,23 @@ export class MatchesService {
             eq(schema.matches.userSecondId, userId),
           ),
           isNull(schema.matches.unmatchedAt),
+          cursor
+            ? sql`${schema.matches.createdAt} < ${new Date(cursor)}`
+            : undefined,
         ),
+        orderBy: (matches, { desc }) => [desc(matches.createdAt)],
+        limit: LIMIT + 1,
       });
-      return matches;
+      const { items, nextCursor, hasMore } = paginateResults(matches, LIMIT);
+
+      return {
+        ...items,
+        nextCursor,
+        hasMore,
+      };
     } catch (error) {
       this.logger.error('Failed to get matches', error);
-      throw new InternalServerErrorException('Failed to get matches');
+      throw new DomainException('DATABASE_ERROR');
     }
   }
 
@@ -56,13 +65,15 @@ export class MatchesService {
         .returning();
 
       if (!match) {
-        throw new NotFoundException('Match not found or already unmatched');
+        throw new DomainException('MATCH_NOT_FOUND');
       }
-      this.logger.log(`Match ${matchId} unmatched by user ${userId}`);
       return { message: 'Unmatched' };
     } catch (error) {
       this.logger.error('Failed to unmatch', error);
-      throw new InternalServerErrorException('Failed to unmatch');
+      if (error instanceof DomainException) {
+        throw error;
+      }
+      throw new DomainException('UNMATCH_FAILED');
     }
   }
 
@@ -89,7 +100,7 @@ export class MatchesService {
       return data; // Returns undefined already matched
     } catch (error) {
       this.logger.error('Failed to create match', error);
-      throw new InternalServerErrorException('Failed to create match');
+      throw new DomainException('MATCH_CREATION_FAILED');
     }
   }
   async getMatchedUserIds(userId: string): Promise<string[]> {

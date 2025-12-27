@@ -1,13 +1,14 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { DomainException } from 'src/exceptions/domain.exception';
 import { EmailService } from 'src/mail/email.service';
+import { UsersService } from 'src/users/users.service';
 import {
-  VerifyOtpDTO,
+  LogoutDTO,
   OtpDTO,
   RefreshTokenDTO,
-  LogoutDTO,
+  VerifyOtpDTO,
 } from './dto/auth-dto';
 import { OtpService } from './services/otp.service';
-import { UsersService } from 'src/users/users.service';
 import { TokenService } from './services/token.service';
 
 @Injectable()
@@ -45,7 +46,7 @@ export class AuthService {
 
     const isValid = await this.otpService.verifyOtp(email, otp);
     if (!isValid) {
-      throw new UnauthorizedException('Invalid OTP');
+      throw new DomainException('INVALID_OTP');
     }
 
     let user = await this.usersService.findByEmail(email);
@@ -60,7 +61,6 @@ export class AuthService {
   async login(userId: string, email: string) {
     const refreshToken = await this.tokenService.createRefreshToken(userId);
     const accessToken = this.tokenService.createAccessToken(userId, email);
-    // TODO move accessToken to Bearer
     return { accessToken: accessToken, refreshToken: refreshToken };
   }
 
@@ -76,7 +76,7 @@ export class AuthService {
     const userId = await this.tokenService.validateRefreshToken(refreshToken);
     this.logger.log(userId);
     if (!userId) {
-      throw new UnauthorizedException();
+      throw new DomainException('INVALID_REFRESH_TOKEN');
     }
     const user = await this.usersService.findById(userId);
 

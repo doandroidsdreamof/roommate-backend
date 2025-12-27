@@ -7,3 +7,7 @@ export const emailSchema = z.object({
 export const refreshToken = z.object({
   refreshToken: z.string().min(5), //TODO move it to config
 });
+
+export const paginationQuerySchema = z.object({
+  cursor: z.string().optional(),
+});
