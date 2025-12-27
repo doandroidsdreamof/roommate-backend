@@ -36,8 +36,6 @@ import {
   paginationQuerySchema,
 } from './dto/bookmarks.dto';
 
-// TODO refactor child service bindings inject them like usersService
-// TODO resetting otp attempt count
 @Controller('users')
 @UseGuards(AuthGuard)
 export class UsersController {
@@ -140,7 +138,6 @@ export class UsersController {
   ) {
     return this.usersService.unbookmarkPosting(userId, bookmarkDto);
   }
-  // TODO validation
   @Get('bookmarks')
   @HttpCode(HttpStatus.OK)
   getUserBookmarks(

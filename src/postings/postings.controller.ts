@@ -45,30 +45,24 @@ export class PostingsController {
     return this.postingsService.create(userId, createPostingDto);
   }
 
-  @Patch(':id')
-  @HttpCode(HttpStatus.OK)
-  update(
-    @AuthUser('sub') userId: string,
-    @Param('id') postingId: string,
-    @Body(new ZodValidationPipe(updatePostingSchema))
-    updatePostingDto: UpdatePostingDto,
-  ) {
-    return this.postingsService.update(userId, postingId, updatePostingDto);
-  }
-
-  @Patch(':id/images')
+  @Patch('images')
   @HttpCode(HttpStatus.OK)
   updateImages(
     @AuthUser('sub') userId: string,
-    @Param('id') postingId: string,
     @Body(new ZodValidationPipe(postingImageUpdateSchema))
     updatePostingImageDto: UpdatePostingImagesDto,
   ) {
     return this.postingsService.updatePostingsImages(
       userId,
-      postingId,
       updatePostingImageDto,
     );
+  }
+  @Get('lists')
+  @HttpCode(HttpStatus.OK)
+  getLists(
+    @Query(new ZodValidationPipe(listsQuerySchema)) query: ListsQueryDto,
+  ) {
+    return this.listsService.getLists(query);
   }
 
   @Patch(':id/close')
@@ -85,12 +79,14 @@ export class PostingsController {
       closePostingDto,
     );
   }
-
-  @Get('lists')
+  @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  getLists(
-    @Query(new ZodValidationPipe(listsQuerySchema)) query: ListsQueryDto,
+  update(
+    @AuthUser('sub') userId: string,
+    @Param('id') postingId: string,
+    @Body(new ZodValidationPipe(updatePostingSchema))
+    updatePostingDto: UpdatePostingDto,
   ) {
-    return this.listsService.getLists(query);
+    return this.postingsService.update(userId, postingId, updatePostingDto);
   }
 }

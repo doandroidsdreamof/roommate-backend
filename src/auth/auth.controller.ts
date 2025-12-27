@@ -15,6 +15,8 @@ import { AuthGuard } from './auth.guard';
 import { AuthUser } from './decorators/auth-user.decorator';
 
 // TODO http-only mechanism
+// TODO resetting otp attempt count
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

@@ -35,12 +35,17 @@ export const postingImageSchema = z.object({
   order: z.number().max(5), // TODO hardcoded config. It will be change based on scale of app
 });
 
-export const postingImageUpdateSchema = z.object({
-  postingImageId: z.uuid(),
+const postingImages = z.object({
   images: z
     .array(postingImageSchema)
-    .max(5, 'Maximum 5 images allowed')
+    .max(5, 'Maximum 5 images allowed') // TODO hardcoded config
     .optional(),
+});
+
+export const postingImageUpdateSchema = z.object({
+  postingImageId: z.uuid(),
+  postingId: z.uuid(),
+  ...postingImages.shape,
 });
 
 const postingsSpecsSchema = z.object({
@@ -92,32 +97,19 @@ export const createPostingSchema = z.object({
   preferredRoommateGender: z.enum(genderPreferenceValues),
   availableFrom: z.iso.datetime(),
   specs: postingsSpecsSchema,
-  images: z
-    .array(postingImageSchema)
-    .max(5, 'Maximum 5 images allowed') // TODO hardcoded config
-    .optional(),
+  ...postingImages.shape,
 });
 
-export const updatePostingSchema = z
-  .object({
-    rentAmount: z.number().int().positive().optional(),
-    roomCount: z.number().int().min(1).optional(),
-    bathroomCount: z.number().int().min(1).optional(),
-    squareMeters: z.number().int().positive().optional(),
-    isFurnished: z.boolean().optional(),
-    preferredRoommateGender: z.enum(genderPreferenceValues).optional(),
-    availableFrom: z.iso.datetime().optional(),
-    specs: postingsSpecsSchema.partial().optional(),
-  })
-  .refine(
-    (data) => {
-      //* it can be buggy regarding postings => postingsSpecs => postingsImages
-      const { ...postingData } = data;
-      const hasPostingUpdates = Object.keys(postingData).length > 0;
-      return hasPostingUpdates;
-    },
-    { message: 'At least one field must be provided to update' },
-  );
+export const updatePostingSchema = z.object({
+  rentAmount: z.number().int().positive().optional(),
+  roomCount: z.number().int().min(1).optional(),
+  bathroomCount: z.number().int().min(1).optional(),
+  squareMeters: z.number().int().positive().optional(),
+  isFurnished: z.boolean().optional(),
+  preferredRoommateGender: z.enum(genderPreferenceValues).optional(),
+  availableFrom: z.iso.datetime().optional(),
+  specs: postingsSpecsSchema.partial().optional(),
+});
 
 export type CreatePostingDto = z.infer<typeof createPostingSchema>;
 export type UpdatePostingDto = z.infer<typeof updatePostingSchema>;

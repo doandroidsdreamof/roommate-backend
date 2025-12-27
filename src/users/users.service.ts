@@ -300,10 +300,6 @@ export class UsersService {
     }
   }
 
-  // TODO separated service for bookmarks
-  // TODO return last timeStamp as nextCursor
-  // TODO how to use with UUIDs => Composite Values?
-  // TODO tests for pagination
   async getUserBookmarks(userId: string, paginationDto: PaginationQueryDto) {
     const { limit, cursor } = paginationDto;
     const bookmarks = await this.db.query.userBookmarks.findMany({

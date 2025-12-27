@@ -189,10 +189,10 @@ export class PostingsService {
 
   async updatePostingsImages(
     userId: string,
-    postingId: string,
     postingImageDto: UpdatePostingImagesDto,
   ) {
-    const { postingImageId, images } = postingImageDto;
+    const { postingImageId, postingId, images } = postingImageDto;
+    this.logger.log('TEST================>', images);
     const existingPosting = await this.findPostingById(postingId);
     validateOwnership(existingPosting.userId, userId, 'posting_image');
 
