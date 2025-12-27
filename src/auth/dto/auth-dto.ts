@@ -1,23 +1,23 @@
+import { emailSchema, refreshToken } from 'src/shared/schema';
 import z from 'zod';
 
 // TODO code duplication
 // TODO hardcoded validation errors
 export const otpValidationSchema = z.object({
-  email: z.email({ message: 'Invalid email address' }),
+  ...emailSchema.shape,
 });
 
 export const verifyOtpValidationSchema = z.object({
-  email: z.email({ message: 'Invalid email address' }),
+  ...emailSchema.shape,
   otp: z.string().length(6),
 });
 
 export const refreshTokenValidationSchema = z.object({
-  refreshToken: z.string().min(5), //TODO move it to config
+  ...refreshToken.shape,
 });
 
 export const logoutValidationSchema = z.object({
-  refreshToken: z.string().min(5), //TODO move it to config
-  userId: z.string(),
+  ...refreshToken.shape,
 });
 
 export type LogoutDTO = z.infer<typeof logoutValidationSchema>;

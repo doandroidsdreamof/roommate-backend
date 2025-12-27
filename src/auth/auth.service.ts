@@ -64,9 +64,8 @@ export class AuthService {
     return { accessToken: accessToken, refreshToken: refreshToken };
   }
 
-  async logout(dto: LogoutDTO) {
-    // TODO get userId from JWT
-    const { refreshToken, userId } = dto;
+  async logout(dto: LogoutDTO, userId: string) {
+    const { refreshToken } = dto;
     //* what if this silently faield
     await this.tokenService.revokeRefreshToken(refreshToken, userId);
     return { message: 'Logged out successfully' };

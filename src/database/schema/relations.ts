@@ -56,7 +56,7 @@ export const neighborhoodsRelations = relations(neighborhoods, ({ one }) => ({
 
 // User Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
-  verifications: one(verifications),
+  verifications: one(verifications), // TODO rename it singular
   refreshToken: one(refreshToken),
   profile: one(profile),
   preferences: one(preferences),

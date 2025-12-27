@@ -1,5 +1,6 @@
 import {
   boolean,
+  check,
   index,
   integer,
   pgTable,
@@ -13,21 +14,24 @@ import { users } from './users.schema';
 import { sql } from 'drizzle-orm';
 import { createdAndUpdatedTimestamps } from './shared-types';
 
-export const verifications = pgTable('verifications', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
-    .unique(),
-  status: verificationStatus('status')
-    .default(VERIFICATION_STATUS.PENDING)
-    .notNull(),
-  identifier: varchar('identifier', { length: 255 }).notNull().unique(),
-  attemptsCount: integer('attempts_count').default(0).notNull(),
-  maxAttempts: integer('max_attempts').default(3).notNull(),
-  code: varchar('code', { length: 6 }),
-  codeExpiresAt: timestamp('code_expires_at'),
-  ...createdAndUpdatedTimestamps,
-});
+export const verifications = pgTable(
+  'verifications',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .unique(),
+    status: verificationStatus('status')
+      .default(VERIFICATION_STATUS.PENDING)
+      .notNull(),
+    identifier: varchar('identifier', { length: 255 }).notNull().unique(),
+    attemptsCount: integer('attempts_count').default(0).notNull(),
+    code: varchar('code', { length: 6 }),
+    codeExpiresAt: timestamp('code_expires_at'),
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [check('attempts_count', sql`${table.attemptsCount} <= 3`)], //* limit max attempt with CHECK Constraint
+);
 
 export const refreshToken = pgTable(
   'refresh_tokens',

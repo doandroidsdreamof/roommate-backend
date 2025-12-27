@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomInt } from 'crypto';
 import { and, eq, gt, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { OTP_LENGTH } from 'src/constants/configuration';
+import { OTP_LENGTH, OTP_MAX_ATTEMPTS } from 'src/constants/configuration';
 import { VERIFICATION_STATUS } from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -46,9 +46,11 @@ export class OtpService {
     return otp;
   }
   async verifyOtp(email: string, code: string): Promise<boolean> {
-    // TODO refactor SELECT
     const [verification] = await this.db
-      .select()
+      .select({
+        attemptsCount: schema.verifications.attemptsCount,
+        code: schema.verifications.code,
+      })
       .from(schema.verifications)
       .where(
         and(
@@ -59,25 +61,18 @@ export class OtpService {
       )
       .limit(1);
 
-    if (
-      !verification ||
-      verification.attemptsCount >= verification.maxAttempts
-    ) {
-      this.logger.log('verification is failed => verifyOtp');
+    if (!verification || verification.attemptsCount >= OTP_MAX_ATTEMPTS) {
+      this.logger.log('verifyOtp: verification is failed');
       return false;
     }
 
     if (verification.code !== code) {
-      // TODO review here
-      this.logger.log('otp code is mismatched => verifyOtp');
       await this.db
         .update(schema.verifications)
-        .set({ attemptsCount: verification.attemptsCount + 1 })
+        .set({ attemptsCount: sql`${schema.verifications.attemptsCount} + 1` }) //* make it in db level to prevent race condition
         .where(eq(schema.verifications.identifier, email));
       return false;
     }
-    this.logger.log('success => verifyOtp');
-
     await this.db
       .update(schema.verifications)
       .set({ status: VERIFICATION_STATUS.VERIFIED })

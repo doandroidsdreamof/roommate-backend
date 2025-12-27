@@ -12,7 +12,9 @@ import {
   logoutValidationSchema,
 } from './dto/auth-dto';
 import { AuthGuard } from './auth.guard';
+import { AuthUser } from './decorators/auth-user.decorator';
 
+// TODO http-only mechanism
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -30,9 +32,11 @@ export class AuthController {
   }
   @UseGuards(AuthGuard)
   @Post('logout')
-  @UsePipes(new ZodValidationPipe(logoutValidationSchema))
-  logout(@Body() dto: LogoutDTO) {
-    return this.authService.logout(dto);
+  logout(
+    @AuthUser('sub') userId: string,
+    @Body(new ZodValidationPipe(logoutValidationSchema)) dto: LogoutDTO,
+  ) {
+    return this.authService.logout(dto, userId);
   }
   // TODO rate-limitter
   @Post('refresh')
