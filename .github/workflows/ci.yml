@@ -39,6 +39,6 @@ jobs:
 
       - run: npm ci
 
-      - run: drizzle-kit push --config=drizzle-test.config.ts
+      - run: npx drizzle-kit push --config=drizzle-test.config.ts
 
       - run: npm test
