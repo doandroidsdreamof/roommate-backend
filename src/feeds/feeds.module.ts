@@ -1,14 +1,11 @@
 import { Module } from '@nestjs/common';
-import { FeedsService } from './feeds.service';
-import { FeedsController } from './feeds.controller';
 import { DrizzleModule } from 'src/database/drizzle.module';
-import { UsersModule } from 'src/users/users.module';
-import { SwipesModule } from 'src/swipes/swipes.module';
-import { MatchesModule } from 'src/matches/matches.module';
+import { FeedsController } from './feeds.controller';
+import { FeedsService } from './feeds.service';
 import { FeedScorerService } from './services/feedScorer.service';
 
 @Module({
-  imports: [DrizzleModule, UsersModule, SwipesModule, MatchesModule],
+  imports: [DrizzleModule],
   controllers: [FeedsController],
   providers: [FeedsService, FeedScorerService],
 })

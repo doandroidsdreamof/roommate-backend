@@ -103,25 +103,4 @@ export class MatchesService {
       throw new DomainException('MATCH_CREATION_FAILED');
     }
   }
-  async getMatchedUserIds(userId: string): Promise<string[]> {
-    const matches = await this.db
-      .select({
-        userFirstId: schema.matches.userFirstId,
-        userSecondId: schema.matches.userSecondId,
-      })
-      .from(schema.matches)
-      .where(
-        and(
-          or(
-            eq(schema.matches.userFirstId, userId),
-            eq(schema.matches.userSecondId, userId),
-          ),
-          isNull(schema.matches.unmatchedAt),
-        ),
-      );
-
-    return matches.map((m) =>
-      m.userFirstId === userId ? m.userSecondId : m.userFirstId,
-    );
-  }
 }

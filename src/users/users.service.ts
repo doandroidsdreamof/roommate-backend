@@ -336,32 +336,6 @@ export class UsersService {
       hasMore,
     };
   }
-  async getBlockedUserIds(userId: string): Promise<string[]> {
-    try {
-      const blockedIds = await this.db
-        .selectDistinct({
-          blockerId: schema.userBlocks.blockerId,
-          blockedId: schema.userBlocks.blockedId,
-        })
-        .from(schema.userBlocks)
-        .where(
-          or(
-            eq(schema.userBlocks.blockedId, userId),
-            eq(schema.userBlocks.blockerId, userId),
-          ),
-        );
-
-      const allRelatedIds = blockedIds.flatMap((item) => [
-        item.blockerId,
-        item.blockedId,
-      ]);
-
-      return [...new Set(allRelatedIds)].filter((id) => id !== userId);
-    } catch (error) {
-      this.logger.error(error);
-      throw new DomainException('DATABASE_ERROR');
-    }
-  }
   async isBlockedRelationship(
     userId: string,
     targetUserId: string,

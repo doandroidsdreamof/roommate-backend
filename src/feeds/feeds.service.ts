@@ -1,18 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, gte, lte, ne } from 'drizzle-orm';
+import { and, eq, gte, lte, ne, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   ACCOUNT_STATUS,
   GENDER,
   GENDER_PREFERENCE,
   HOUSING_SEARCH_TYPE,
+  SWIPE_ACTIONS,
 } from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { DomainException } from 'src/exceptions/domain.exception';
-import { MatchesService } from 'src/matches/matches.service';
-import { SwipesService } from 'src/swipes/swipes.service';
-import { UsersService } from 'src/users/users.service';
 import { FeedScorerService } from './services/feedScorer.service';
 import { EligibleUser, FeedContext } from './types';
 
@@ -22,9 +20,6 @@ export class FeedsService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: NodePgDatabase<typeof schema>,
-    private usersService: UsersService,
-    private swipesService: SwipesService,
-    private matchesService: MatchesService,
     private feedScorerService: FeedScorerService,
   ) {}
 
@@ -67,23 +62,62 @@ export class FeedsService {
       preferences: profile.preferences,
     };
   }
+  private async getExcludedUserIds(userId: string): Promise<string[]> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    try {
+      const result = await this.db.execute<{ excluded_id: string }>(sql`
+      SELECT DISTINCT excluded_id 
+      FROM (
+        SELECT CASE 
+          WHEN ${schema.userBlocks.blockerId} = ${userId} 
+          THEN ${schema.userBlocks.blockedId}
+          ELSE ${schema.userBlocks.blockerId}
+        END AS excluded_id
+        FROM ${schema.userBlocks}
+        WHERE ${schema.userBlocks.blockedId} = ${userId} 
+           OR ${schema.userBlocks.blockerId} = ${userId}
+        
+        UNION ALL
+        
+        SELECT ${schema.swipes.swipedId}
+        FROM ${schema.swipes}
+        WHERE ${schema.swipes.swiperId} = ${userId}
+          AND ${schema.swipes.action} = ${SWIPE_ACTIONS.PASS}
+          AND ${schema.swipes.createdAt} >= ${thirtyDaysAgo}
+        
+        UNION ALL
+        
+        SELECT ${schema.swipes.swipedId}
+        FROM ${schema.swipes}
+        WHERE ${schema.swipes.swiperId} = ${userId}
+          AND ${schema.swipes.action} = ${SWIPE_ACTIONS.LIKE}
+        
+        UNION ALL
+        
+        SELECT CASE 
+          WHEN ${schema.matches.userFirstId} = ${userId} 
+          THEN ${schema.matches.userSecondId}
+          ELSE ${schema.matches.userFirstId}
+        END
+        FROM ${schema.matches}
+        WHERE (${schema.matches.userFirstId} = ${userId}
+               OR ${schema.matches.userSecondId} = ${userId})
+          AND ${schema.matches.unmatchedAt} IS NULL
+      ) AS all_excluded
+    `);
+
+      return result.rows.map((row) => row.excluded_id);
+    } catch (error) {
+      this.logger.error('Failed to get excluded user IDs', error);
+      throw new DomainException('DATABASE_ERROR');
+    }
+  }
 
   //* filter feed candidates based on multiple criteria before weighting
   async applyExclusions(userId: string, candidates: EligibleUser[]) {
-    const [blockedIds, passedIds, likedIds, matchedIds] = await Promise.all([
-      this.usersService.getBlockedUserIds(userId),
-      this.swipesService.getPassedSwipeIds(userId),
-      this.swipesService.getLikedSwipeIds(userId),
-      this.matchesService.getMatchedUserIds(userId),
-    ]);
-
-    const excludedIds = new Set([
-      ...blockedIds,
-      ...passedIds,
-      ...likedIds,
-      ...matchedIds,
-    ]);
-
+    const excludedIds = new Set(await this.getExcludedUserIds(userId));
     return candidates.filter((c) => !excludedIds.has(c.userId));
   }
 
