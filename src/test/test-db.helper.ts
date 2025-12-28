@@ -13,6 +13,7 @@ class TestDatabase {
   private constructor() {
     this.pool = new Pool({
       connectionString:
+        process.env.DATABASE_URL_TEST ||
         'postgresql://postgres:postgres@localhost:5435/roommate_test',
     });
     this.db = drizzle(this.pool, { schema });
