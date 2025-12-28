@@ -39,6 +39,7 @@
 
 - [x] Seeder for locations
 - [x] Swagger setup
+- [ ] Factory methods for integration tests
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
@@ -81,7 +82,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] Bookmark feature and count of it for posts
 - [x] Posting type (offering_room, looking_for_room, looking_for_roommate)
 - [x] Posting status (active/inactive/rented)
-- [ ]  Max postings constraint 
+- [ ] Max postings constraint
 
 ## Phase 4: Discovery & Matching
 

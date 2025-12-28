@@ -1,0 +1,12 @@
+services:
+  test-db:
+    image: postgres:16-alpine
+    container_name: roommate-backend-test-db-1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: roommate_test
+    ports:
+      - '127.0.0.1:5435:5432'
+    tmpfs: # temporary RAM storage
+      - /var/lib/postgresql/data

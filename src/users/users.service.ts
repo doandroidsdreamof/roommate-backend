@@ -185,8 +185,6 @@ export class UsersService {
       .update(schema.users)
       .set({ postingCount: sql`${schema.users.postingCount} + 1` })
       .where(eq(schema.users.id, userId));
-
-    this.logger.debug(`Incremented posting count for user ${userId}`);
   }
 
   async decrementPostingCount(userId: string): Promise<void> {
@@ -196,11 +194,9 @@ export class UsersService {
         postingCount: sql`GREATEST(${schema.users.postingCount} - 1, 0)`, // Prevent negative
       })
       .where(eq(schema.users.id, userId));
-
-    this.logger.debug(`Decremented posting count for user ${userId}`);
   }
 
-  private async validateUserExists(userId: string): Promise<void> {
+  protected async validateUserExists(userId: string): Promise<void> {
     const user = await this.findById(userId);
     if (!user) {
       throw new DomainException('USER_NOT_FOUND');
