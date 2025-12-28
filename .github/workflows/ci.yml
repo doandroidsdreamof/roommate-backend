@@ -12,6 +12,7 @@ jobs:
 
     env:
       NODE_ENV: test
+      DATABASE_URL_TEST: postgresql://test_user:test_password@localhost:5432/roommate_test
 
     services:
       postgres:
@@ -35,6 +36,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - run: npm ci
 
