@@ -120,7 +120,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 #### Optimizations
 
-- [ ] Redis cache for feed sets
+- [x] Redis cache for feed sets
 - [ ] Query indexes on swipes table
 - [ ] Archive old swipes (>6 months)
 

@@ -2,10 +2,12 @@ import { sql } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from 'src/database/schema';
+import { TestFactories } from './factories';
 
 class TestDatabase {
   private static instance: TestDatabase;
   private pool: Pool;
+  public factories: TestFactories;
   public db: NodePgDatabase<typeof schema>;
   private locationSeeded = false;
   public testNeighborhoodId: number | null = null;
@@ -17,6 +19,7 @@ class TestDatabase {
         'postgresql://postgres:postgres@localhost:5435/roommate_test',
     });
     this.db = drizzle(this.pool, { schema });
+    this.factories = new TestFactories(this.db);
   }
 
   static getInstance() {
@@ -77,12 +80,19 @@ class TestDatabase {
 
     await this.db.execute(sql`
     TRUNCATE TABLE 
-      posting_images, posting_specs, postings,
-      user_bookmarks, user_blocks,
-      matches, swipes, 
-      preferences, profile, 
-      refresh_tokens, verifications, users 
-    RESTART IDENTITY
+      posting_images, 
+      posting_specs, 
+      postings,
+      user_bookmarks, 
+      user_blocks,
+      matches, 
+      swipes, 
+      preferences, 
+      profile, 
+      refresh_tokens, 
+      verifications, 
+      users 
+    RESTART IDENTITY CASCADE
     `);
   }
 

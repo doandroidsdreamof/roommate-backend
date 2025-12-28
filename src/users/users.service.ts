@@ -7,8 +7,8 @@ import { DomainException } from 'src/exceptions/domain.exception';
 import { paginateResults } from 'src/helpers/cursorPagination';
 import { BlockUserDto } from './dto/blocks.dto';
 import {
-  BookmarkPostingDto,
   BookmarkPaginationQueryDto,
+  BookmarkPostingDto,
 } from './dto/bookmarks.dto';
 import {
   CreatePreferencesDto,
@@ -21,7 +21,6 @@ import {
 } from './dto/profile-dto';
 import { PreferenceService } from './services/preference.service';
 import { ProfileService } from './services/profile.service';
-import { validateOwnership } from 'src/helpers/validateOwnership';
 
 @Injectable()
 export class UsersService {
@@ -223,7 +222,6 @@ export class UsersService {
         eq(schema.userBookmarks.postingId, postingId),
       ),
     });
-    validateOwnership(userId, existingBookmark.userId, 'bookmarkPosting');
 
     if (existingBookmark) {
       throw new DomainException('BOOKMARK_ALREADY_EXISTS');

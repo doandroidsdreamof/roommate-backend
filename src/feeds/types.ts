@@ -1,3 +1,11 @@
+import {
+  AGE_RANGES,
+  GENDER,
+  SMOKING_HABIT,
+  PET_OWNERSHIP,
+  PET_COMPATIBILITY,
+  ALCOHOL_CONSUMPTION,
+} from 'src/constants/enums';
 import * as schema from 'src/database/schema';
 
 export type FeedContext = {
@@ -49,17 +57,23 @@ export type ScoredUser = EligibleUser & {
 };
 
 export type FeedResponse = {
-  users: Array<{
-    userId: string;
-    name: string;
-    ageRange: string;
-    gender: string;
-    city: string;
-    district: string;
-    photoUrl: string | null;
-    photoVerified: boolean;
-    score: number;
-  }>;
-  total: number;
-  timestamp: Date;
+  userId: string;
+  name: string;
+  ageRange: (typeof AGE_RANGES)[keyof typeof AGE_RANGES];
+  gender: (typeof GENDER)[keyof typeof GENDER];
+  city: string;
+  district: string;
+  photoUrl: string | null;
+  photoVerified: boolean;
+  lastActiveAt: Date | null;
+  budgetMin: number | null;
+  budgetMax: number | null;
+  smokingHabit: (typeof SMOKING_HABIT)[keyof typeof SMOKING_HABIT] | null;
+  petOwnership: (typeof PET_OWNERSHIP)[keyof typeof PET_OWNERSHIP] | null;
+  petCompatibility:
+    | (typeof PET_COMPATIBILITY)[keyof typeof PET_COMPATIBILITY]
+    | null;
+  alcoholConsumption:
+    | (typeof ALCOHOL_CONSUMPTION)[keyof typeof ALCOHOL_CONSUMPTION]
+    | null;
 };

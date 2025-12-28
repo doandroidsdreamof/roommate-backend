@@ -11,15 +11,17 @@ import {
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { DomainException } from 'src/exceptions/domain.exception';
+import { RedisService } from 'src/redis/redis.service';
 import { FeedScorerService } from './services/feedScorer.service';
-import { EligibleUser, FeedContext } from './types';
+import { EligibleUser, FeedContext, FeedResponse } from './types';
+import { REDIS_TTL } from 'src/constants/redis-ttl.config';
 
 @Injectable()
 export class FeedsService {
   private readonly logger = new Logger(FeedsService.name);
   constructor(
-    @Inject(DrizzleAsyncProvider)
-    private db: NodePgDatabase<typeof schema>,
+    @Inject(DrizzleAsyncProvider) private db: NodePgDatabase<typeof schema>,
+    private readonly redis: RedisService,
     private feedScorerService: FeedScorerService,
   ) {}
 
@@ -121,16 +123,35 @@ export class FeedsService {
     return candidates.filter((c) => !excludedIds.has(c.userId));
   }
 
-  async generateFeed(userId: string) {
+  async _generateFreshFeed(userId: string): Promise<FeedResponse[]> {
     const context = await this.feedContext(userId);
     const candidates = await this.fetchEligiblePool(context);
     const filtered = await this.applyExclusions(userId, candidates);
     const scored = this.feedScorerService.scoreUsers(context, filtered);
     const sorted = scored.sort((a, b) => b.score - a.score).slice(0, 21);
-
     // TODO: shuffle algorithm
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return sorted.map(({ score, scoreBreakdown, ...user }) => user); //* return top 20
+  }
+
+  async generateFeed(userId: string): Promise<FeedResponse[]> {
+    const cacheKey = `feed:${userId}`;
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached) as FeedResponse[];
+    }
+
+    const feed = await this._generateFreshFeed(userId);
+
+    await this.redis.setex(
+      cacheKey,
+      REDIS_TTL.FEED_CACHE,
+      JSON.stringify(feed),
+    );
+
+    return feed;
   }
 
   private buildGenderFilter(context: FeedContext) {
