@@ -1,4 +1,3 @@
-// src/constants/errors.ts
 import { HttpStatus } from '@nestjs/common';
 
 export const ERRORS = {

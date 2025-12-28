@@ -85,7 +85,7 @@ export const preferences = pgTable(
       .unique()
       .references(() => users.id, { onDelete: 'cascade' }),
     housingSearchType: housingSearchTypeEnum('housing_search_type').notNull(),
-    budgetMin: integer('budget_min'),
+    budgetMin: integer('budget_min'), // TODO CHECK CONSTRAINT
     budgetMax: integer('budget_max'),
     genderPreference: genderPreferenceEnum('gender_preference'),
     smokingHabit: smokingHabitEnum('smoking_habit'),

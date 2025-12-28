@@ -30,6 +30,7 @@ export const matches = pgTable(
     unique('unique_match').on(table.userFirstId, table.userSecondId),
     index('user_first_idx').on(table.userFirstId),
     index('user_second_idx').on(table.userSecondId),
+    index('matches_matched_at_idx').on(table.matchedAt.desc()),
     check(
       'check_different_users',
       sql`${table.userFirstId} != ${table.userSecondId}`,

@@ -30,7 +30,12 @@ export const verifications = pgTable(
     codeExpiresAt: timestamp('code_expires_at'),
     ...createdAndUpdatedTimestamps,
   },
-  (table) => [check('attempts_count', sql`${table.attemptsCount} <= 3`)], //* limit max attempt with CHECK Constraint
+  (table) => [
+    check(
+      'attempts_count',
+      sql`${table.attemptsCount} >= 0 AND ${table.attemptsCount} <= 3`,
+    ),
+  ], //* limit max attempt with CHECK Constraint
 );
 
 export const refreshToken = pgTable(
