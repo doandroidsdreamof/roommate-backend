@@ -13,7 +13,8 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL_TEST: postgresql://test_user:test_password@localhost:5432/roommate_test
-
+      JWT_SECRET: test-secret
+      JWT_EXPIRATION: 4h  
     services:
       postgres:
         image: postgres:16
