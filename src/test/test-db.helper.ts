@@ -12,11 +12,18 @@ class TestDatabase {
   private locationSeeded = false;
   public testNeighborhoodId: number | null = null;
 
+  /**
+   * The Singleton's constructor should always be private to prevent direct
+   * construction calls with the `new` operator.
+   */
   private constructor() {
     this.pool = new Pool({
       connectionString:
         process.env.DATABASE_URL_TEST ||
         'postgresql://postgres:postgres@localhost:5435/roommate_test',
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
     });
     this.db = drizzle(this.pool, { schema });
     this.factories = new TestFactories(this.db);
@@ -78,27 +85,45 @@ class TestDatabase {
       throw new Error('Cannot clean database outside of test environment');
     }
 
-    await this.db.execute(sql`
-    TRUNCATE TABLE 
-      posting_images, 
-      posting_specs, 
-      postings,
-      user_bookmarks, 
-      user_blocks,
-      matches, 
-      swipes, 
-      preferences, 
-      profile, 
-      refresh_tokens, 
-      verifications, 
-      users 
-    RESTART IDENTITY CASCADE
+    await this.db.transaction(async (tx) => {
+      await tx.execute(sql`
+      LOCK TABLE 
+        posting_images, posting_specs, postings,
+        user_bookmarks, user_blocks,
+        matches, swipes, 
+        preferences, profile, 
+        refresh_tokens, verifications, users
+      IN ACCESS EXCLUSIVE MODE
     `);
-  }
 
+      await tx.execute(sql`
+      TRUNCATE TABLE 
+        posting_images, posting_specs, postings,
+        user_bookmarks, user_blocks,
+        matches, swipes, 
+        preferences, profile, 
+        refresh_tokens, verifications, users
+      RESTART IDENTITY CASCADE
+    `);
+    });
+  }
   async close() {
-    await this.pool.end();
+    try {
+      if (this.pool) {
+        await this.pool.end();
+        TestDatabase.instance = null;
+      }
+    } catch (error) {
+      console.error('Failed to close database:', error);
+      throw new Error(`Database close failed: ${error}`);
+    }
   }
 }
 
 export const testDB = TestDatabase.getInstance();
+
+if (process.env.NODE_ENV === 'test') {
+  afterAll(async () => {
+    await testDB.close();
+  });
+}

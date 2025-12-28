@@ -53,15 +53,12 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    await testDB.seedLocations();
   });
 
   beforeEach(async () => {
     await testDB.clean();
   });
-  afterAll(async () => {
-    await testDB.close();
-  });
+
   describe('authenticate', () => {
     it('should authenticate with valid OTP for existing user', async () => {
       const { user } =

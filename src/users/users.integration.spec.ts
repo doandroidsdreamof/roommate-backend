@@ -37,10 +37,6 @@ describe('UsersService', () => {
     await testDB.clean();
   });
 
-  afterAll(async () => {
-    await testDB.close();
-  });
-
   describe('isBlockedRelationship', () => {
     it('should return true when user A blocked user B', async () => {
       const { user: userA } = await testDB.factories.users.createWithProfile();
