@@ -17,6 +17,7 @@ import { VERIFICATION_STATUS } from 'src/constants/enums';
 
 describe('AuthService', () => {
   let authService: AuthService;
+  let tokenService: TokenService;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -54,6 +55,7 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
+    tokenService = module.get<TokenService>(TokenService);
   });
 
   beforeEach(async () => {
@@ -112,6 +114,68 @@ describe('AuthService', () => {
       ).rejects.toThrow('Invalid OTP code');
     });
   });
+  describe('Token Refresh', () => {
+    it('should issue new access token with valid refresh token', async () => {
+      const email = 'test-refresh-token@gmail.com';
+
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+      const { refreshToken } = await authService.authenticate({ email, otp });
+      const result = await authService.refreshToken({
+        refreshToken,
+      });
+
+      expect(result.accessToken).toBeDefined();
+      expect(result.accessToken.split('.').length).toBe(3);
+    });
+
+    it('should reject refresh with revoked token', async () => {
+      const email = 'test-refresh-token-revoke@gmail.com';
+
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+      const { refreshToken } = await authService.authenticate({ email, otp });
+      const { id: userId } = await testDB.db.query.users.findFirst({
+        where: eq(schema.users.email, email),
+      });
+      await tokenService.revokeRefreshToken(refreshToken, userId);
+      await expect(authService.refreshToken({ refreshToken })).rejects.toThrow(
+        'Invalid or expired refresh token',
+      );
+    });
+    it('should reject refresh with expired token', async () => {
+      const email = 'test-refresh-token-expired@gmail.com';
+
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+      const { refreshToken } = await authService.authenticate({ email, otp });
+      const { id: userId } = await testDB.db.query.users.findFirst({
+        where: eq(schema.users.email, email),
+      });
+      await testDB.db
+        .update(schema.refreshToken)
+        .set({
+          expiresAt: sql`NOW() AT TIME ZONE 'UTC'`,
+        })
+        .where(eq(schema.refreshToken.userId, userId));
+
+      await expect(authService.refreshToken({ refreshToken })).rejects.toThrow(
+        'Invalid or expired refresh token',
+      );
+    });
+  });
   describe('OTP', () => {
     it('should reject already-used OTP (status = VERIFIED)', async () => {
       const email = 'test-verified@gmail.com';
@@ -159,6 +223,65 @@ describe('AuthService', () => {
       await expect(authService.authenticate({ email, otp })).rejects.toThrow(
         'Expired OTP code',
       );
+    });
+  });
+  describe('Logout', () => {
+    it('should successfully logout with valid token', async () => {
+      const email = 'test-logout-success@gmail.com';
+
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+
+      const { refreshToken } = await authService.authenticate({ email, otp });
+
+      const { id: userId } = await testDB.db.query.users.findFirst({
+        where: eq(schema.users.email, email),
+      });
+      await expect(
+        authService.logout({ refreshToken }, userId),
+      ).resolves.toMatchObject({
+        message: 'Logged out successfully',
+      });
+    });
+
+    it('should reject logout when token belongs to different user', async () => {
+      const email = 'cross-user-token-authorization@gmail.com';
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+
+      const { refreshToken } = await authService.authenticate({ email, otp });
+      const { user: evilUser } =
+        await testDB.factories.users.createWithProfileAndPreferences();
+      await expect(
+        authService.logout({ refreshToken }, evilUser.id),
+      ).rejects.toThrow('Logout failed');
+    });
+
+    it('should reject logout with already revoked token', async () => {
+      const email = 'reject-logout@gmail.com';
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+
+      const { refreshToken } = await authService.authenticate({ email, otp });
+      const { id: userId } = await testDB.db.query.users.findFirst({
+        where: eq(schema.users.email, email),
+      });
+      await tokenService.revokeRefreshToken(refreshToken, userId);
+      await expect(
+        authService.logout({ refreshToken }, userId),
+      ).rejects.toThrow('Logout failed');
     });
   });
 });
