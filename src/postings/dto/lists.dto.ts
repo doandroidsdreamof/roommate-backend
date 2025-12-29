@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { getEnumValues } from 'src/helpers/getEnumValues';
 import { GENDER_PREFERENCE } from 'src/constants/enums';
-import { paginationQuerySchema } from 'src/shared/schema';
+import { getEnumValues } from 'src/helpers/getEnumValues';
+import { paginationQuerySchema } from 'src/shared/validation-schema';
+import { z } from 'zod';
 
 const genderPreferenceValues = getEnumValues(GENDER_PREFERENCE);
 

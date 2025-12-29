@@ -6,6 +6,7 @@ import { ProfileService } from './services/profile.service';
 import { UsersService } from './users.service';
 import { eq } from 'drizzle-orm';
 import * as schema from 'src/database/schema';
+import { RedisService } from 'src/redis/redis.service';
 
 //* wrapper for accessing protected method
 class TestableUsersService extends UsersService {
@@ -23,6 +24,14 @@ describe('UsersService', () => {
         TestableUsersService,
         ProfileService,
         PreferenceService,
+        {
+          provide: RedisService,
+          useValue: {
+            getJSON: jest.fn().mockResolvedValue(null), //* Always cache miss
+            setJSONWithExpiry: jest.fn().mockResolvedValue(undefined),
+            del: jest.fn().mockResolvedValue(1),
+          },
+        },
         {
           provide: DrizzleAsyncProvider,
           useValue: testDB.db,

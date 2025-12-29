@@ -9,6 +9,9 @@ import {
   UpdateAddressDto,
   UpdatePhotoDto,
 } from '../dto/profile-dto';
+import { RedisService } from 'src/redis/redis.service';
+import { CacheKeys } from 'src/redis/cache-keys';
+import { REDIS_TTL } from 'src/constants/redis-ttl.config';
 
 @Injectable()
 export class ProfileService {
@@ -16,6 +19,7 @@ export class ProfileService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: NodePgDatabase<typeof schema>,
+    private readonly redis: RedisService,
   ) {}
   async insertProfile(userId: string, createProfileDto: CreateProfileDto) {
     this.logger.log('profile', createProfileDto);
@@ -39,6 +43,14 @@ export class ProfileService {
   }
 
   async findProfile(userId: string) {
+    const cacheKey = CacheKeys.userProfile(userId);
+
+    const cached =
+      await this.redis.getJSON<typeof schema.profile.$inferSelect>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const profile = await this.db.query.profile.findFirst({
       where: eq(schema.profile.userId, userId),
     });
@@ -46,6 +58,7 @@ export class ProfileService {
     if (!profile) {
       throw new DomainException('PROFILE_NOT_FOUND');
     }
+    await this.redis.setJSONWithExpiry(cacheKey, profile, REDIS_TTL.PROFILE);
 
     return profile;
   }
@@ -65,6 +78,8 @@ export class ProfileService {
       })
       .where(eq(schema.profile.userId, userId))
       .returning();
+
+    await this.redis.del(CacheKeys.userProfile(userId));
 
     return updatedProfile;
   }
@@ -89,6 +104,8 @@ export class ProfileService {
       })
       .where(eq(schema.profile.userId, userId))
       .returning();
+
+    await this.redis.del(CacheKeys.userProfile(userId));
 
     return updatedProfile;
   }

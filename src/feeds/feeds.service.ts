@@ -15,6 +15,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { FeedScorerService } from './services/feedScorer.service';
 import { EligibleUser, FeedContext, FeedResponse } from './types';
 import { REDIS_TTL } from 'src/constants/redis-ttl.config';
+import { CacheKeys } from 'src/redis/cache-keys';
 
 @Injectable()
 export class FeedsService {
@@ -136,20 +137,16 @@ export class FeedsService {
   }
 
   async generateFeed(userId: string): Promise<FeedResponse[]> {
-    const cacheKey = `feed:${userId}`;
+    const cacheKey = CacheKeys.feed(userId);
 
-    const cached = await this.redis.get(cacheKey);
+    const cached = await this.redis.getJSON<FeedResponse[]>(cacheKey);
     if (cached) {
-      return JSON.parse(cached) as FeedResponse[];
+      return cached;
     }
 
     const feed = await this._generateFreshFeed(userId);
 
-    await this.redis.setex(
-      cacheKey,
-      REDIS_TTL.FEED_CACHE,
-      JSON.stringify(feed),
-    );
+    await this.redis.setJSONWithExpiry(cacheKey, feed, REDIS_TTL.FEED_CACHE);
 
     return feed;
   }

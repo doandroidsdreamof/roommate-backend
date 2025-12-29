@@ -1,25 +1,46 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ilike } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { REDIS_TTL } from 'src/constants/redis-ttl.config';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
+import { CacheKeys } from 'src/redis/cache-keys';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class LocationsService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: NodePgDatabase<typeof schema>,
+    private readonly redis: RedisService,
   ) {}
 
   async getProvinces() {
-    return await this.db.query.provinces.findMany({
+    const cacheKey = CacheKeys.provinces();
+
+    const cached =
+      await this.redis.getJSON<(typeof schema.provinces.$inferSelect)[]>(
+        cacheKey,
+      );
+    if (cached) {
+      return cached;
+    }
+
+    const provinces = await this.db.query.provinces.findMany({
       orderBy: (provinces, { asc }) => [asc(provinces.name)],
     });
+    await this.redis.setJSONWithExpiry(
+      cacheKey,
+      provinces,
+      REDIS_TTL.PROVINCES,
+    );
+
+    return provinces;
   }
 
   async searchNeighborhoods(query: string, limit = 20) {
     return await this.db.query.neighborhoods.findMany({
-      where: ilike(schema.neighborhoods.name, `%${query}%`),
+      where: ilike(schema.neighborhoods.name, `%${query}%`), // TODO review here
       with: {
         district: {
           with: {

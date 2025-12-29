@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { OtpService } from './services/otp.service';
 import { TokenService } from './services/token.service';
 import { VERIFICATION_STATUS } from 'src/constants/enums';
+import { RedisService } from 'src/redis/redis.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -41,6 +42,14 @@ describe('AuthService', () => {
         ProfileService,
         PreferenceService,
         EmailService,
+        {
+          provide: RedisService,
+          useValue: {
+            getJSON: jest.fn().mockResolvedValue(null), //* Always cache miss
+            setJSONWithExpiry: jest.fn().mockResolvedValue(undefined),
+            del: jest.fn().mockResolvedValue(1),
+          },
+        },
         {
           provide: MailerService,
           useValue: {

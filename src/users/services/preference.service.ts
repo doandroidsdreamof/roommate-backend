@@ -9,6 +9,9 @@ import {
   CreatePreferencesDto,
   UpdatePreferencesDto,
 } from '../dto/preference.dto';
+import { RedisService } from 'src/redis/redis.service';
+import { CacheKeys } from 'src/redis/cache-keys';
+import { REDIS_TTL } from 'src/constants/redis-ttl.config';
 
 @Injectable()
 export class PreferenceService {
@@ -16,6 +19,7 @@ export class PreferenceService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: NodePgDatabase<typeof schema>,
+    private readonly redis: RedisService,
   ) {}
 
   async insertPreferences(
@@ -44,7 +48,22 @@ export class PreferenceService {
   }
 
   async findPreferences(userId: string) {
+    const cacheKey = CacheKeys.userPreference(userId);
+
+    const cached =
+      await this.redis.getJSON<typeof schema.preferences.$inferSelect>(
+        cacheKey,
+      );
+    if (cached) {
+      return cached;
+    }
     const preference = await this.findPreferencesByUserId(userId);
+    await this.redis.setJSONWithExpiry(
+      cacheKey,
+      preference,
+      REDIS_TTL.PREFERENCES,
+    );
+
     return preference;
   }
 
@@ -60,7 +79,8 @@ export class PreferenceService {
       .where(eq(schema.preferences.userId, userId))
       .returning();
 
-    this.logger.log(`Preferences updated for user: ${userId}`);
+    await this.redis.del(CacheKeys.userPreference(userId));
+
     return updatedPreference;
   }
 

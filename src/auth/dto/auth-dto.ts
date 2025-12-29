@@ -1,4 +1,4 @@
-import { emailSchema, refreshToken } from 'src/shared/schema';
+import { emailSchema, refreshToken } from 'src/shared/validation-schema';
 import z from 'zod';
 
 export const otpValidationSchema = z.object({

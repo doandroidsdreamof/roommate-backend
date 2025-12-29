@@ -1,5 +1,5 @@
+import { paginationQuerySchema } from 'src/shared/validation-schema';
 import { z } from 'zod';
-import { paginationQuerySchema } from 'src/shared/schema';
 
 export const bookmarkPostingSchema = z.object({
   postingId: z.uuid('Invalid posting ID'),

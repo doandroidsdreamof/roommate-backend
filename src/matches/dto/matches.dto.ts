@@ -1,4 +1,4 @@
-import { paginationQuerySchema } from 'src/shared/schema';
+import { paginationQuerySchema } from 'src/shared/validation-schema';
 import z from 'zod';
 
 export const getMatchesValidationSchema = z.object({

@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 import { DrizzleModule } from 'src/database/drizzle.module';
 import { ProfileService } from './services/profile.service';
 import { PreferenceService } from './services/preference.service';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
-  imports: [DrizzleModule],
+  imports: [DrizzleModule, RedisModule],
   exports: [UsersService],
   controllers: [UsersController],
   providers: [UsersService, ProfileService, PreferenceService],
