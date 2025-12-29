@@ -22,6 +22,11 @@ export const ERRORS = {
     message: 'Logout failed',
     status: HttpStatus.UNAUTHORIZED,
   },
+  EXPIRED_OTP: {
+    code: 'AUTH_1004',
+    message: 'Expired OTP code',
+    status: HttpStatus.UNAUTHORIZED,
+  },
 
   // ============= USER (2xxx) =============
   USER_NOT_FOUND: {

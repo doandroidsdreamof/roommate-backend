@@ -1,18 +1,19 @@
-import { Test } from '@nestjs/testing';
+import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { Test } from '@nestjs/testing';
+import { eq, sql } from 'drizzle-orm';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
+import * as schema from 'src/database/schema';
+import { EmailService } from 'src/mail/email.service';
+import { PreferenceService } from 'src/users/services/preference.service';
+import { ProfileService } from 'src/users/services/profile.service';
+import { UsersService } from 'src/users/users.service';
 import { testDB } from '../test/test-db.helper';
 import { AuthService } from './auth.service';
 import { OtpService } from './services/otp.service';
 import { TokenService } from './services/token.service';
-import { UsersService } from 'src/users/users.service';
-import { EmailService } from 'src/mail/email.service';
-import { ProfileService } from 'src/users/services/profile.service';
-import { PreferenceService } from 'src/users/services/preference.service';
-import { MailerService } from '@nestjs-modules/mailer';
-import { eq } from 'drizzle-orm';
-import * as schema from 'src/database/schema';
+import { VERIFICATION_STATUS } from 'src/constants/enums';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -64,21 +65,43 @@ describe('AuthService', () => {
       const { user } =
         await testDB.factories.users.createWithProfileAndPreferences();
       await authService.sendOtp({ email: user.email });
-      const otpCode = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, user.email),
         columns: {
           code: true,
         },
       });
-      // - Returns both tokens
+
       const result = await authService.authenticate({
-        otp: otpCode.code,
+        otp,
         email: user.email,
       });
 
       expect(result.accessToken).toBeDefined();
       expect(result.refreshToken).toBeDefined();
+      expect(result.accessToken.split('.').length).toBe(3); // JWT has 3 parts
+      expect(result.refreshToken.length).toBeGreaterThan(32); // Hex string
     });
+    it('should create new user and authenticate on first-time login', async () => {
+      const email = 'test-2@gmail.com';
+
+      await authService.sendOtp({ email });
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: {
+          code: true,
+        },
+      });
+      await authService.authenticate({ email, otp });
+      const user = await testDB.db.query.users.findFirst({
+        where: eq(schema.users.email, email),
+      });
+
+      expect(user.isActive).toBe(true);
+      expect(user.isEmailVerified).toBe(true);
+      expect(user.email).toMatch(email);
+    });
+
     it('should throw INVALID_OTP when OTP is wrong', async () => {
       const email = 'test@example.com';
 
@@ -87,6 +110,55 @@ describe('AuthService', () => {
       await expect(
         authService.authenticate({ email, otp: '99999x' }),
       ).rejects.toThrow('Invalid OTP code');
+    });
+  });
+  describe('OTP', () => {
+    it('should reject already-used OTP (status = VERIFIED)', async () => {
+      const email = 'test-verified@gmail.com';
+
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+      await authService.authenticate({ email, otp });
+
+      const { status: tokenStatus } =
+        await testDB.db.query.verifications.findFirst({
+          where: eq(schema.verifications.identifier, email),
+          columns: { status: true },
+        });
+      expect(tokenStatus).toMatch(VERIFICATION_STATUS.VERIFIED);
+      await expect(authService.authenticate({ email, otp })).rejects.toThrow(
+        'Invalid OTP code',
+      );
+    });
+
+    it('should reject expired OTP even if code is correct', async () => {
+      const email = 'test-expired@gmail.com';
+
+      await authService.sendOtp({ email });
+
+      const { code: otp } = await testDB.db.query.verifications.findFirst({
+        where: eq(schema.verifications.identifier, email),
+        columns: { code: true },
+      });
+
+      expect(otp).toBeDefined();
+
+      // Expire it
+      await testDB.db
+        .update(schema.verifications)
+        .set({
+          codeExpiresAt: sql`NOW() AT TIME ZONE 'UTC'`,
+        })
+        .where(eq(schema.verifications.identifier, email));
+
+      // Should fail
+      await expect(authService.authenticate({ email, otp })).rejects.toThrow(
+        'Expired OTP code',
+      );
     });
   });
 });
