@@ -7,6 +7,7 @@ import { UsersService } from './users.service';
 import { eq } from 'drizzle-orm';
 import * as schema from 'src/database/schema';
 
+//* wrapper for accessing protected method
 class TestableUsersService extends UsersService {
   public testValidateUserExists(userId: string) {
     return this.validateUserExists(userId);

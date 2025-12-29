@@ -6,7 +6,7 @@ export default defineConfig({
   out: './drizzle',
   dbCredentials: {
     url:
-      process.env.DATABASE_URL_TEST ||
-      'postgresql://postgres:postgres@localhost:5435/roommate_test',
+      process.env.DATABASE_URL_LOCAL_TEST ||
+      'postgresql://postgres:postgres@127.0.0.1:5435/roommate_test',
   },
 });

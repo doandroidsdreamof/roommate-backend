@@ -30,6 +30,7 @@ export class OtpService {
           code: optCode,
           codeExpiresAt: sql`(NOW() AT TIME ZONE 'UTC') + INTERVAL '5 minutes'`,
           status: VERIFICATION_STATUS.PENDING,
+          //? attemptsCount: 0,
         },
       })
       .returning({ code: schema.verifications.code });

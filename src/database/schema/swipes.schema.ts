@@ -3,6 +3,7 @@ import { createdAndUpdatedTimestamps } from './shared-types';
 import { users } from './users.schema';
 import { swipesEnum } from './enums.schema';
 
+//   check('no_self_swipe', sql`${table.swiperId} != ${table.swipedId}`),
 export const swipes = pgTable(
   'swipes',
   {

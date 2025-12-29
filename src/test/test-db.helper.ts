@@ -19,8 +19,8 @@ class TestDatabase {
   private constructor() {
     this.pool = new Pool({
       connectionString:
-        process.env.DATABASE_URL_TEST ||
-        'postgresql://postgres:postgres@localhost:5435/roommate_test',
+        process.env.DATABASE_URL_LOCAL_TEST ||
+        'postgresql://postgres:postgres@127.0.0.1:5435/roommate_test',
       max: 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
@@ -115,7 +115,7 @@ class TestDatabase {
       }
     } catch (error) {
       console.error('Failed to close database:', error);
-      throw new Error(`Database close failed: ${error}`);
+      throw new Error(`Test database close failed: ${error}`);
     }
   }
 }
