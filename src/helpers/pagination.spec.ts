@@ -1,4 +1,4 @@
-import { paginateResults } from '../cursorPagination';
+import { paginateResults } from './cursorPagination';
 
 describe('Pagination helpers tests', () => {
   const limit = 20;

@@ -1,4 +1,4 @@
-import { getDaysSinceActive } from '../scoring';
+import { getDaysSinceActive } from './scoring';
 
 describe('getDaysSinceActive', () => {
   const MOCK_NOW = new Date('2025-12-26T12:00:00Z').getTime();

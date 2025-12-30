@@ -81,7 +81,7 @@ export class MatchesService {
     userFirstId: string,
     userSecondId: string,
   ): Promise<Matches | undefined> {
-    const [first, second] = [userFirstId, userSecondId].sort(); // Always tries to insert (A, B), never (B, A)
+    const [first, second] = [userFirstId, userSecondId].sort(); // insert (A, B), never (B, A)
 
     try {
       const [data] = await this.db
@@ -92,10 +92,6 @@ export class MatchesService {
         })
         .onConflictDoNothing()
         .returning();
-
-      if (data) {
-        this.logger.log(`Match created between ${first} and ${second}`);
-      }
 
       return data; // Returns undefined already matched
     } catch (error) {

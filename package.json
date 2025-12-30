@@ -94,7 +94,14 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.service.ts",
+      "**/*.controller.ts",
+      "!**/*.spec.ts",
+      "!**/*.e2e-spec.ts",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/database/seeders/**",
+      "!**/database/migrations/**"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

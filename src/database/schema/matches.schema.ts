@@ -10,6 +10,7 @@ import { createdAndUpdatedTimestamps } from './shared-types';
 import { users } from './users.schema';
 import { sql } from 'drizzle-orm';
 
+//* bidirectional
 export const matches = pgTable(
   'matches',
   {

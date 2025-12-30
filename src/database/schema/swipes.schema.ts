@@ -1,9 +1,10 @@
-import { pgTable, uuid, unique, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, unique, index, check } from 'drizzle-orm/pg-core';
 import { createdAndUpdatedTimestamps } from './shared-types';
 import { users } from './users.schema';
 import { swipesEnum } from './enums.schema';
+import { sql } from 'drizzle-orm';
 
-//   check('no_self_swipe', sql`${table.swiperId} != ${table.swipedId}`),
+//* directional
 export const swipes = pgTable(
   'swipes',
   {
@@ -18,8 +19,9 @@ export const swipes = pgTable(
     ...createdAndUpdatedTimestamps,
   },
   (table) => [
-    unique('unique_swipe').on(table.swiperId, table.swipedId),
+    unique('unique_swipe').on(table.swiperId, table.swipedId), //* A can only swipes B once
     index('swiper_idx').on(table.swiperId),
     index('swiped_idx').on(table.swipedId),
+    check('no_self_swipe', sql`${table.swiperId} != ${table.swipedId}`),
   ],
 );

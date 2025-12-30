@@ -56,7 +56,7 @@ export class SwipesService {
         .values({
           swiperId: userId,
           swipedId,
-          action,
+          action, //* => pass or like
         })
         .onConflictDoUpdate({
           target: [schema.swipes.swiperId, schema.swipes.swipedId],
