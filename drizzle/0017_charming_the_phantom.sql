@@ -1,1 +1,0 @@
-ALTER TABLE "user_bookmarks" DROP COLUMN "notes";

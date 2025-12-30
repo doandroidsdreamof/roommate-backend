@@ -1,1 +1,0 @@
-CREATE INDEX "preferences_user_id_idx" ON "preferences" USING btree ("user_id");

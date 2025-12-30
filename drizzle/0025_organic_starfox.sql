@@ -1,1 +1,0 @@
-CREATE INDEX "profile_user_id_idx" ON "profile" USING btree ("user_id");

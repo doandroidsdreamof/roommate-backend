@@ -1,1 +1,0 @@
-ALTER TABLE "posting_images" DROP COLUMN "display_order";

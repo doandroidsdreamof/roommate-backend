@@ -1,1 +1,0 @@
-CREATE INDEX "swiped_idx" ON "swipes" USING btree ("swiped_id");

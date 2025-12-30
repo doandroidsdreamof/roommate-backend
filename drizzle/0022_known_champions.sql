@@ -1,2 +1,0 @@
-CREATE INDEX "postings_created_at_idx" ON "postings" USING btree ("created_at" DESC NULLS LAST) WHERE "postings"."deleted_at" is null;--> statement-breakpoint
-CREATE INDEX "postings_user_id_idx" ON "postings" USING btree ("user_id");
