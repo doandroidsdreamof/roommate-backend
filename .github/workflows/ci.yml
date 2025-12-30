@@ -9,26 +9,30 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     env:
       NODE_ENV: test
       DATABASE_URL_TEST: postgresql://test_user:test_password@localhost:5432/roommate_test
       JWT_SECRET: test-secret
-      JWT_EXPIRATION: 4h  
+      JWT_EXPIRATION: 4h
+
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: roommate_test
+          POSTGRES_INITDB_ARGS: '-c fsync=off -c synchronous_commit=off -c full_page_writes=off'
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 3
+          --tmpfs /var/lib/postgresql/data:rw
         ports:
-          - 5432:5432
+          - 5432:5432 
 
     steps:
       - uses: actions/checkout@v4
@@ -38,15 +42,14 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
 
-      - run: npm ci
+      - name: Lint
+        run: npm run lint
 
-      - name: Push database schema
-        run: npx drizzle-kit push --config=drizzle-test.config.ts
+      - name: Type check
+        run: npm run type-check
 
       - name: Run tests
-        run: npm test
+        run: npm run test:ci -- --maxWorkers=2 --coverage

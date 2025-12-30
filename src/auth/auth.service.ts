@@ -70,7 +70,6 @@ export class AuthService {
     await this.tokenService.revokeRefreshToken(refreshToken, userId);
     return { message: 'Logged out successfully' };
   }
-  // TODO refresh_token rotation
   async refreshToken(dto: RefreshTokenDTO) {
     const { refreshToken } = dto;
     const userId = await this.tokenService.validateRefreshToken(refreshToken);

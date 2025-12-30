@@ -32,14 +32,16 @@
 - [x] Refresh tokens (hashed, 90-day expiry)
 - [x] JWT Guard decorator
 - [x] Token rotation on refresh
+- [x] Seeder for locations
+- [x] Swagger setup
+- [x] Factory methods for integration tests
 - [x] `POST /auth/refresh` endpoint
 - [x] `POST /auth/logout` endpoint
 
 ### Remaining
 
-- [x] Seeder for locations
-- [x] Swagger setup
-- [ ] Factory methods for integration tests
+- [ ] API versioning
+- [ ] Global Exception Filter
 - [ ] Image upload service
 - [ ] Image compression
 - [ ] NSFW filtering
@@ -117,6 +119,8 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
   - Profile popularity
   - Recent activity
 - [x] ORDER BY score logic
+- [ ] Shuffle algorithm
+
 
 #### Optimizations
 
@@ -134,9 +138,9 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 
 - [x] Self-swipe prevention
 - [x] Duplicate swipe prevention
-- [ ] Race condition on match creation
-- [ ] Deleted/blocked user handling
-- [ ] Re-match after unmatch
+- [x] Race condition on match creation
+- [x] Deleted/blocked user handling
+- [x] Re-match after unmatch
 
 ### Algorithm Phases
 

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
@@ -112,7 +112,7 @@ export class UsersService {
       .returning();
 
     if (result.length === 0) {
-      throw new NotFoundException('Block not found');
+      throw new DomainException('BLOCK_NOT_FOUND');
     }
 
     return { message: 'User unblocked successfully' };
