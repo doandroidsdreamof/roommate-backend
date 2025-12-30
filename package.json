@@ -16,6 +16,7 @@
     "type-check": "tsc --noEmit",
     "pretest": "docker-compose -f docker-compose.test.yml up -d && sleep 2 && drizzle-kit push --config=drizzle-test.config.ts",
     "test": "NODE_ENV=test jest",
+    "test:ci": "NODE_ENV=test jest",
     "posttest": "docker-compose -f docker-compose.test.yml down",
     "db:push:test": "drizzle-kit push --config=drizzle.config-test.ts",
     "pretest:ci": "drizzle-kit push --config=drizzle-test.config.ts",
