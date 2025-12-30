@@ -55,5 +55,4 @@ jobs:
         run: npx drizzle-kit push --config=drizzle-test.config.ts
 
       - name: Run tests
-        run: npm run test:ci -- --maxWorkers=2 --coverage
-
+        run: npm run test:ci
