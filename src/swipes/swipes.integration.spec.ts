@@ -155,7 +155,7 @@ describe('SwipesService', () => {
       const swipeRecord = await testDB.db.query.swipes.findFirst({
         where: eq(schema.swipes.id, result.swipe.id),
       });
-      expect(swipeRecord.action).toEqual('like');
+      expect(swipeRecord!.action).toEqual('like');
       expect(result.swipe.action).toEqual('like');
     });
 
@@ -177,7 +177,7 @@ describe('SwipesService', () => {
       const swipeRecord = await testDB.db.query.swipes.findFirst({
         where: eq(schema.swipes.id, result.swipe.id),
       });
-      expect(swipeRecord.action).toBe('pass');
+      expect(swipeRecord!.action).toBe('pass');
       expect(result.swipe.action).toBe('pass');
     });
     it('should create match when user changes PASS to LIKE and mutual like exists', async () => {

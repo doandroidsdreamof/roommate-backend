@@ -129,7 +129,7 @@ describe('UsersService', () => {
         where: eq(schema.users.id, user.id),
       });
 
-      expect(updatedUser.postingCount).toBe(0);
+      expect(updatedUser!.postingCount).toBe(0);
     });
   });
 
@@ -157,7 +157,7 @@ describe('UsersService', () => {
         where: eq(schema.postings.id, posting.id),
       });
 
-      expect(bookmarkedPosting.bookmarkCount).toBe(1);
+      expect(bookmarkedPosting!.bookmarkCount).toBe(1);
 
       await testableService.unbookmarkPosting(user.id, {
         postingId: posting.id,
@@ -165,7 +165,7 @@ describe('UsersService', () => {
       const unbookmarkedPosting = await testDB.db.query.postings.findFirst({
         where: eq(schema.postings.id, posting.id),
       });
-      expect(unbookmarkedPosting.bookmarkCount).toBe(0);
+      expect(unbookmarkedPosting!.bookmarkCount).toBe(0);
     });
   });
 });

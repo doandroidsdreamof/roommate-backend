@@ -6,7 +6,7 @@ import { ResponseInterceptor } from './interceptors/response-interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: new ConsoleLogger(process.env.APP_NAME, {
+    logger: new ConsoleLogger(process.env.APP_NAME || 'RoommateApp', {
       timestamp: true,
     }),
   });
@@ -15,7 +15,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   const config = new DocumentBuilder()
-    .setTitle(process.env.APP_NAME)
+    .setTitle(process.env.APP_NAME || 'RoommateApp')
     .setDescription('Roommate Backend API Documentation')
     .setVersion('1.0')
     .addTag('roommate')

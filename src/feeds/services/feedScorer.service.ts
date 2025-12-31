@@ -1,4 +1,3 @@
-// src/feeds/services/feedScorer.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { PET_COMPATIBILITY, SMOKING_HABIT } from 'src/constants/enums';
 import {
@@ -69,6 +68,15 @@ export class FeedScorerService {
     const userMax = context.preferences?.budgetMax;
     const candidateMin = candidate.budgetMin;
     const candidateMax = candidate.budgetMax;
+
+    if (
+      typeof userMin !== 'number' ||
+      typeof userMax !== 'number' ||
+      typeof candidateMin !== 'number' ||
+      typeof candidateMax !== 'number'
+    ) {
+      return 0;
+    }
 
     const overlapPercent = calculateBudgetOverlap(
       userMin,
@@ -164,7 +172,7 @@ export class FeedScorerService {
   }
 
   private scoreAlcoholCompatibility(
-    userConsumption: keyof typeof ALCOHOL_LEVELS | undefined,
+    userConsumption: keyof typeof ALCOHOL_LEVELS | null | undefined,
     candidateConsumption: string | null,
   ): number {
     if (!userConsumption || !candidateConsumption) {

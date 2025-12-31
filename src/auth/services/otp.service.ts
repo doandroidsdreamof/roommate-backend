@@ -36,6 +36,9 @@ export class OtpService {
         },
       })
       .returning({ code: schema.verifications.code });
+    if (!result.code) {
+      throw new DomainException('DATABASE_ERROR');
+    }
     return result.code;
   }
 
@@ -65,7 +68,6 @@ export class OtpService {
       verification.attemptsCount >= OTP_MAX_ATTEMPTS ||
       verification.status !== VERIFICATION_STATUS.PENDING
     ) {
-      this.logger.log('verifyOtp: verification is failed');
       return false;
     }
     if (verification.code !== code) {

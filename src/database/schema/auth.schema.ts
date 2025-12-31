@@ -27,7 +27,7 @@ export const verifications = pgTable(
     identifier: varchar('identifier', { length: 255 }).notNull().unique(),
     attemptsCount: integer('attempts_count').default(0).notNull(),
     code: varchar('code', { length: 6 }),
-    codeExpiresAt: timestamp('code_expires_at'),
+    codeExpiresAt: timestamp('code_expires_at').notNull(),
     ...createdAndUpdatedTimestamps,
   },
   (table) => [

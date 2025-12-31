@@ -113,10 +113,12 @@ export class PostingsService {
 
     try {
       await this.db.transaction(async (tx) => {
+        const { availableFrom, ...restPostingData } = postingData;
+
         const updateData = {
-          ...postingData,
-          ...(postingData.availableFrom !== undefined && {
-            availableFrom: new Date(postingData.availableFrom),
+          ...restPostingData,
+          ...(availableFrom !== undefined && {
+            availableFrom: new Date(availableFrom),
           }),
         };
 
@@ -126,10 +128,12 @@ export class PostingsService {
           .where(eq(schema.postings.id, postingId));
 
         if (specs && Object.keys(specs).length > 0) {
+          const { availableUntil, ...restSpecs } = specs;
+
           const specsUpdateData = {
-            ...specs,
-            ...(specs.availableUntil !== undefined && {
-              availableUntil: new Date(specs.availableUntil),
+            ...restSpecs,
+            ...(availableUntil !== undefined && {
+              availableUntil: new Date(availableUntil),
             }),
           };
 
@@ -188,7 +192,7 @@ export class PostingsService {
       throw new DomainException('POSTING_IMAGE_NOT_FOUND');
     }
     //* do not update if there is no URL change
-    const hasChanges = images.some((newImg) => {
+    const hasChanges = images?.some((newImg) => {
       const existingImg = currentRecord[0].images.find(
         (img) => img.order === newImg.order,
       );

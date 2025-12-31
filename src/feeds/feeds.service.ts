@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, gte, lte, ne, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, ne, SQL, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   ACCOUNT_STATUS,
@@ -167,6 +167,7 @@ export class FeedsService {
     context: FeedContext,
   ): Promise<EligibleUser[]> {
     const genderFilter = this.buildGenderFilter(context);
+    const budgetFilter = this.buildBudgetFilter(context);
 
     try {
       const result = await this.db
@@ -203,10 +204,7 @@ export class FeedsService {
               HOUSING_SEARCH_TYPE.LOOKING_FOR_ROOMMATE,
             ),
             genderFilter,
-            and(
-              lte(schema.preferences.budgetMin, context.preferences.budgetMax),
-              gte(schema.preferences.budgetMax, context.preferences.budgetMin),
-            ),
+            budgetFilter,
           ),
         )
         .limit(1000);
@@ -215,5 +213,19 @@ export class FeedsService {
       this.logger.error(error);
       throw new DomainException('DATABASE_ERROR');
     }
+  }
+  // TODO move it t query builder
+  private buildBudgetFilter(context: FeedContext): SQL | undefined {
+    const userMin = context.preferences?.budgetMin;
+    const userMax = context.preferences?.budgetMax;
+
+    if (typeof userMin !== 'number' || typeof userMax !== 'number') {
+      return undefined;
+    }
+
+    return and(
+      lte(schema.preferences.budgetMin, userMax),
+      gte(schema.preferences.budgetMax, userMin),
+    );
   }
 }

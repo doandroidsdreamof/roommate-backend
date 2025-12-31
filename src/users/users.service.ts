@@ -58,14 +58,15 @@ export class UsersService {
       });
     return user;
   }
-  async findById(
-    userId: string,
-  ): Promise<typeof schema.users.$inferSelect | null> {
+  async findById(userId: string): Promise<typeof schema.users.$inferSelect> {
     const user = await this.db.query.users.findFirst({
       where: eq(schema.users.id, userId),
     });
+    if (!user) {
+      throw new DomainException('USER_NOT_FOUND');
+    }
 
-    return user ?? null;
+    return user;
   }
 
   async blockUser(userId: string, blockUserDto: BlockUserDto) {

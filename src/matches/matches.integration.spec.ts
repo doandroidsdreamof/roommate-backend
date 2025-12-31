@@ -50,8 +50,8 @@ describe('MatchesService', () => {
       );
       const [first, second] = [userFirst.id, userSecond.id].sort();
 
-      expect(result.userFirstId).toBe(first);
-      expect(result.userSecondId).toBe(second);
+      expect(result!.userFirstId).toBe(first);
+      expect(result!.userSecondId).toBe(second);
     });
     it('should handle concurrent creation (only one match created)', async () => {
       const { user: userFirst } =
@@ -99,7 +99,7 @@ describe('MatchesService', () => {
         );
 
         await expect(
-          matchesService.unmatch(userFirst.id, matchRecord.id),
+          matchesService.unmatch(userFirst.id, matchRecord!.id),
         ).resolves.toEqual({ message: 'Unmatched' });
       });
 
@@ -114,7 +114,7 @@ describe('MatchesService', () => {
         );
 
         await expect(
-          matchesService.unmatch(userSecond.id, matchRecord.id),
+          matchesService.unmatch(userSecond.id, matchRecord!.id),
         ).resolves.toEqual({ message: 'Unmatched' });
       });
 
@@ -129,15 +129,15 @@ describe('MatchesService', () => {
         );
 
         const before = new Date();
-        await matchesService.unmatch(userFirst.id, matchRecord.id);
+        await matchesService.unmatch(userFirst.id, matchRecord!.id);
         const after = new Date();
 
         const [match] = await testDB.db.query.matches.findMany({
-          where: eq(schema.matches.id, matchRecord.id),
+          where: eq(schema.matches.id, matchRecord!.id),
         });
         expect(match).toBeDefined();
 
-        const unmatchedTime = new Date(match.unmatchedAt).getTime();
+        const unmatchedTime = new Date(match.unmatchedAt ?? '').getTime();
         expect(unmatchedTime).toBeGreaterThanOrEqual(before.getTime());
         expect(unmatchedTime).toBeLessThanOrEqual(after.getTime());
       });
@@ -157,7 +157,7 @@ describe('MatchesService', () => {
           userSecond.id,
         );
         await expect(
-          matchesService.unmatch(userThird.id, matchRecord.id),
+          matchesService.unmatch(userThird.id, matchRecord!.id),
         ).rejects.toThrow('Match not found or already unmatched');
       });
 
@@ -171,10 +171,10 @@ describe('MatchesService', () => {
           userFirst.id,
           userSecond.id,
         );
-        await matchesService.unmatch(userFirst.id, matchRecord.id);
+        await matchesService.unmatch(userFirst.id, matchRecord!.id);
 
         await expect(
-          matchesService.unmatch(userFirst.id, matchRecord.id),
+          matchesService.unmatch(userFirst.id, matchRecord!.id),
         ).rejects.toThrow('Match not found or already unmatched');
       });
     });

@@ -8,12 +8,16 @@ import { fakerTR as faker } from '@faker-js/faker';
 import { eq, inArray } from 'drizzle-orm';
 import * as schema from '../schema';
 import { seederDb as db } from './seed-db-instance';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
 const NUM_USERS = 1_000_000;
 const BATCH_SIZE = 1000;
 
-async function loadLocations(db): Promise<Record<string, string[]>> {
-  const locations = await db
+async function loadLocations(
+  db: (NodePgDatabase<typeof schema> & { $client: Pool }) | null,
+): Promise<Record<string, string[]>> {
+  const locations = await db!
     .select({
       provinceName: schema.provinces.name,
       districtName: schema.districts.name,
@@ -47,7 +51,7 @@ async function seedUsers() {
 
   console.log(`👥 Starting to seed ${NUM_USERS} users...\n`);
 
-  const existingUsersCount = await db.$count(schema.users);
+  const existingUsersCount = await db!.$count(schema.users);
   const startFrom = Math.floor(existingUsersCount / BATCH_SIZE);
 
   for (let batch = startFrom; batch < NUM_USERS / BATCH_SIZE; batch++) {
@@ -178,7 +182,7 @@ async function seedUsers() {
       });
     }
 
-    const insertedUsers = await db
+    const insertedUsers = await db!
       .insert(schema.users)
       .values(userBatch)
       .returning({ id: schema.users.id });
@@ -196,8 +200,8 @@ async function seedUsers() {
       }));
 
     await Promise.all([
-      db.insert(schema.profile).values(profilesWithIds),
-      db.insert(schema.preferences).values(preferencesWithIds),
+      db!.insert(schema.profile).values(profilesWithIds),
+      db!.insert(schema.preferences).values(preferencesWithIds),
     ]);
 
     if ((batch + 1) % 10 === 0) {

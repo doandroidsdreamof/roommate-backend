@@ -76,12 +76,12 @@ describe('AuthService', () => {
       const { user } =
         await testDB.factories.users.createWithProfileAndPreferences();
       await authService.sendOtp({ email: user.email });
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, user.email),
         columns: {
           code: true,
         },
-      });
+      })) as { code: string };
 
       const result = await authService.authenticate({
         otp,
@@ -97,20 +97,20 @@ describe('AuthService', () => {
       const email = 'test-2@gmail.com';
 
       await authService.sendOtp({ email });
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: {
           code: true,
         },
-      });
+      })) as { code: string };
       await authService.authenticate({ email, otp });
       const user = await testDB.db.query.users.findFirst({
         where: eq(schema.users.email, email),
       });
-
-      expect(user.isActive).toBe(true);
-      expect(user.isEmailVerified).toBe(true);
-      expect(user.email).toMatch(email);
+      expect(user).toBeDefined();
+      expect(user!.isActive).toBe(true);
+      expect(user!.isEmailVerified).toBe(true);
+      expect(user!.email).toMatch(email);
     });
 
     it('should throw INVALID_OTP when OTP is wrong', async () => {
@@ -129,10 +129,10 @@ describe('AuthService', () => {
 
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
       const { refreshToken } = await authService.authenticate({ email, otp });
       const result = await authService.refreshToken({
         refreshToken,
@@ -147,14 +147,14 @@ describe('AuthService', () => {
 
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
       const { refreshToken } = await authService.authenticate({ email, otp });
-      const { id: userId } = await testDB.db.query.users.findFirst({
+      const { id: userId } = (await testDB.db.query.users.findFirst({
         where: eq(schema.users.email, email),
-      });
+      })) as { id: string };
       await tokenService.revokeRefreshToken(refreshToken, userId);
       await expect(authService.refreshToken({ refreshToken })).rejects.toThrow(
         'Invalid or expired refresh token',
@@ -165,14 +165,14 @@ describe('AuthService', () => {
 
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
       const { refreshToken } = await authService.authenticate({ email, otp });
-      const { id: userId } = await testDB.db.query.users.findFirst({
+      const { id: userId } = (await testDB.db.query.users.findFirst({
         where: eq(schema.users.email, email),
-      });
+      })) as { id: string };
       await testDB.db
         .update(schema.refreshToken)
         .set({
@@ -191,17 +191,17 @@ describe('AuthService', () => {
 
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
       await authService.authenticate({ email, otp });
 
       const { status: tokenStatus } =
-        await testDB.db.query.verifications.findFirst({
+        (await testDB.db.query.verifications.findFirst({
           where: eq(schema.verifications.identifier, email),
           columns: { status: true },
-        });
+        })) as { status: string };
       expect(tokenStatus).toMatch(VERIFICATION_STATUS.VERIFIED);
       await expect(authService.authenticate({ email, otp })).rejects.toThrow(
         'Invalid OTP code',
@@ -213,10 +213,10 @@ describe('AuthService', () => {
 
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
 
       expect(otp).toBeDefined();
 
@@ -240,16 +240,16 @@ describe('AuthService', () => {
 
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
 
       const { refreshToken } = await authService.authenticate({ email, otp });
 
-      const { id: userId } = await testDB.db.query.users.findFirst({
+      const { id: userId } = (await testDB.db.query.users.findFirst({
         where: eq(schema.users.email, email),
-      });
+      })) as { id: string };
       await expect(
         authService.logout({ refreshToken }, userId),
       ).resolves.toMatchObject({
@@ -261,10 +261,10 @@ describe('AuthService', () => {
       const email = 'cross-user-token-authorization@gmail.com';
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
 
       const { refreshToken } = await authService.authenticate({ email, otp });
       const { user: evilUser } =
@@ -278,15 +278,15 @@ describe('AuthService', () => {
       const email = 'reject-logout@gmail.com';
       await authService.sendOtp({ email });
 
-      const { code: otp } = await testDB.db.query.verifications.findFirst({
+      const { code: otp } = (await testDB.db.query.verifications.findFirst({
         where: eq(schema.verifications.identifier, email),
         columns: { code: true },
-      });
+      })) as { code: string };
 
       const { refreshToken } = await authService.authenticate({ email, otp });
-      const { id: userId } = await testDB.db.query.users.findFirst({
+      const { id: userId } = (await testDB.db.query.users.findFirst({
         where: eq(schema.users.email, email),
-      });
+      })) as { id: string };
       await tokenService.revokeRefreshToken(refreshToken, userId);
       await expect(
         authService.logout({ refreshToken }, userId),

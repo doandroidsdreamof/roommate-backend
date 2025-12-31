@@ -120,7 +120,7 @@ async function seedLocations() {
   try {
     console.log('Creating Turkey...');
 
-    const [turkey] = await db
+    const [turkey] = await db!
       .insert(schema.countries)
       .values({
         name: 'Turkey',
@@ -135,7 +135,7 @@ async function seedLocations() {
 
       const plateCode = PLATE_CODES[provinceData.name];
 
-      const [province] = await db
+      const [province] = await db!
         .insert(schema.provinces)
         .values({
           name: provinceData.name,
@@ -145,7 +145,7 @@ async function seedLocations() {
         .returning();
 
       for (const countyData of provinceData.counties) {
-        const [county] = await db
+        const [county] = await db!
           .insert(schema.counties)
           .values({
             name: countyData.name,
@@ -154,7 +154,7 @@ async function seedLocations() {
           .returning();
 
         for (const districtData of countyData.districts) {
-          const [district] = await db
+          const [district] = await db!
             .insert(schema.districts)
             .values({
               name: districtData.name,
@@ -168,7 +168,7 @@ async function seedLocations() {
             districtId: district.id,
           }));
 
-          await db.insert(schema.neighborhoods).values(neighborhoodValues);
+          await db!.insert(schema.neighborhoods).values(neighborhoodValues);
         }
       }
 

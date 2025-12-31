@@ -54,7 +54,7 @@ async function insertInChunks<T>(
 async function seedSwipesAndMatches() {
   console.log('👥 Loading users...');
 
-  const allUsers = await db
+  const allUsers = await db!
     .select({ id: schema.users.id })
     .from(schema.users)
     .orderBy(schema.users.createdAt);
@@ -144,7 +144,7 @@ async function seedSwipesAndMatches() {
         await insertInChunks(
           swipesBatch,
           async (chunk) => {
-            await db.insert(schema.swipes).values(chunk).onConflictDoNothing();
+            await db!.insert(schema.swipes).values(chunk).onConflictDoNothing();
           },
           SWIPE_CHUNK_SIZE,
         );
@@ -155,7 +155,10 @@ async function seedSwipesAndMatches() {
         await insertInChunks(
           matchesBatch,
           async (chunk) => {
-            await db.insert(schema.matches).values(chunk).onConflictDoNothing();
+            await db!
+              .insert(schema.matches)
+              .values(chunk)
+              .onConflictDoNothing();
           },
           SWIPE_CHUNK_SIZE,
         );
@@ -166,7 +169,7 @@ async function seedSwipesAndMatches() {
         await insertInChunks(
           blocksBatch,
           async (chunk) => {
-            await db
+            await db!
               .insert(schema.userBlocks)
               .values(chunk)
               .onConflictDoNothing();

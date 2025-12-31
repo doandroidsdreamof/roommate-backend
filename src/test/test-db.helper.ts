@@ -5,7 +5,7 @@ import * as schema from 'src/database/schema';
 import { TestFactories } from './factories';
 
 class TestDatabase {
-  private static instance: TestDatabase;
+  private static instance: TestDatabase | null;
   private pool: Pool;
   public factories: TestFactories;
   public db: NodePgDatabase<typeof schema>;

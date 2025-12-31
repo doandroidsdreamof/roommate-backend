@@ -8,6 +8,8 @@ import { fakerTR as faker } from '@faker-js/faker';
 import { eq, inArray } from 'drizzle-orm';
 import * as schema from '../schema';
 import { seederDb as db } from './seed-db-instance';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
 const NUM_POSTINGS = 1_000_000;
 const BATCH_SIZE = 1000;
@@ -23,8 +25,11 @@ type NeighborhoodMap = Record<string, NeighborhoodData[]>;
 
 // ============= LOAD REAL DATA =============
 
-async function loadUserIds(db, limit: number): Promise<string[]> {
-  const users = await db
+async function loadUserIds(
+  db: (NodePgDatabase<typeof schema> & { $client: Pool }) | null,
+  limit: number,
+): Promise<string[]> {
+  const users = await db!
     .select({ id: schema.users.id })
     .from(schema.users)
     .limit(limit);
@@ -32,8 +37,10 @@ async function loadUserIds(db, limit: number): Promise<string[]> {
   return users.map((u) => u.id);
 }
 
-async function loadNeighborhoods(db): Promise<NeighborhoodMap> {
-  const neighborhoods = await db
+async function loadNeighborhoods(
+  db: (NodePgDatabase<typeof schema> & { $client: Pool }) | null,
+): Promise<NeighborhoodMap> {
+  const neighborhoods = await db!
     .select({
       id: schema.neighborhoods.id,
       provinceName: schema.provinces.name,
@@ -142,7 +149,7 @@ async function seedPostings() {
   console.log(`✓ Loaded ${userIds.length} users`);
   console.log(`✓ Loaded neighborhoods for 3 provinces`);
 
-  const existingCount = await db.$count(schema.postings);
+  const existingCount = await db!.$count(schema.postings);
   const startFrom = Math.floor(existingCount / BATCH_SIZE);
 
   console.log(`✓ Found ${existingCount} existing postings`);
@@ -268,7 +275,7 @@ async function seedPostings() {
       });
     }
 
-    const insertedPostings = await db
+    const insertedPostings = await db!
       .insert(schema.postings)
       .values(postingBatch)
       .returning({ id: schema.postings.id });
@@ -279,7 +286,7 @@ async function seedPostings() {
         postingId: insertedPostings[idx].id,
       }));
 
-    const insertedSpecs = await db
+    const insertedSpecs = await db!
       .insert(schema.postingSpecs)
       .values(specsWithIds)
       .returning({ id: schema.postingSpecs.id });
@@ -290,7 +297,7 @@ async function seedPostings() {
         postingSpecsId: insertedSpecs[idx].id,
       }));
 
-    await db.insert(schema.postingImages).values(imagesWithIds);
+    await db!.insert(schema.postingImages).values(imagesWithIds);
 
     if ((batch + 1) % 10 === 0) {
       const progress = (

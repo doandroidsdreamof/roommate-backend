@@ -20,7 +20,7 @@ async function seedBookmarks() {
 
   for (let i = 0; i < bookmarks.length; i += 100) {
     const batch = bookmarks.slice(i, i + 100);
-    await db.insert(schema.userBookmarks).values(batch as UserBookmark[]);
+    await db!.insert(schema.userBookmarks).values(batch as UserBookmark[]);
     console.log(`Inserted batch ${i / 100 + 1}`);
   }
 

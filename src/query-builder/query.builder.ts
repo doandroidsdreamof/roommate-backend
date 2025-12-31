@@ -34,7 +34,11 @@ export class QueryBuilder implements IQueryBuilder {
     if (!query || columns.length === 0) return this;
     if (typeof query === 'string') {
       const searchConditions = columns.map((col) => ilike(col, `%${query}%`));
-      this.conditions.push(or(...searchConditions));
+      const searchCondition = or(...searchConditions);
+
+      if (searchCondition) {
+        this.conditions.push(searchCondition);
+      }
     }
     return this;
   }
@@ -47,9 +51,7 @@ export class QueryBuilder implements IQueryBuilder {
     if (!cursor) {
       return this;
     }
-    this.conditions.push(
-      cursor ? sql`${column} < ${new Date(cursor)}` : undefined,
-    );
+    this.conditions.push(sql`${column} < ${new Date(cursor)}`);
     return this;
   }
   build() {

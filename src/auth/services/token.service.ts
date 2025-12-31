@@ -76,9 +76,12 @@ export class TokenService {
         userId: true,
       },
     });
+    if (!storedToken) {
+      return null;
+    }
     const expiresAt = new Date(storedToken.expiresAt);
 
-    if (!storedToken || storedToken.isRevoked === true || expiresAt <= NOW) {
+    if (storedToken.isRevoked === true || expiresAt <= NOW) {
       return null;
     }
 
