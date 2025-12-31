@@ -81,7 +81,10 @@ export class MatchesService {
     userFirstId: string,
     userSecondId: string,
   ): Promise<Matches | undefined> {
-    const [first, second] = [userFirstId, userSecondId].sort(); // insert (A, B), never (B, A)
+    const [first, second] = [userFirstId, userSecondId].sort() as [
+      string,
+      string,
+    ]; // insert (A, B), never (B, A)
 
     try {
       const [data] = await this.db

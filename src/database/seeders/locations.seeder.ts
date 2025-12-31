@@ -128,19 +128,19 @@ async function seedLocations() {
       })
       .returning();
 
-    console.log(`Country created: ${turkey.name}\n`);
+    console.log(`Country created: ${turkey!.name}\n`);
 
     for (const provinceData of locationData) {
       console.log(`Processing: ${provinceData.name}`);
 
-      const plateCode = PLATE_CODES[provinceData.name];
+      const plateCode = PLATE_CODES[provinceData.name]!;
 
       const [province] = await db!
         .insert(schema.provinces)
         .values({
           name: provinceData.name,
           plateCode: plateCode,
-          countryId: turkey.id,
+          countryId: turkey!.id,
         })
         .returning();
 
@@ -149,7 +149,7 @@ async function seedLocations() {
           .insert(schema.counties)
           .values({
             name: countyData.name,
-            provincePlateCode: province.plateCode,
+            provincePlateCode: province!.plateCode,
           })
           .returning();
 
@@ -158,14 +158,14 @@ async function seedLocations() {
             .insert(schema.districts)
             .values({
               name: districtData.name,
-              countyId: county.id,
+              countyId: county!.id,
             })
             .returning();
 
           const neighborhoodValues = districtData.neighborhoods.map((n) => ({
             name: n.name,
             postalCode: n.code,
-            districtId: district.id,
+            districtId: district!.id,
           }));
 
           await db!.insert(schema.neighborhoods).values(neighborhoodValues);

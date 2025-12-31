@@ -36,7 +36,7 @@ export class OtpService {
         },
       })
       .returning({ code: schema.verifications.code });
-    if (!result.code) {
+    if (!result?.code) {
       throw new DomainException('DATABASE_ERROR');
     }
     return result.code;

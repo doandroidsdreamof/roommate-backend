@@ -22,5 +22,6 @@ export function getNextCursor<T>(
   hasMore: boolean,
   field: keyof T = 'createdAt' as keyof T,
 ) {
-  return hasMore && items.length > 0 ? items[items.length - 1][field] : null;
+  // TODO type safety refactoring
+  return hasMore && items.length > 0 ? items[items.length - 1]![field] : null;
 }

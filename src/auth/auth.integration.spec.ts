@@ -75,9 +75,9 @@ describe('AuthService', () => {
     it('should authenticate with valid OTP for existing user', async () => {
       const { user } =
         await testDB.factories.users.createWithProfileAndPreferences();
-      await authService.sendOtp({ email: user.email });
+      await authService.sendOtp({ email: user!.email });
       const { code: otp } = (await testDB.db.query.verifications.findFirst({
-        where: eq(schema.verifications.identifier, user.email),
+        where: eq(schema.verifications.identifier, user!.email),
         columns: {
           code: true,
         },
@@ -85,7 +85,7 @@ describe('AuthService', () => {
 
       const result = await authService.authenticate({
         otp,
-        email: user.email,
+        email: user!.email,
       });
 
       expect(result.accessToken).toBeDefined();
@@ -270,7 +270,7 @@ describe('AuthService', () => {
       const { user: evilUser } =
         await testDB.factories.users.createWithProfileAndPreferences();
       await expect(
-        authService.logout({ refreshToken }, evilUser.id),
+        authService.logout({ refreshToken }, evilUser!.id),
       ).rejects.toThrow('Logout failed');
     });
 

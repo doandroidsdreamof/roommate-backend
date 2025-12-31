@@ -16,6 +16,7 @@
     "noImplicitAny": true,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true // Ensures that file names are treated with consistent casing, e.g. linux is case-sensitive
   }
 }

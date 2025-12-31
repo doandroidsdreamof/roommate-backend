@@ -53,6 +53,7 @@ export class AuthService {
 
     if (!user) {
       user = await this.usersService.createUser(email);
+      if (!user) throw new DomainException('USER_NOT_FOUND');
     }
 
     return this.login(user.id, user.email);

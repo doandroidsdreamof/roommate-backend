@@ -39,7 +39,7 @@ async function loadLocations(
     if (!grouped[loc.provinceName]) {
       grouped[loc.provinceName] = [];
     }
-    grouped[loc.provinceName].push(loc.districtName);
+    grouped[loc.provinceName]!.push(loc.districtName);
   }
 
   return grouped;
@@ -73,7 +73,7 @@ async function seedUsers() {
       ]);
 
       const district = faker.helpers.arrayElement(
-        locationsByProvince[province],
+        locationsByProvince[province]!,
       );
 
       const gender = faker.helpers.weightedArrayElement([
@@ -190,13 +190,13 @@ async function seedUsers() {
     const profilesWithIds: (typeof schema.profile.$inferInsert)[] =
       profileBatch.map((profile, idx) => ({
         ...profile,
-        userId: insertedUsers[idx].id,
+        userId: insertedUsers[idx]!.id,
       }));
 
     const preferencesWithIds: (typeof schema.preferences.$inferInsert)[] =
       preferenceBatch.map((pref, idx) => ({
         ...pref,
-        userId: insertedUsers[idx].id,
+        userId: insertedUsers[idx]!.id,
       }));
 
     await Promise.all([

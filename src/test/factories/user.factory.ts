@@ -29,7 +29,7 @@ export class UserFactory {
     const [profile] = await this.db
       .insert(schema.profile)
       .values({
-        userId: user.id,
+        userId: user!.id,
         name: `Test User ${this.counter}`,
         ageRange: '25-30',
         gender: 'female',
@@ -59,7 +59,7 @@ export class UserFactory {
     const [preferences] = await this.db
       .insert(schema.preferences)
       .values({
-        userId: user.id,
+        userId: user!.id,
         genderPreference: 'mixed',
         housingSearchType: 'looking_for_roommate',
         budgetMin: 3000,

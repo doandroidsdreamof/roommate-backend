@@ -67,7 +67,7 @@ async function loadNeighborhoods(
     if (!grouped[n.provinceName]) {
       grouped[n.provinceName] = [];
     }
-    grouped[n.provinceName].push({
+    grouped[n.provinceName]!.push({
       id: n.id,
       districtName: n.districtName,
     });
@@ -178,7 +178,7 @@ async function seedPostings() {
       ]);
 
       const neighborhoodData = faker.helpers.arrayElement(
-        neighborhoodsByProvince[province],
+        neighborhoodsByProvince[province]!,
       );
       const coords = generateCoordinates(province);
       const rentAmount = generateRentAmount(province);
@@ -283,7 +283,7 @@ async function seedPostings() {
     const specsWithIds: (typeof schema.postingSpecs.$inferInsert)[] =
       specsBatch.map((spec, idx) => ({
         ...spec,
-        postingId: insertedPostings[idx].id,
+        postingId: insertedPostings[idx]!.id,
       }));
 
     const insertedSpecs = await db!
@@ -294,7 +294,7 @@ async function seedPostings() {
     const imagesWithIds: (typeof schema.postingImages.$inferInsert)[] =
       imagesBatch.map((img, idx) => ({
         ...img,
-        postingSpecsId: insertedSpecs[idx].id,
+        postingSpecsId: insertedSpecs[idx]!.id,
       }));
 
     await db!.insert(schema.postingImages).values(imagesWithIds);

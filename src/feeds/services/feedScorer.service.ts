@@ -192,7 +192,12 @@ export class FeedScorerService {
         ? ALCOHOL_LEVELS[candidateConsumption]
         : -1;
 
-    if (userLevel === -1 || candidateLevel === -1) {
+    if (
+      userLevel === undefined ||
+      candidateLevel === undefined ||
+      userLevel === -1 ||
+      candidateLevel === -1
+    ) {
       return SCORING.LIFESTYLE.ALCOHOL.NO_MATCH;
     }
 

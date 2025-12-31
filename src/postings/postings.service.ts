@@ -23,13 +23,12 @@ export class PostingsService {
     private usersService: UsersService,
   ) {}
 
-  // TODO refactor these methods and read doc about auto rollbacks
   async create(userId: string, createPostingDto: CreatePostingDto) {
     const { specs, images, ...postingData } = createPostingDto;
     await this.checkDuplicatePosting(userId, postingData.neighborhoodId);
 
     try {
-      const result = await this.db.transaction(async (tx) => {
+      await this.db.transaction(async (tx) => {
         this.logger.debug('Transaction started');
 
         this.logger.debug('Inserting posting...');
@@ -44,7 +43,10 @@ export class PostingsService {
             availableFrom: new Date(postingData.availableFrom),
           })
           .returning();
-        this.logger.debug(`Posting created with ID: ${posting.id}`);
+
+        if (!posting) {
+          throw new DomainException('POSTING_CREATION_FAILED');
+        }
 
         // 2. Insert posting specs
         this.logger.debug('Inserting posting specs...');
@@ -58,11 +60,11 @@ export class PostingsService {
               : undefined,
           })
           .returning();
-        this.logger.debug(`Posting specs created with ID: ${postingSpec.id}`);
-
+        if (!postingSpec) {
+          throw new DomainException('POSTING_SPEC_CREATION_FAILED');
+        }
         // 3. Insert posting images (if existed)
         if (images && images.length > 0) {
-          this.logger.debug(`Inserting ${images.length} images...`);
           await tx.insert(schema.postingImages).values({
             postingSpecsId: postingSpec.id,
             images: images,
@@ -75,7 +77,6 @@ export class PostingsService {
         return posting;
       });
 
-      this.logger.log(`Posting created successfully: ${result.id}`);
       return {
         message: 'Posting created successfully',
       };
@@ -193,7 +194,7 @@ export class PostingsService {
     }
     //* do not update if there is no URL change
     const hasChanges = images?.some((newImg) => {
-      const existingImg = currentRecord[0].images.find(
+      const existingImg = currentRecord[0]?.images.find(
         (img) => img.order === newImg.order,
       );
       return !existingImg || existingImg.url !== newImg.url;

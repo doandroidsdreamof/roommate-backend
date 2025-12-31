@@ -51,24 +51,24 @@ describe('UsersService', () => {
     it('should return true when user A blocked user B', async () => {
       const { user: userA } = await testDB.factories.users.createWithProfile();
       const { user: userB } = await testDB.factories.users.createWithProfile();
-      await testableService.blockUser(userA.id, {
-        blockedId: userB.id,
+      await testableService.blockUser(userA!.id, {
+        blockedId: userB!.id,
       });
 
       await expect(
-        testableService.isBlockedRelationship(userA.id, userB.id),
+        testableService.isBlockedRelationship(userA!.id, userB!.id),
       ).resolves.toBe(true);
     });
 
     it('should return true when checking reverse direction after A blocked B', async () => {
       const { user: userA } = await testDB.factories.users.createWithProfile();
       const { user: userB } = await testDB.factories.users.createWithProfile();
-      await testableService.blockUser(userA.id, {
-        blockedId: userB.id,
+      await testableService.blockUser(userA!.id, {
+        blockedId: userB!.id,
       });
 
       await expect(
-        testableService.isBlockedRelationship(userB.id, userA.id),
+        testableService.isBlockedRelationship(userB!.id, userA!.id),
       ).resolves.toBe(true);
     });
 
@@ -76,7 +76,7 @@ describe('UsersService', () => {
       const { user: userA } = await testDB.factories.users.createWithProfile();
       const { user: userB } = await testDB.factories.users.createWithProfile();
       await expect(
-        testableService.isBlockedRelationship(userB.id, userA.id),
+        testableService.isBlockedRelationship(userB!.id, userA!.id),
       ).resolves.toBe(false);
     });
   });
@@ -86,11 +86,11 @@ describe('UsersService', () => {
       const { user } = await testDB.factories.users.createWithProfile();
       const { user: blockedUser } =
         await testDB.factories.users.createWithProfile();
-      await testableService.blockUser(user.id, {
-        blockedId: blockedUser.id,
+      await testableService.blockUser(user!.id, {
+        blockedId: blockedUser!.id,
       });
       await expect(
-        testableService.blockUser(user.id, { blockedId: blockedUser.id }),
+        testableService.blockUser(user!.id, { blockedId: blockedUser!.id }),
       ).rejects.toThrow('User is already blocked');
     });
 
@@ -98,8 +98,8 @@ describe('UsersService', () => {
       const { user } = await testDB.factories.users.createWithProfile();
 
       await expect(
-        testableService.blockUser(user.id, {
-          blockedId: user.id,
+        testableService.blockUser(user!.id, {
+          blockedId: user!.id,
         }),
       ).rejects.toThrow('Cannot block yourself');
     });
@@ -107,8 +107,8 @@ describe('UsersService', () => {
       const { user } = await testDB.factories.users.createWithProfile();
       const { user: blockedUser } =
         await testDB.factories.users.createWithProfile();
-      const result = await testableService.blockUser(user.id, {
-        blockedId: blockedUser.id,
+      const result = await testableService.blockUser(user!.id, {
+        blockedId: blockedUser!.id,
       });
 
       expect(result).toMatchObject({
@@ -123,10 +123,10 @@ describe('UsersService', () => {
         postingCount: 0,
       });
 
-      await testableService.decrementPostingCount(user.id);
+      await testableService.decrementPostingCount(user!.id);
 
       const updatedUser = await testDB.db.query.users.findFirst({
-        where: eq(schema.users.id, user.id),
+        where: eq(schema.users.id, user!.id),
       });
 
       expect(updatedUser!.postingCount).toBe(0);
@@ -136,34 +136,34 @@ describe('UsersService', () => {
   describe('unbookmarkPosting', () => {
     it('should throw BOOKMARK_NOT_FOUND when bookmark does not exist', async () => {
       const { user } = await testDB.factories.users.createWithProfile();
-      const posting = await testDB.factories.postings.create(user.id);
+      const posting = await testDB.factories.postings.create(user!.id);
 
       await expect(
-        testableService.unbookmarkPosting(user.id, {
-          postingId: posting.id,
+        testableService.unbookmarkPosting(user!.id, {
+          postingId: posting!.id,
         }),
       ).rejects.toThrow('Bookmark not found');
     });
 
     it('should decrement posting bookmark count', async () => {
       const { user } = await testDB.factories.users.createWithProfile();
-      const posting = await testDB.factories.postings.create(user.id);
+      const posting = await testDB.factories.postings.create(user!.id);
 
-      await testableService.bookmarkPosting(user.id, {
-        postingId: posting.id,
+      await testableService.bookmarkPosting(user!.id, {
+        postingId: posting!.id,
       });
 
       const bookmarkedPosting = await testDB.db.query.postings.findFirst({
-        where: eq(schema.postings.id, posting.id),
+        where: eq(schema.postings.id, posting!.id),
       });
 
       expect(bookmarkedPosting!.bookmarkCount).toBe(1);
 
-      await testableService.unbookmarkPosting(user.id, {
-        postingId: posting.id,
+      await testableService.unbookmarkPosting(user!.id, {
+        postingId: posting!.id,
       });
       const unbookmarkedPosting = await testDB.db.query.postings.findFirst({
-        where: eq(schema.postings.id, posting.id),
+        where: eq(schema.postings.id, posting!.id),
       });
       expect(unbookmarkedPosting!.bookmarkCount).toBe(0);
     });

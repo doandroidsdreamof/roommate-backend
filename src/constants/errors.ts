@@ -86,6 +86,11 @@ export const ERRORS = {
     message: 'Posting image not found',
     status: HttpStatus.NOT_FOUND,
   },
+  POSTING_SPEC_CREATION_FAILED: {
+    code: 'POSTING_3006',
+    message: 'Failed to create posting_spec',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
 
   // ============= BOOKMARK (4xxx) =============
   BOOKMARK_ALREADY_EXISTS: {

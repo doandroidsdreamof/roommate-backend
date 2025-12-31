@@ -32,9 +32,9 @@ describe('MatchesService', () => {
         await testDB.factories.users.createWithProfileAndPreferences();
       const { user: userSecond } =
         await testDB.factories.users.createWithProfileAndPreferences();
-      await matchesService.insertMatch(userFirst.id, userSecond.id);
+      await matchesService.insertMatch(userFirst!.id, userSecond!.id);
       await expect(
-        matchesService.insertMatch(userFirst.id, userSecond.id),
+        matchesService.insertMatch(userFirst!.id, userSecond!.id),
       ).resolves.toBe(undefined);
     });
     it('should store user IDs in sorted order regardless of input order', async () => {
@@ -45,10 +45,10 @@ describe('MatchesService', () => {
         await testDB.factories.users.createWithProfileAndPreferences();
 
       const result = await matchesService.insertMatch(
-        userFirst.id,
-        userSecond.id,
+        userFirst!.id,
+        userSecond!.id,
       );
-      const [first, second] = [userFirst.id, userSecond.id].sort();
+      const [first, second] = [userFirst!.id, userSecond!.id].sort();
 
       expect(result!.userFirstId).toBe(first);
       expect(result!.userSecondId).toBe(second);
@@ -60,9 +60,9 @@ describe('MatchesService', () => {
         await testDB.factories.users.createWithProfileAndPreferences();
       const functionList = Array.from({ length: 20 }, (_, index) => {
         if (index % 2 === 0) {
-          return matchesService.insertMatch(userFirst.id, userSecond.id);
+          return matchesService.insertMatch(userFirst!.id, userSecond!.id);
         } else {
-          return matchesService.insertMatch(userSecond.id, userFirst.id);
+          return matchesService.insertMatch(userSecond!.id, userFirst!.id);
         }
       });
       const results = await Promise.all(functionList);
@@ -72,12 +72,12 @@ describe('MatchesService', () => {
         where: and(
           or(
             and(
-              eq(schema.matches.userFirstId, userFirst.id),
-              eq(schema.matches.userSecondId, userSecond.id),
+              eq(schema.matches.userFirstId, userFirst!.id),
+              eq(schema.matches.userSecondId, userSecond!.id),
             ),
             and(
-              eq(schema.matches.userFirstId, userSecond.id),
-              eq(schema.matches.userSecondId, userFirst.id),
+              eq(schema.matches.userFirstId, userSecond!.id),
+              eq(schema.matches.userSecondId, userFirst!.id),
             ),
           ),
         ),
@@ -94,12 +94,12 @@ describe('MatchesService', () => {
         const { user: userSecond } =
           await testDB.factories.users.createWithProfileAndPreferences();
         const matchRecord = await matchesService.insertMatch(
-          userFirst.id,
-          userSecond.id,
+          userFirst!.id,
+          userSecond!.id,
         );
 
         await expect(
-          matchesService.unmatch(userFirst.id, matchRecord!.id),
+          matchesService.unmatch(userFirst!.id, matchRecord!.id),
         ).resolves.toEqual({ message: 'Unmatched' });
       });
 
@@ -109,12 +109,12 @@ describe('MatchesService', () => {
         const { user: userSecond } =
           await testDB.factories.users.createWithProfileAndPreferences();
         const matchRecord = await matchesService.insertMatch(
-          userFirst.id,
-          userSecond.id,
+          userFirst!.id,
+          userSecond!.id,
         );
 
         await expect(
-          matchesService.unmatch(userSecond.id, matchRecord!.id),
+          matchesService.unmatch(userSecond!.id, matchRecord!.id),
         ).resolves.toEqual({ message: 'Unmatched' });
       });
 
@@ -124,12 +124,12 @@ describe('MatchesService', () => {
         const { user: userSecond } =
           await testDB.factories.users.createWithProfileAndPreferences();
         const matchRecord = await matchesService.insertMatch(
-          userFirst.id,
-          userSecond.id,
+          userFirst!.id,
+          userSecond!.id,
         );
 
         const before = new Date();
-        await matchesService.unmatch(userFirst.id, matchRecord!.id);
+        await matchesService.unmatch(userFirst!.id, matchRecord!.id);
         const after = new Date();
 
         const [match] = await testDB.db.query.matches.findMany({
@@ -137,7 +137,7 @@ describe('MatchesService', () => {
         });
         expect(match).toBeDefined();
 
-        const unmatchedTime = new Date(match.unmatchedAt ?? '').getTime();
+        const unmatchedTime = new Date(match!.unmatchedAt ?? '').getTime();
         expect(unmatchedTime).toBeGreaterThanOrEqual(before.getTime());
         expect(unmatchedTime).toBeLessThanOrEqual(after.getTime());
       });
@@ -153,11 +153,11 @@ describe('MatchesService', () => {
           await testDB.factories.users.createWithProfileAndPreferences();
 
         const matchRecord = await matchesService.insertMatch(
-          userFirst.id,
-          userSecond.id,
+          userFirst!.id,
+          userSecond!.id,
         );
         await expect(
-          matchesService.unmatch(userThird.id, matchRecord!.id),
+          matchesService.unmatch(userThird!.id, matchRecord!.id),
         ).rejects.toThrow('Match not found or already unmatched');
       });
 
@@ -168,13 +168,13 @@ describe('MatchesService', () => {
           await testDB.factories.users.createWithProfileAndPreferences();
 
         const matchRecord = await matchesService.insertMatch(
-          userFirst.id,
-          userSecond.id,
+          userFirst!.id,
+          userSecond!.id,
         );
-        await matchesService.unmatch(userFirst.id, matchRecord!.id);
+        await matchesService.unmatch(userFirst!.id, matchRecord!.id);
 
         await expect(
-          matchesService.unmatch(userFirst.id, matchRecord!.id),
+          matchesService.unmatch(userFirst!.id, matchRecord!.id),
         ).rejects.toThrow('Match not found or already unmatched');
       });
     });
