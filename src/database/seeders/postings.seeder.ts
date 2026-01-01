@@ -3,13 +3,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import 'dotenv/config';
 import { fakerTR as faker } from '@faker-js/faker';
+import 'dotenv/config';
 import { eq, inArray } from 'drizzle-orm';
-import * as schema from '../schema';
-import { seederDb as db } from './seed-db-instance';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import * as schema from '../schema';
+import { seederDb as db } from './seed-db-instance';
 
 const NUM_POSTINGS = 1_000_000;
 const BATCH_SIZE = 1000;
@@ -186,7 +186,6 @@ async function seedPostings() {
 
       postingBatch.push({
         userId,
-        type: generatePostingType(),
         status: faker.helpers.weightedArrayElement([
           { weight: 85, value: 'active' as const },
           { weight: 10, value: 'inactive' as const },

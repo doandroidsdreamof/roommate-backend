@@ -57,12 +57,6 @@ export const petCompatibilityEnum = pgEnum(
 );
 
 // Postings
-export const postingTypeEnum = pgEnum('posting_type', [
-  'offering_room',
-  'looking_for_room',
-  'looking_for_roommate',
-]);
-
 export const postingStatusEnum = pgEnum(
   'posting_status',
   getEnumValues(POSTING_STATUS),

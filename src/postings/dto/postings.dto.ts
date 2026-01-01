@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  POSTING_TYPE,
   GENDER_PREFERENCE,
   AGE_RANGES,
   OCCUPANT_GENDER_COMPOSITION,
@@ -14,7 +13,6 @@ const ageRangeValues = getEnumValues(AGE_RANGES);
 const occupantGenderCompositionValues = getEnumValues(
   OCCUPANT_GENDER_COMPOSITION,
 );
-const postingTypeValues = getEnumValues(POSTING_TYPE);
 const petOwnershipValues = getEnumValues(PET_OWNERSHIP);
 
 // TODO test iso.datetime() <=> z.iso.datetime({ offset: true })
@@ -78,7 +76,6 @@ const postingsSpecsSchema = z.object({
 });
 
 export const createPostingSchema = z.object({
-  type: z.enum(postingTypeValues),
   title: z
     .string()
     .min(10, 'Title must be at least 10 characters')

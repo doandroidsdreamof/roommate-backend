@@ -17,7 +17,6 @@ import {
   occupantGenderCompositionEnum,
   petOwnershipEnum,
   postingStatusEnum,
-  postingTypeEnum,
 } from './enums.schema';
 import { neighborhoods } from './locations.schema';
 import { createdAndUpdatedTimestamps } from './shared-types';
@@ -45,7 +44,6 @@ export const postings = pgTable(
       .references(() => users.id, { onDelete: 'restrict' }),
 
     // Basic Info
-    type: postingTypeEnum('type').notNull(), // TODO redundant field
     status: postingStatusEnum('status').default('active').notNull(),
     title: varchar('title', { length: 100 }).notNull(),
 

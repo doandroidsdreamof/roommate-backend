@@ -15,7 +15,6 @@ export class PostingFactory {
       .values({
         userId,
         title: `Test title ${this.counter}`,
-        type: 'looking_for_roommate',
         city: 'Istanbul',
         district: 'Kadikoy',
         neighborhoodId: 1,

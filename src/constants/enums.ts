@@ -22,7 +22,6 @@ export const GENDER = {
   MALE: 'male',
   FEMALE: 'female',
   OTHER: 'other',
-  PREFER_NOT_TO_SAY: 'prefer_not_to_say',
 } as const;
 
 export const ACCOUNT_STATUS = {
@@ -68,13 +67,6 @@ export const ALCOHOL_CONSUMPTION = {
   OCCASIONALLY: 'occasionally',
   SOCIALLY: 'socially',
   REGULARLY: 'regularly',
-} as const;
-
-// Add these missing enums
-export const POSTING_TYPE = {
-  OFFERING_ROOM: 'offering_room',
-  LOOKING_FOR_ROOM: 'looking_for_room',
-  LOOKING_FOR_ROOMMATE: 'looking_for_roommate',
 } as const;
 
 export const POSTING_STATUS = {

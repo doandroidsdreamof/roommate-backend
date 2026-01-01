@@ -72,6 +72,9 @@ export const profile = pgTable(
       table.gender,
       table.accountStatus,
     ),
+    // Composite index for city + gender + accountStatus filtering
+    // Performance varies by production data distribution: Beneficial for low-population cities
+    // Sequential scan preferred for high-distribution cities (assumed Istanbul ~60%)
   ],
 );
 
