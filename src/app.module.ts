@@ -11,6 +11,7 @@ import { RedisModule } from './redis/redis.module';
 import { FeedsModule } from './feeds/feeds.module';
 import { SwipesModule } from './swipes/swipes.module';
 import { MatchesModule } from './matches/matches.module';
+import { WebsocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { MatchesModule } from './matches/matches.module';
     EmailModule,
     PostingsModule,
     LocationsModule,
+    WebsocketModule,
     RedisModule,
     FeedsModule,
     SwipesModule,
