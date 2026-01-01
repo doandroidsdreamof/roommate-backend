@@ -1,5 +1,6 @@
 import {
   boolean,
+  check,
   index,
   integer,
   pgTable,
@@ -41,6 +42,7 @@ export const users = pgTable(
     index('users_not_deleted_idx')
       .on(table.id)
       .where(sql`${table.deletedAt} IS NULL`),
+    check('users_posting_count_non_negative', sql`${table.postingCount} >= 0`),
   ],
 );
 
@@ -87,7 +89,7 @@ export const preferences = pgTable(
       .unique()
       .references(() => users.id, { onDelete: 'cascade' }),
     housingSearchType: housingSearchTypeEnum('housing_search_type').notNull(),
-    budgetMin: integer('budget_min'), // TODO CHECK CONSTRAINT
+    budgetMin: integer('budget_min'),
     budgetMax: integer('budget_max'),
     genderPreference: genderPreferenceEnum('gender_preference'),
     smokingHabit: smokingHabitEnum('smoking_habit'),
@@ -104,6 +106,22 @@ export const preferences = pgTable(
       table.housingSearchType,
     ),
     index('preferences_budget_range_idx').on(table.budgetMin, table.budgetMax),
+    check(
+      'preferences_budget_min_positive',
+      sql`${table.budgetMin} IS NULL OR ${table.budgetMin} > 0`,
+    ),
+    check(
+      'preferences_budget_max_positive',
+      sql`${table.budgetMax} IS NULL OR ${table.budgetMax} > 0`,
+    ),
+    check(
+      'preferences_budget_valid_range',
+      sql`
+        ${table.budgetMin} IS NULL 
+        OR ${table.budgetMax} IS NULL 
+        OR ${table.budgetMax} > ${table.budgetMin}
+      `,
+    ),
   ],
 );
 

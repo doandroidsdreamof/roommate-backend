@@ -1,1 +1,0 @@
-ALTER TABLE "verifications" ALTER COLUMN "code_expires_at" SET NOT NULL;

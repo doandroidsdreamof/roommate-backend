@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -22,18 +23,21 @@ import { neighborhoods } from './locations.schema';
 import { createdAndUpdatedTimestamps } from './shared-types';
 import { users } from './users.schema';
 
-// TODO indexing
-export const postingImages = pgTable('posting_images', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  postingSpecsId: uuid('posting_specs_id')
-    .notNull()
-    .references(() => postingSpecs.id, { onDelete: 'cascade' }),
-  images: jsonb('images')
-    .$type<Array<{ url: string; order: number }>>()
-    .notNull(),
-  isVerified: boolean('is_verified').default(false),
-  ...createdAndUpdatedTimestamps,
-});
+export const postingImages = pgTable(
+  'posting_images',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    postingSpecsId: uuid('posting_specs_id')
+      .notNull()
+      .references(() => postingSpecs.id, { onDelete: 'cascade' }),
+    images: jsonb('images')
+      .$type<Array<{ url: string; order: number }>>()
+      .notNull(),
+    isVerified: boolean('is_verified').default(false),
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [index('posting_images_specs_id_idx').on(table.postingSpecsId)],
+);
 
 export const postings = pgTable(
   'postings',
@@ -92,50 +96,68 @@ export const postings = pgTable(
       .on(table.createdAt.desc())
       .where(sql`${table.deletedAt} IS NULL`), //* partial index => do not index deleted rows
     index('postings_user_id_idx').on(table.userId),
+    check(
+      'postings_bookmark_count_non_negative',
+      sql`${table.bookmarkCount} >= 0`,
+    ),
+    check('postings_view_count_non_negative', sql`${table.viewCount} >= 0`),
   ],
 );
 
-export const postingSpecs = pgTable('posting_specs', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  postingId: uuid('posting_id')
-    .notNull()
-    .unique()
-    .references(() => postings.id, { onDelete: 'cascade' }),
+export const postingSpecs = pgTable(
+  'posting_specs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    postingId: uuid('posting_id')
+      .notNull()
+      .unique()
+      .references(() => postings.id, { onDelete: 'cascade' }),
 
-  // Full Description
-  description: text('description').notNull(),
+    // Full Description
+    description: text('description').notNull(),
 
-  // Additional Pricing
-  depositAmount: integer('deposit_amount').notNull(),
-  billsIncluded: boolean('bills_included').default(false).notNull(),
+    // Additional Pricing
+    depositAmount: integer('deposit_amount').notNull(),
+    billsIncluded: boolean('bills_included').default(false).notNull(),
 
-  // Property Details
-  floor: integer('floor').notNull(),
-  totalFloors: integer('total_floors').notNull(),
-  hasBalcony: boolean('has_balcony').notNull(),
-  hasParking: boolean('has_parking').notNull(),
-  hasElevator: boolean('has_elevator').notNull(),
+    // Property Details
+    floor: integer('floor').notNull(),
+    totalFloors: integer('total_floors').notNull(),
+    hasBalcony: boolean('has_balcony').notNull(),
+    hasParking: boolean('has_parking').notNull(),
+    hasElevator: boolean('has_elevator').notNull(),
 
-  // Occupancy
-  currentOccupants: integer('current_occupants'),
-  totalCapacity: integer('total_capacity'),
-  availableRooms: integer('available_rooms'),
+    // Occupancy
+    currentOccupants: integer('current_occupants'),
+    totalCapacity: integer('total_capacity'),
+    availableRooms: integer('available_rooms'),
 
-  // Demographics
-  occupantGenderComposition: occupantGenderCompositionEnum(
-    'occupant_gender_composition',
-  ),
-  occupantAgeRange: ageRangeEnum('occupant_age_range'),
-  preferredRoommateAgeRange: ageRangeEnum('preferred_roommate_age_range'),
+    // Demographics
+    occupantGenderComposition: occupantGenderCompositionEnum(
+      'occupant_gender_composition',
+    ),
+    occupantAgeRange: ageRangeEnum('occupant_age_range'),
+    preferredRoommateAgeRange: ageRangeEnum('preferred_roommate_age_range'),
 
-  // Lifestyle
-  smokingAllowed: boolean('smoking_allowed'),
-  alcoholFriendly: boolean('alcohol_friendly'), //TODO it can be enum. e.g not allowed common spaces etc.
+    // Lifestyle
+    smokingAllowed: boolean('smoking_allowed'),
+    alcoholFriendly: boolean('alcohol_friendly'),
 
-  hasPets: boolean('has_pets'),
-  currentPetOwnership: petOwnershipEnum('current_pet_ownership'),
-  availableUntil: timestamp('available_until', { withTimezone: true }),
-  nearbyTransport: text('nearby_transport'),
+    hasPets: boolean('has_pets'),
+    currentPetOwnership: petOwnershipEnum('current_pet_ownership'),
+    availableUntil: timestamp('available_until', { withTimezone: true }),
+    nearbyTransport: text('nearby_transport'),
 
-  ...createdAndUpdatedTimestamps,
-});
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [
+    check(
+      'posting_specs_deposit_non_negative',
+      sql`${table.depositAmount} >= 0`,
+    ),
+    check(
+      'posting_specs_description_not_empty',
+      sql`LENGTH(TRIM(${table.description})) > 0`,
+    ),
+  ],
+);

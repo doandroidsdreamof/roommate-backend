@@ -35,7 +35,7 @@ export const verifications = pgTable(
       'attempts_count',
       sql`${table.attemptsCount} >= 0 AND ${table.attemptsCount} <= 3`,
     ),
-  ], //* limit max attempt with CHECK Constraint
+  ],
 );
 
 export const refreshToken = pgTable(

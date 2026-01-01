@@ -19,7 +19,7 @@ export const swipes = pgTable(
     ...createdAndUpdatedTimestamps,
   },
   (table) => [
-    unique('unique_swipe').on(table.swiperId, table.swipedId), //* A can only swipes B once
+    unique('unique_swipe').on(table.swiperId, table.swipedId), //* User A cannot swipe User B twice
     index('swiper_idx').on(table.swiperId),
     index('swiped_idx').on(table.swipedId),
     check('no_self_swipe', sql`${table.swiperId} != ${table.swipedId}`),
