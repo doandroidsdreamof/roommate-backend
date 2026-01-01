@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, gte, lte, ne, SQL, sql } from 'drizzle-orm';
+import { and, eq, gte, isNull, lte, ne, or, SQL, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   ACCOUNT_STATUS,
@@ -151,15 +151,42 @@ export class FeedsService {
     return feed;
   }
 
-  private buildGenderFilter(context: FeedContext) {
-    const pref = context.preferences?.genderPreference;
-    if (!pref || pref === GENDER_PREFERENCE.MIXED) return undefined;
-    if (pref === GENDER_PREFERENCE.FEMALE_ONLY)
-      return eq(schema.profile.gender, GENDER.FEMALE);
-    if (pref === GENDER_PREFERENCE.MALE_ONLY)
-      return eq(schema.profile.gender, GENDER.MALE);
+  private buildGenderFilter(context: FeedContext): SQL | undefined {
+    const currentUserGender = context.profile.gender;
+    const currentUserPref = context.preferences?.genderPreference;
 
-    return undefined;
+    const filters: (SQL | undefined)[] = [];
+
+    if (currentUserPref && currentUserPref !== GENDER_PREFERENCE.MIXED) {
+      if (currentUserPref === GENDER_PREFERENCE.FEMALE_ONLY) {
+        filters.push(eq(schema.profile.gender, GENDER.FEMALE));
+      } else if (currentUserPref === GENDER_PREFERENCE.MALE_ONLY) {
+        filters.push(eq(schema.profile.gender, GENDER.MALE));
+      }
+    }
+
+    if (currentUserGender === GENDER.MALE) {
+      filters.push(
+        or(
+          eq(schema.preferences.genderPreference, GENDER_PREFERENCE.MALE_ONLY),
+          eq(schema.preferences.genderPreference, GENDER_PREFERENCE.MIXED),
+          isNull(schema.preferences.genderPreference),
+        ),
+      );
+    } else if (currentUserGender === GENDER.FEMALE) {
+      filters.push(
+        or(
+          eq(
+            schema.preferences.genderPreference,
+            GENDER_PREFERENCE.FEMALE_ONLY,
+          ),
+          eq(schema.preferences.genderPreference, GENDER_PREFERENCE.MIXED),
+          isNull(schema.preferences.genderPreference),
+        ),
+      );
+    }
+
+    return filters.length > 0 ? and(...filters) : undefined;
   }
 
   //* Apply hard filters: city, gender preference, account status
@@ -188,6 +215,9 @@ export class FeedsService {
           petOwnership: schema.preferences.petOwnership,
           petCompatibility: schema.preferences.petCompatibility,
           alcoholConsumption: schema.preferences.alcoholConsumption,
+          genderPreference: schema.preferences.genderPreference,
+          houseSearcingType: schema.preferences.housingSearchType,
+          accountStatus: schema.profile.accountStatus,
         })
         .from(schema.profile)
         .innerJoin(

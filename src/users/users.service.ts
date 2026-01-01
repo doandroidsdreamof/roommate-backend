@@ -54,7 +54,6 @@ export class UsersService {
       .returning({
         id: usersSchema.id,
         email: usersSchema.email,
-        isActive: usersSchema.isActive,
       });
     return user;
   }
@@ -152,7 +151,6 @@ export class UsersService {
       where: eq(schema.users.email, email),
       columns: {
         id: true,
-        isActive: true,
         email: true,
       },
     });

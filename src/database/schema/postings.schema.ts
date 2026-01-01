@@ -23,6 +23,7 @@ import { neighborhoods } from './locations.schema';
 import { createdAndUpdatedTimestamps } from './shared-types';
 import { users } from './users.schema';
 
+// TODO indexing
 export const postingImages = pgTable('posting_images', {
   id: uuid('id').defaultRandom().primaryKey(),
   postingSpecsId: uuid('posting_specs_id')

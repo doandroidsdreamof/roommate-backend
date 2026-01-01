@@ -43,6 +43,7 @@ export type EligibleUser = {
   petOwnership: (typeof schema.preferences.$inferSelect)['petOwnership'];
   petCompatibility: (typeof schema.preferences.$inferSelect)['petCompatibility'];
   alcoholConsumption: (typeof schema.preferences.$inferSelect)['alcoholConsumption'];
+  genderPreference: (typeof schema.preferences.$inferSelect)['genderPreference'];
 };
 
 export type ScoredUser = EligibleUser & {

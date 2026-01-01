@@ -61,7 +61,6 @@ export class TokenService {
   }
 
   hashToken(token: string): string {
-    // TODO consider database breach. Current implementation has high entropy. Does it mitigates rainbow attacks are there more nuances?
     return createHash('sha256').update(token).digest('hex');
   }
   async validateRefreshToken(refreshToken: string): Promise<string | null> {

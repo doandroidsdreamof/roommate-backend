@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
         secret: JWT_SECRET,
       });
 
-      request['user'] = payload; //* write it in header
+      request['user'] = payload;
     } catch (error) {
       this.logger.error(error);
       throw new UnauthorizedException();

@@ -94,7 +94,6 @@ async function seedUsers() {
             () => `+90${userIndex.toString().padStart(10, '0')}`, // Unique based on index
             { probability: 0.3 },
           ) ?? null,
-        isActive: true,
         isEmailVerified: true,
         isPhoneVerified: Math.random() < 0.2,
       });

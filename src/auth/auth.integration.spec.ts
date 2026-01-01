@@ -108,7 +108,6 @@ describe('AuthService', () => {
         where: eq(schema.users.email, email),
       });
       expect(user).toBeDefined();
-      expect(user!.isActive).toBe(true);
       expect(user!.isEmailVerified).toBe(true);
       expect(user!.email).toMatch(email);
     });
