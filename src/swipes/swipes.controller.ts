@@ -12,7 +12,7 @@ import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
 import { createSwipeSchema, CreateSwipeDto } from './dto/swipes.dto';
 
-@Controller('swipes')
+@Controller({ path: 'swipes', version: '1' })
 @UseGuards(AuthGuard)
 export class SwipesController {
   constructor(private readonly swipesService: SwipesService) {}

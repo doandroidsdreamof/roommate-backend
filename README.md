@@ -34,13 +34,13 @@
 - [x] Token rotation on refresh
 - [x] Seeder for locations
 - [x] Swagger setup
+- [x] API versioning
 - [x] Factory methods for integration tests
 - [x] `POST /auth/refresh` endpoint
 - [x] `POST /auth/logout` endpoint
 
 ### Remaining
 
-- [ ] API versioning
 - [ ] Global Exception Filter
 - [ ] Image upload service
 - [ ] Image compression
@@ -121,18 +121,16 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 - [x] ORDER BY score logic
 - [ ] Shuffle algorithm
 
-
 #### Optimizations
 
 - [x] Redis cache for feed sets
 - [x] Query indexes on swipes table
-- [ ] Archive old swipes (>6 months)
+- [ ] Archive old swipes (>3 months)
 
 #### Analytics
 
 - [ ] Track swipe behavior (view duration, time to decision)
 - [ ] Track match quality (unmatch rate, time to unmatch)
-- [ ] Monitor algorithm effectiveness
 
 ### Edge Cases
 
@@ -238,7 +236,6 @@ Limits:
 
 - [ ] Geocoding service
 - [ ] Reverse geocoding
-- [ ] Location picker component
 
 ## Phase 8: Infrastructure
 
@@ -278,6 +275,5 @@ services:
 ### Tasks
 
 - [ ] Move refresh tokens to Redis
-- [ ] Query optimization (indexes)
-- [ ] Connection pooling (pgBouncer)
+- [ ] Connection pooling
 - [ ] Response caching

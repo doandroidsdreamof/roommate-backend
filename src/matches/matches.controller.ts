@@ -14,7 +14,7 @@ import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { GetMatchesDto, getMatchesValidationSchema } from './dto/matches.dto';
 import { MatchesService } from './matches.service';
 
-@Controller('matches')
+@Controller({ path: 'matches', version: '1' })
 @UseGuards(AuthGuard)
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}

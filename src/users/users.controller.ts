@@ -36,7 +36,7 @@ import {
 } from './dto/profile.dto';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Controller({ path: 'users', version: '1' })
 @UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

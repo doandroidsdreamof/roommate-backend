@@ -2,7 +2,7 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@Controller('locations')
+@Controller({ path: 'locations', version: '1' })
 @UseGuards(AuthGuard)
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConsoleLogger, Logger } from '@nestjs/common';
+import { ConsoleLogger, Logger, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResponseInterceptor } from './interceptors/response-interceptor';
 
@@ -12,6 +12,10 @@ async function bootstrap() {
   });
 
   const logger = new Logger();
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   const config = new DocumentBuilder()

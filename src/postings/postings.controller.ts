@@ -27,7 +27,7 @@ import { PostingsService } from './postings.service';
 import { ListsService } from './services/lists.service';
 import { ListsQueryDto, listsQuerySchema } from './dto/lists.dto';
 
-@Controller('postings')
+@Controller({ path: 'postings', version: '1' })
 @UseGuards(AuthGuard)
 export class PostingsController {
   constructor(

@@ -9,7 +9,7 @@ import { FeedsService } from './feeds.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
 
-@Controller('feeds')
+@Controller({ path: 'feeds', version: '1' })
 @UseGuards(AuthGuard)
 export class FeedsController {
   constructor(private readonly feedsService: FeedsService) {}
