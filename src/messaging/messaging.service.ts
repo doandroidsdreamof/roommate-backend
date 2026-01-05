@@ -127,4 +127,26 @@ export class MessagingService {
 
     return conversation ?? null;
   }
+  async createPendingMessage(message: Message) {
+    await this.db.insert(schema.pendingMessages).values({
+      conversationId: message.conversationId,
+      senderId: message.senderId,
+      recipientId: message.recipientId,
+      encrypted: message.content,
+      nonce: message.nonce,
+    });
+  }
+
+  async getPendingMessages(recipientId: string) {
+    return this.db.query.pendingMessages.findMany({
+      where: eq(schema.pendingMessages.recipientId, recipientId),
+      orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+    });
+  }
+
+  async deletePendingMessage(messageId: string) {
+    await this.db
+      .delete(schema.pendingMessages)
+      .where(eq(schema.pendingMessages.id, messageId));
+  }
 }

@@ -92,6 +92,12 @@ export const ERRORS = {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
   },
 
+  MAX_POSTINGS_REACHED: {
+    code: 'POSTING_3007',
+    message: 'You have reached the maximum limit of 5 active postings',
+    status: HttpStatus.FORBIDDEN,
+  },
+
   // ============= BOOKMARK (4xxx) =============
   BOOKMARK_ALREADY_EXISTS: {
     code: 'BOOKMARK_4000',

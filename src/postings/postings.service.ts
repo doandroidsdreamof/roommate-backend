@@ -25,6 +25,8 @@ export class PostingsService {
 
   async create(userId: string, createPostingDto: CreatePostingDto) {
     const { specs, images, ...postingData } = createPostingDto;
+    await this.checkPostingLimit(userId);
+
     await this.checkDuplicatePosting(userId, postingData.neighborhoodId);
 
     try {
@@ -261,5 +263,25 @@ export class PostingsService {
       ),
     });
     return !!checkPosting;
+  }
+  /**
+   * Check if user has reached maximum posting limit (5)
+   */
+  private async checkPostingLimit(userId: string): Promise<void> {
+    const count = await this.db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(schema.postings)
+      .where(
+        and(
+          eq(schema.postings.userId, userId),
+          isNull(schema.postings.deletedAt),
+        ),
+      );
+
+    const postingCount = Number(count[0]?.count);
+
+    if (postingCount >= 5) {
+      throw new DomainException('MAX_POSTINGS_REACHED');
+    }
   }
 }

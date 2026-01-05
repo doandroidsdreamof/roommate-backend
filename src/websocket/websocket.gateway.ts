@@ -43,10 +43,12 @@ export class WebsocketGateway
     this.logger.log('WebSocket middleware applied');
   }
 
-  handleConnection(client: AuthenticatedSocket) {
+  async handleConnection(client: AuthenticatedSocket) {
     const userId = client.data.userId;
 
     this.websocketService.addConnection(userId, client.id);
+
+    await this.websocketService.deliverPendingMessages(this.server, userId);
 
     this.logger.log(`User ${userId} connected (${client.id})`);
     this.logger.log(
@@ -61,30 +63,11 @@ export class WebsocketGateway
   }
 
   @SubscribeMessage('message')
-  handleMessage(
+  async handleMessage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody(new ZodValidationPipe(SendMessageSchema))
     payload: SendMessageDTO,
   ) {
-    const senderId = client.data.userId;
-    const { recipientId, messageContent } = payload;
-
-    this.logger.log(`Message: ${senderId} → ${recipientId}`);
-
-    const sent = this.websocketService.sendMessageToUser(
-      this.server,
-      recipientId,
-      senderId,
-      messageContent,
-    );
-
-    if (!sent) {
-      this.websocketService.sendError(
-        this.server,
-        client.id,
-        'USER_OFFLINE',
-        `User ${recipientId} is not online`,
-      );
-    }
+    await this.websocketService.handleSendMessage(this.server, client, payload);
   }
 }
