@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { POSTING_STATUS } from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
@@ -251,5 +251,15 @@ export class PostingsService {
     return {
       message: `Posting closed successfully as ${status}`,
     };
+  }
+  async isPostingExist(userId: string): Promise<boolean> {
+    const checkPosting = await this.db.query.postings.findFirst({
+      where: and(
+        eq(schema.postings.userId, userId),
+        eq(schema.postings.status, POSTING_STATUS.ACTIVE),
+        isNull(schema.postings.deletedAt),
+      ),
+    });
+    return !!checkPosting;
   }
 }

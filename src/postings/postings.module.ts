@@ -9,5 +9,6 @@ import { ListsService } from './services/lists.service';
   imports: [DrizzleModule, UsersModule],
   controllers: [PostingsController],
   providers: [PostingsService, ListsService],
+  exports: [PostingsService],
 })
 export class PostingsModule {}

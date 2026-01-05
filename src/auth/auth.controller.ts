@@ -1,18 +1,18 @@
 import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
+import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { AuthUser } from './decorators/auth-user.decorator';
 import {
-  verifyOtpValidationSchema,
-  VerifyOtpDTO,
+  LogoutDTO,
+  logoutValidationSchema,
   OtpDTO,
   otpValidationSchema,
   RefreshTokenDTO,
   refreshTokenValidationSchema,
-  LogoutDTO,
-  logoutValidationSchema,
-} from './dto/auth-dto';
-import { AuthGuard } from './auth.guard';
-import { AuthUser } from './decorators/auth-user.decorator';
+  VerifyOtpDTO,
+  verifyOtpValidationSchema,
+} from './dto/auth.dto';
 
 // TODO http-only mechanism
 // TODO resetting otp attempt count

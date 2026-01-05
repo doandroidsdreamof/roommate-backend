@@ -7,7 +7,7 @@ import {
   OtpDTO,
   RefreshTokenDTO,
   VerifyOtpDTO,
-} from './dto/auth-dto';
+} from './dto/auth.dto';
 import { OtpService } from './services/otp.service';
 import { TokenService } from './services/token.service';
 

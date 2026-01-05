@@ -125,7 +125,7 @@ Refresh Token: Opaque string, hashed in DB, 90-day expiry
 #### Optimizations
 
 - [x] Redis cache for feed sets
-- [ ] Query indexes on swipes table
+- [x] Query indexes on swipes table
 - [ ] Archive old swipes (>6 months)
 
 #### Analytics
@@ -159,13 +159,12 @@ Phase 4: + ML recommendations (future)
 
 ### Tasks
 
-- [ ] WebSocket Gateway (Socket.io)
-- [ ] JWT auth on connection
-- [ ] Room per match
+- [x] WebSocket Gateway (Socket.io)
+- [x] JWT auth on connection
+- [x] Conversation per match or postings
 - [ ] RabbitMQ integration
 - [ ] E2EE implementation
 - [ ] Offline message queue
-- [ ] Delivery/read receipts
 - [ ] Temporary stored messages strategy
 
 ### E2EE Design

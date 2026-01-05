@@ -16,6 +16,7 @@ import {
 } from './users.schema';
 import { swipes } from './swipes.schema';
 import { matches } from './matches.schema';
+import { conversations, userKeys, pendingMessages } from './messages.schema';
 
 // User Types
 export type User = InferSelectModel<typeof users>;
@@ -42,3 +43,8 @@ export type PostingImage = InferSelectModel<typeof postingImages>;
 // Swipes and Matches
 export type Swipes = InferSelectModel<typeof swipes>;
 export type Matches = InferSelectModel<typeof matches>;
+
+// Messaging types
+export type Conversation = InferSelectModel<typeof conversations>;
+export type UserKey = InferSelectModel<typeof userKeys>;
+export type PendingMessage = InferSelectModel<typeof pendingMessages>;

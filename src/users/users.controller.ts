@@ -10,10 +10,22 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
+import { BlockUserDto, blockUserSchema } from './dto/blocks.dto';
+import {
+  bookmarkPaginationQuery,
+  BookmarkPaginationQueryDto,
+  BookmarkPostingDto,
+  bookmarkPostingSchema,
+} from './dto/bookmarks.dto';
+import {
+  CreatePreferencesDto,
+  createPreferencesSchema,
+  UpdatePreferencesDto,
+  updatePreferencesSchema,
+} from './dto/preference.dto';
 import {
   CreateProfileDto,
   createProfileSchema,
@@ -21,20 +33,8 @@ import {
   updateAddressSchema,
   UpdatePhotoDto,
   updateProfilePhotoSchema,
-} from './dto/profile-dto';
-import {
-  CreatePreferencesDto,
-  createPreferencesSchema,
-  UpdatePreferencesDto,
-  updatePreferencesSchema,
-} from './dto/preference.dto';
-import { BlockUserDto, blockUserSchema } from './dto/blocks.dto';
-import {
-  bookmarkPostingSchema,
-  BookmarkPostingDto,
-  BookmarkPaginationQueryDto,
-  bookmarkPaginationQuery,
-} from './dto/bookmarks.dto';
+} from './dto/profile.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 @UseGuards(AuthGuard)

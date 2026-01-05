@@ -1,17 +1,17 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { REDIS_TTL } from 'src/constants/redis-ttl.config';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { DomainException } from 'src/exceptions/domain.exception';
+import { CacheKeys } from 'src/redis/cache-keys';
+import { RedisService } from 'src/redis/redis.service';
 import {
   CreateProfileDto,
   UpdateAddressDto,
   UpdatePhotoDto,
-} from '../dto/profile-dto';
-import { RedisService } from 'src/redis/redis.service';
-import { CacheKeys } from 'src/redis/cache-keys';
-import { REDIS_TTL } from 'src/constants/redis-ttl.config';
+} from '../dto/profile.dto';
 
 @Injectable()
 export class ProfileService {

@@ -16,6 +16,26 @@ export class MatchesService {
     private db: NodePgDatabase<typeof schema>,
   ) {}
 
+  async getActiveMatch(
+    userFirstId: string,
+    userSecondId: string,
+  ): Promise<Matches | null> {
+    const [first, second] = [userFirstId, userSecondId].sort() as [
+      string,
+      string,
+    ];
+
+    const match = await this.db.query.matches.findFirst({
+      where: and(
+        eq(schema.matches.userFirstId, first),
+        eq(schema.matches.userSecondId, second),
+        isNull(schema.matches.unmatchedAt),
+      ),
+    });
+
+    return match ?? null;
+  }
+
   async getMatches(userId: string, dto: GetMatchesDto) {
     try {
       const { cursor } = dto;

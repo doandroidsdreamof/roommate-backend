@@ -8,6 +8,7 @@ export * from './postings.schema';
 export * from './users.schema';
 export * from './swipes.schema';
 export * from './matches.schema';
+export * from './messages.schema';
 
 // Export all relations
 export * from './relations';

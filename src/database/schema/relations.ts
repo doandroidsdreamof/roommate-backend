@@ -17,6 +17,7 @@ import {
 } from './users.schema';
 import { swipes } from './swipes.schema';
 import { matches } from './matches.schema';
+import { conversations, pendingMessages, userKeys } from './messages.schema';
 
 // Location Relations
 export const countriesRelations = relations(countries, ({ many }) => ({
@@ -167,6 +168,45 @@ export const matchesRelations = relations(matches, ({ one }) => ({
   }),
   userSecond: one(users, {
     fields: [matches.userSecondId],
+    references: [users.id],
+  }),
+}));
+
+export const conversationsRelations = relations(
+  conversations,
+  ({ one, many }) => ({
+    userFirst: one(users, {
+      fields: [conversations.userFirstId],
+      references: [users.id],
+    }),
+    userSecond: one(users, {
+      fields: [conversations.userSecondId],
+      references: [users.id],
+    }),
+    pendingMessages: many(pendingMessages),
+  }),
+);
+
+export const pendingMessagesRelations = relations(
+  pendingMessages,
+  ({ one }) => ({
+    conversation: one(conversations, {
+      fields: [pendingMessages.conversationId],
+      references: [conversations.id],
+    }),
+    sender: one(users, {
+      fields: [pendingMessages.senderId],
+      references: [users.id],
+    }),
+    recipient: one(users, {
+      fields: [pendingMessages.recipientId],
+      references: [users.id],
+    }),
+  }),
+);
+export const userKeysRelations = relations(userKeys, ({ one }) => ({
+  user: one(users, {
+    fields: [userKeys.userId],
     references: [users.id],
   }),
 }));

@@ -12,6 +12,7 @@ import { FeedsModule } from './feeds/feeds.module';
 import { SwipesModule } from './swipes/swipes.module';
 import { MatchesModule } from './matches/matches.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { MessagingModule } from './messaging/messaging.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { WebsocketModule } from './websocket/websocket.module';
       }),
     }),
     EmailModule,
+    MessagingModule,
     PostingsModule,
     LocationsModule,
     WebsocketModule,

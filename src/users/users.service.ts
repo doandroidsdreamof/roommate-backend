@@ -18,7 +18,7 @@ import {
   CreateProfileDto,
   UpdateAddressDto,
   UpdatePhotoDto,
-} from './dto/profile-dto';
+} from './dto/profile.dto';
 import { PreferenceService } from './services/preference.service';
 import { ProfileService } from './services/profile.service';
 

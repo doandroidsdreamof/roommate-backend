@@ -1,71 +1,90 @@
+import { Logger } from '@nestjs/common';
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { Logger, UseGuards } from '@nestjs/common';
-import { WsAuthGuard } from './guards/ws-auth.guard';
+import { Server } from 'socket.io';
+import {
+  AuthenticatedSocket,
+  WsAuthMiddleware,
+} from './middleware/ws-auth.middleware';
+import { WebsocketService } from './websocket.service';
+import {
+  SendMessageDTO,
+  SendMessageSchema,
+} from 'src/messaging/dto/messaging.dto';
+import { ZodValidationPipe } from 'src/pipes/validation-pipe';
 
 @WebSocketGateway({})
 export class WebsocketGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  private connectedUsers = new Map<string, string>();
-  private logger = new Logger(WebsocketGateway.name);
+  private readonly logger = new Logger(WebsocketGateway.name);
+
   @WebSocketServer()
   server: Server;
+  //  server.emit() - To ALL connected clients
+  // client.broadcast.emit() - To everyone EXCEPT sender
+  constructor(
+    private wsAuthMiddleware: WsAuthMiddleware,
+    private websocketService: WebsocketService,
+  ) {}
 
-  handleConnection(client: Socket) {
-    const userId = client.handshake.query.userId as string;
-    this.logger.log('userId:', userId);
-    this.logger.log('client.id):', client.id);
-
-    this.connectedUsers.set(userId, client.id);
-
-    this.logger.log(`connectedUsers ===> `, [...this.connectedUsers.entries()]);
+  afterInit(server: Server) {
+    server.use((socket, next) =>
+      this.wsAuthMiddleware.use(socket as AuthenticatedSocket, next),
+    );
+    this.logger.log('WebSocket middleware applied');
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
+  handleConnection(client: AuthenticatedSocket) {
+    const userId = client.data.userId;
+
+    this.websocketService.addConnection(userId, client.id);
+
+    this.logger.log(`User ${userId} connected (${client.id})`);
+    this.logger.log(
+      `Connected users: ${this.websocketService.getConnectedUsers() as any}`,
+    );
   }
-  @UseGuards(WsAuthGuard)
+
+  handleDisconnect(client: AuthenticatedSocket) {
+    const userId = this.websocketService.removeConnection(client.id);
+
+    this.logger.log(`User ${userId} disconnected (${client.id})`);
+  }
+
   @SubscribeMessage('message')
   handleMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody()
-    payload: { event: string; data: { recipientId: string; message: string } },
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody(new ZodValidationPipe(SendMessageSchema))
+    payload: SendMessageDTO,
   ) {
-    const { data } = payload;
-    const { message, recipientId } = data;
-    this.logger.log('payload:', payload);
-    this.logger.log('data.id):', data);
+    const senderId = client.data.userId;
+    const { recipientId, messageContent } = payload;
 
-    const recipientSocketId = this.connectedUsers.get(recipientId);
-    this.logger.log('recipientSocketId:', recipientSocketId);
+    this.logger.log(`Message: ${senderId} → ${recipientId}`);
 
-    if (recipientSocketId) {
-      const recipientSocket = this.connectedUsers.get(recipientId);
-      this.logger.log('client.id=======>', client.id);
-      this.logger.log('recipientSocket=======>', recipientSocket);
+    const sent = this.websocketService.sendMessageToUser(
+      this.server,
+      recipientId,
+      senderId,
+      messageContent,
+    );
 
-      this.server.to(recipientSocket as string).emit('message', {
-        from: Array.from(this.connectedUsers.entries()).find(
-          ([, id]) => id === client.id,
-        )?.[0],
-        message: message,
-      });
-      this.logger.log(`Message sent from ${client.id} to ${recipientSocketId}`);
-    } else {
-      this.logger.error('User not online');
-
-      client.emit('warn', {
-        message: `User not online: ${recipientSocketId}`,
-      });
+    if (!sent) {
+      this.websocketService.sendError(
+        this.server,
+        client.id,
+        'USER_OFFLINE',
+        `User ${recipientId} is not online`,
+      );
     }
   }
 }

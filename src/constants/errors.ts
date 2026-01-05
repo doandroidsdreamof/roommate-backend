@@ -193,6 +193,63 @@ export const ERRORS = {
     message: 'Database operation failed',
     status: HttpStatus.INTERNAL_SERVER_ERROR,
   },
+
+  // ============= MESSAGING (10xxx) =============
+  MESSAGE_UNAUTHORIZED: {
+    code: 'MESSAGE_10000',
+    message: 'You are not authorized to message this user',
+    status: HttpStatus.FORBIDDEN,
+  },
+  MATCH_REQUIRED: {
+    code: 'MESSAGE_10001',
+    message: 'You must be matched with this user to send messages',
+    status: HttpStatus.FORBIDDEN,
+  },
+  POSTING_NOT_FOUND_FOR_MESSAGING: {
+    code: 'MESSAGE_10003',
+    message: 'Posting not found or no longer active',
+    status: HttpStatus.NOT_FOUND,
+  },
+  POSTING_OWNER_REQUIRED: {
+    code: 'MESSAGE_10004',
+    message: 'Recipient must be the posting owner',
+    status: HttpStatus.FORBIDDEN,
+  },
+  CANNOT_MESSAGE_SELF: {
+    code: 'MESSAGE_10005',
+    message: 'Cannot send messages to yourself',
+    status: HttpStatus.BAD_REQUEST,
+  },
+  MESSAGE_CONTENT_INVALID: {
+    code: 'MESSAGE_10006',
+    message: 'Message content is invalid or too long',
+    status: HttpStatus.BAD_REQUEST,
+  },
+  MESSAGE_SEND_FAILED: {
+    code: 'MESSAGE_10007',
+    message: 'Failed to send message',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+  CONVERSATION_NOT_FOUND: {
+    code: 'MESSAGE_10008',
+    message: 'Conversation not found',
+    status: HttpStatus.NOT_FOUND,
+  },
+  CONVERSATION_CREATION_FAILED: {
+    code: 'MESSAGE_10009',
+    message: 'Failed to create conversation',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+  MESSAGE_RATE_LIMIT_EXCEEDED: {
+    code: 'MESSAGE_10011',
+    message: 'Message rate limit exceeded. Please slow down.',
+    status: HttpStatus.TOO_MANY_REQUESTS,
+  },
+  BLOCKED_USER_MESSAGE: {
+    code: 'MESSAGE_10012',
+    message: 'Cannot send messages to a blocked user',
+    status: HttpStatus.FORBIDDEN,
+  },
 } as const;
 
 export type ErrorKey = keyof typeof ERRORS;
