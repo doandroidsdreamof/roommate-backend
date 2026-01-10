@@ -43,7 +43,7 @@ services:
     container_name: roommate-app-dev
     restart: unless-stopped
     ports:
-      - '127.0.0.1:3000:3000'
+      - '0.0.0.0:3000:3000'  # For RN dev
       - '127.0.0.1:9229:9229' # DEBUG PORT
     environment:
       NODE_ENV: development

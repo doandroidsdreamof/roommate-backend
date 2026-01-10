@@ -17,6 +17,11 @@ export class RedisService extends Redis implements OnModuleDestroy {
     this.on('connect', () => this.logger.log('Redis connected'));
   }
 
+  async invalidate(key: string): Promise<void> {
+    await this.del(key);
+    this.logger.debug(`Cache invalidated for key: ${key}`);
+  }
+
   async getJSON<T>(key: string): Promise<T | null> {
     if (typeof key !== 'string') {
       throw new Error(`Redis key must be a string, received: ${typeof key}`);

@@ -8,6 +8,8 @@ import { DomainException } from 'src/exceptions/domain.exception';
 import { MatchesService } from 'src/matches/matches.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateSwipeDto } from './dto/swipes.dto';
+import { RedisService } from 'src/redis/redis.service';
+import { CacheKeys } from 'src/redis/cache-keys';
 
 /* 
 
@@ -28,6 +30,7 @@ export class SwipesService {
     private db: NodePgDatabase<typeof schema>,
     private usersService: UsersService,
     private matchesService: MatchesService,
+    private readonly redis: RedisService,
   ) {}
 
   async swipeAction(userId: string, createSwipeDto: CreateSwipeDto) {
@@ -74,10 +77,11 @@ export class SwipesService {
 
         if (mutualLike) {
           await this.matchesService.insertMatch(userId, swipedId);
+          await this.redis.invalidate(CacheKeys.feed(userId));
           return { swipe, matched: true };
         }
       }
-
+      await this.redis.invalidate(CacheKeys.feed(userId));
       return { swipe, matched: false };
     } catch (error) {
       this.logger.error('Swipe action failed', error);
