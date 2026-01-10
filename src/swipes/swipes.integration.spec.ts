@@ -28,6 +28,7 @@ describe('SwipesService', () => {
             getJSON: jest.fn().mockResolvedValue(null),
             setJSONWithExpiry: jest.fn().mockResolvedValue(undefined),
             del: jest.fn().mockResolvedValue(1),
+            invalidate: jest.fn().mockResolvedValue(undefined),
           },
         },
         {

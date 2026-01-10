@@ -77,6 +77,7 @@ export class SwipesService {
 
         if (mutualLike) {
           await this.matchesService.insertMatch(userId, swipedId);
+          // TODO only invalidate on last swipe
           await this.redis.invalidate(CacheKeys.feed(userId));
           return { swipe, matched: true };
         }
