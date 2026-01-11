@@ -63,6 +63,20 @@ export class ProfileService {
     return profile;
   }
 
+  async checkProfileExists(userId: string): Promise<boolean> {
+    const cacheKey = CacheKeys.userProfile(userId);
+
+    const cached = await this.redis.getJSON(cacheKey);
+    if (cached) return true;
+
+    const profile = await this.db.query.profile.findFirst({
+      where: eq(schema.profile.userId, userId),
+      columns: { id: true },
+    });
+
+    return !!profile;
+  }
+
   async updateProfilePhoto(userId: string, updatePhotoDto: UpdatePhotoDto) {
     const existingProfile = await this.db.query.profile.findFirst({
       where: eq(schema.profile.userId, userId),

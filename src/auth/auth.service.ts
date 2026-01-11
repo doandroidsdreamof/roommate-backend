@@ -55,8 +55,12 @@ export class AuthService {
       user = await this.usersService.createUser(email);
       if (!user) throw new DomainException('USER_NOT_FOUND');
     }
+    const hasProfile = await this.usersService.checkProfileExist(user.id);
 
-    return this.login(user.id, user.email);
+    return {
+      ...(await this.login(user.id, user.email)),
+      hasProfile: !!hasProfile,
+    };
   }
 
   async login(userId: string, email: string) {

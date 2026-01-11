@@ -90,6 +90,7 @@ describe('AuthService', () => {
 
       expect(result.accessToken).toBeDefined();
       expect(result.refreshToken).toBeDefined();
+      expect(result.hasProfile).toBe(true);
       expect(result.accessToken.split('.').length).toBe(3); // JWT has 3 parts
       expect(result.refreshToken.length).toBeGreaterThan(32); // Hex string
     });

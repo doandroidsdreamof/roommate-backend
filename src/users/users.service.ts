@@ -132,6 +132,10 @@ export class UsersService {
     return await this.profileService.findProfile(userId);
   }
 
+  async checkProfileExist(userId: string) {
+    return await this.profileService.checkProfileExists(userId);
+  }
+
   async updateAddress(userId: string, updateAddressDto: UpdateAddressDto) {
     return await this.profileService.updateProfileAddress(
       userId,
