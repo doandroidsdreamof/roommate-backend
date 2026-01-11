@@ -1,5 +1,4 @@
 import {
-  AGE_RANGES,
   GENDER,
   SMOKING_HABIT,
   PET_OWNERSHIP,
@@ -24,13 +23,16 @@ export type FeedContext = {
     | 'petOwnership'
     | 'petCompatibility'
     | 'alcoholConsumption'
+    | 'ageMin'
+    | 'ageMax'
   > | null;
 };
 
 export type EligibleUser = {
   userId: string;
   name: string;
-  ageRange: (typeof schema.profile.$inferSelect)['ageRange'];
+  ageMax: (typeof schema.preferences.$inferSelect)['ageMax'];
+  ageMin: (typeof schema.preferences.$inferSelect)['ageMin'];
   gender: (typeof schema.profile.$inferSelect)['gender'];
   city: string;
   district: string;
@@ -60,7 +62,8 @@ export type ScoredUser = EligibleUser & {
 export type FeedResponse = {
   userId: string;
   name: string;
-  ageRange: (typeof AGE_RANGES)[keyof typeof AGE_RANGES];
+  ageMax: (typeof schema.preferences.$inferSelect)['ageMax'];
+  ageMin: (typeof schema.preferences.$inferSelect)['ageMin'];
   gender: (typeof GENDER)[keyof typeof GENDER];
   city: string;
   district: string;

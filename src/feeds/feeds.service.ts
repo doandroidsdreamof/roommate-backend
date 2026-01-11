@@ -43,6 +43,8 @@ export class FeedsService {
             budgetMin: true,
             budgetMax: true,
             smokingHabit: true,
+            ageMax: true,
+            ageMin: true,
             petOwnership: true,
             petCompatibility: true,
             alcoholConsumption: true,
@@ -195,19 +197,20 @@ export class FeedsService {
   ): Promise<EligibleUser[]> {
     const genderFilter = this.buildGenderFilter(context);
     const budgetFilter = this.buildBudgetFilter(context);
+    const ageFilter = this.buildAgeFilter(context);
 
     try {
       const result = await this.db
         .select({
           userId: schema.profile.userId,
           name: schema.profile.name,
-          ageRange: schema.profile.ageRange,
           gender: schema.profile.gender,
           city: schema.profile.city,
           district: schema.profile.district,
           photoUrl: schema.profile.photoUrl,
           photoVerified: schema.profile.photoVerified,
           lastActiveAt: schema.profile.lastActiveAt,
+          accountStatus: schema.profile.accountStatus,
 
           budgetMin: schema.preferences.budgetMin,
           budgetMax: schema.preferences.budgetMax,
@@ -217,7 +220,8 @@ export class FeedsService {
           alcoholConsumption: schema.preferences.alcoholConsumption,
           genderPreference: schema.preferences.genderPreference,
           houseSearcingType: schema.preferences.housingSearchType,
-          accountStatus: schema.profile.accountStatus,
+          ageMax: schema.preferences.ageMax,
+          ageMin: schema.preferences.ageMin,
         })
         .from(schema.profile)
         .innerJoin(
@@ -235,6 +239,7 @@ export class FeedsService {
             ),
             genderFilter,
             budgetFilter,
+            ageFilter,
           ),
         )
         .limit(1000);
@@ -256,6 +261,19 @@ export class FeedsService {
     return and(
       lte(schema.preferences.budgetMin, userMax),
       gte(schema.preferences.budgetMax, userMin),
+    );
+  }
+  private buildAgeFilter(context: FeedContext): SQL | undefined {
+    const userAgeMin = context.preferences?.ageMin;
+    const userAgeMax = context.preferences?.ageMax;
+
+    if (!userAgeMin || !userAgeMax) {
+      return undefined;
+    }
+
+    return and(
+      lte(schema.preferences.ageMin, userAgeMax),
+      gte(schema.preferences.ageMax, userAgeMin),
     );
   }
 }

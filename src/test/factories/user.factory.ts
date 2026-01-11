@@ -31,7 +31,6 @@ export class UserFactory {
       .values({
         userId: user!.id,
         name: `Test User ${this.counter}`,
-        ageRange: '25-30',
         gender: 'female',
         city: 'Istanbul',
         district: 'Kadikoy',
@@ -66,6 +65,8 @@ export class UserFactory {
         budgetMax: 8000,
         smokingHabit: 'social',
         petOwnership: 'cat',
+        ageMin: 18,
+        ageMax: 50,
         petCompatibility: 'yes_love_pets',
         alcoholConsumption: 'occasionally',
         ...preferencesOverrides,

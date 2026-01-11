@@ -1,8 +1,7 @@
-import { z } from 'zod';
-import { AGE_RANGES, GENDER } from 'src/constants/enums';
+import { GENDER } from 'src/constants/enums';
 import { getEnumValues } from 'src/helpers/getEnumValues';
+import { z } from 'zod';
 
-const ageRangeValues = getEnumValues(AGE_RANGES);
 const genderValues = getEnumValues(GENDER);
 
 export const createProfileSchema = z.object({
@@ -10,8 +9,6 @@ export const createProfileSchema = z.object({
     .string()
     .min(1, 'Name is required')
     .max(30, 'Name must be at most 30 characters'),
-
-  ageRange: z.enum(ageRangeValues),
 
   gender: z.enum(genderValues),
 

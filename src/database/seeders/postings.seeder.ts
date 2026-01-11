@@ -217,6 +217,9 @@ async function seedPostings() {
         viewCount: faker.number.int({ min: 0, max: 500 }),
       });
 
+      const ageMin = faker.number.int({ min: 18, max: 50 });
+      const ageMax = ageMin + faker.number.int({ min: 5, max: 20 });
+
       specsBatch.push({
         description: generateDescription(),
         depositAmount: rentAmount * faker.number.int({ min: 1, max: 3 }),
@@ -234,18 +237,8 @@ async function seedPostings() {
           'all_female',
           'mixed',
         ] as const),
-        occupantAgeRange: faker.helpers.arrayElement([
-          '18-24',
-          '25-30',
-          '31-35',
-          '36-40',
-        ] as const),
-        preferredRoommateAgeRange: faker.helpers.arrayElement([
-          '18-24',
-          '25-30',
-          '31-35',
-          '36-40',
-        ] as const),
+        ageMax,
+        ageMin,
         smokingAllowed: Math.random() < 0.3,
         alcoholFriendly: Math.random() < 0.6,
         hasPets: Math.random() < 0.2,

@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   check,
@@ -12,7 +13,6 @@ import {
 import { ACCOUNT_STATUS } from 'src/constants/enums';
 import {
   accountStatusEnum,
-  ageRangeEnum,
   alcoholConsumptionEnum,
   genderEnum,
   genderPreferenceEnum,
@@ -23,7 +23,6 @@ import {
 } from './enums.schema';
 import { postings } from './postings.schema';
 import { createdAndUpdatedTimestamps } from './shared-types';
-import { sql } from 'drizzle-orm';
 
 export const users = pgTable(
   'users',
@@ -55,7 +54,6 @@ export const profile = pgTable(
       .unique()
       .references(() => users.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 30 }).notNull(),
-    ageRange: ageRangeEnum('age_range').notNull(),
     gender: genderEnum('gender').notNull(),
     city: varchar('city', { length: 100 }).notNull(),
     district: varchar('district', { length: 100 }).notNull(),
@@ -91,6 +89,8 @@ export const preferences = pgTable(
     housingSearchType: housingSearchTypeEnum('housing_search_type').notNull(),
     budgetMin: integer('budget_min'),
     budgetMax: integer('budget_max'),
+    ageMin: integer('age_min').notNull(),
+    ageMax: integer('age_max').notNull(),
     genderPreference: genderPreferenceEnum('gender_preference'),
     smokingHabit: smokingHabitEnum('smoking_habit'),
     petOwnership: petOwnershipEnum('pet_ownership'),
@@ -99,6 +99,16 @@ export const preferences = pgTable(
     ...createdAndUpdatedTimestamps,
   },
   (table) => [
+    check(
+      'age_min_valid',
+      sql`${table.ageMin} >= 18 AND ${table.ageMin} <= 100`,
+    ),
+    check(
+      'age_max_valid',
+      sql`${table.ageMax} >= 18 AND ${table.ageMax} <= 100`,
+    ),
+    check('age_range_valid', sql`${table.ageMax} >= ${table.ageMin}`),
+    check('age_range_reasonable', sql`${table.ageMax} - ${table.ageMin} <= 50`),
     index('preferences_user_id_idx').on(table.userId),
     index('preferences_housing_type_idx').on(table.housingSearchType),
     index('preferences_user_housing_idx').on(

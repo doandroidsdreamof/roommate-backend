@@ -11,3 +11,12 @@ export const refreshToken = z.object({
 export const paginationQuerySchema = z.object({
   cursor: z.string().optional(),
 });
+
+export const ageRangeSchema = z
+  .object({
+    ageMin: z.number().int().min(18).max(100),
+    ageMax: z.number().int().min(18).max(100),
+  })
+  .refine((data) => data.ageMax >= data.ageMin, {
+    message: 'Maximum age must be greater than or equal to minimum age',
+  });

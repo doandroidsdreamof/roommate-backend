@@ -100,14 +100,6 @@ async function seedUsers() {
 
       profileBatch.push({
         name: faker.person.firstName(gender === 'male' ? 'male' : 'female'),
-        ageRange: faker.helpers.weightedArrayElement([
-          { weight: 25, value: '18-24' as const },
-          { weight: 35, value: '25-30' as const },
-          { weight: 20, value: '31-35' as const },
-          { weight: 12, value: '36-40' as const },
-          { weight: 5, value: '41-45' as const },
-          { weight: 3, value: '46-50' as const },
-        ]),
         gender,
         city: province,
         district,
@@ -117,12 +109,17 @@ async function seedUsers() {
         lastActiveAt: faker.date.recent({ days: 30 }),
       });
 
+      const ageMin = faker.number.int({ min: 18, max: 50 });
+      const ageMax = ageMin + faker.number.int({ min: 5, max: 20 });
+
       preferenceBatch.push({
         housingSearchType: faker.helpers.weightedArrayElement([
           { weight: 60, value: 'looking_for_roommate' as const },
           { weight: 30, value: 'looking_for_room' as const },
           { weight: 10, value: 'offering_room' as const },
         ]),
+        ageMin,
+        ageMax,
         budgetMin,
         budgetMax: budgetMin + faker.number.int({ min: 1000, max: 3000 }),
         genderPreference:
@@ -162,7 +159,7 @@ async function seedUsers() {
               faker.helpers.weightedArrayElement([
                 { weight: 40, value: 'doesnt_matter' as const },
                 { weight: 30, value: 'yes_love_pets' as const },
-                { weight: 20, value: 'no_bothered' as const },
+                { weight: 20, value: 'prefer_not' as const },
                 { weight: 10, value: 'no' as const },
               ]),
             { probability: 0.9 },

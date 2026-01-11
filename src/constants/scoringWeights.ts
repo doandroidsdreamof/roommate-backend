@@ -7,18 +7,19 @@ const SCORE_WEIGHTS = {
 } as const;
 
 const SCORING = {
-  // Location scoring
   LOCATION: {
     SAME_DISTRICT: 40,
     SAME_CITY_DIFF_DISTRICT: 20,
   },
 
-  // Budget scoring
   BUDGET: {
     MAX_SCORE: 30,
   },
 
-  // Lifestyle scoring
+  AGE: {
+    MAX_SCORE: 5,
+  },
+
   LIFESTYLE: {
     WEIGHTS: {
       SMOKING: 7,
@@ -34,7 +35,7 @@ const SCORING = {
     PETS: {
       NO_PETS: 7,
       DOESNT_MATTER: 5,
-      NOT_BOTHERED: 2,
+      PREFER_NOT: 2,
       LOVES_PETS: 0,
       DEFAULT: 0,
     },
@@ -46,13 +47,11 @@ const SCORING = {
     },
   },
 
-  // Profile quality scoring
   PROFILE_QUALITY: {
     HAS_PHOTO: 2,
     VERIFIED_PHOTO_BONUS: 1,
   },
 
-  // Recency scoring
   RECENCY: {
     THRESHOLDS_DAYS: {
       LAST_24_HOURS: 1,

@@ -162,8 +162,8 @@ export class FeedScorerService {
         return SCORING.LIFESTYLE.PETS.NO_PETS;
       case PET_COMPATIBILITY.DOESNT_MATTER:
         return SCORING.LIFESTYLE.PETS.DOESNT_MATTER;
-      case PET_COMPATIBILITY.NO_BOTHERED:
-        return SCORING.LIFESTYLE.PETS.NOT_BOTHERED;
+      case PET_COMPATIBILITY.PREFER_NOT:
+        return SCORING.LIFESTYLE.PETS.PREFER_NOT;
       case PET_COMPATIBILITY.YES_LOVE_PETS:
         return SCORING.LIFESTYLE.PETS.LOVES_PETS;
       default:
@@ -255,5 +255,34 @@ export class FeedScorerService {
     }
 
     return SCORING.RECENCY.SCORES.OLDER;
+  }
+
+  /**
+   * Age Compatibility Score (5 points max)
+   * Based on age range overlap
+   */
+  private scoreAgeCompatibility(
+    context: FeedContext,
+    candidate: EligibleUser,
+  ): number {
+    if (!context.preferences?.ageMin || !context.preferences?.ageMax) {
+      return 2.5;
+    }
+
+    const overlapStart = Math.max(context.preferences.ageMin, candidate.ageMin);
+    const overlapEnd = Math.min(context.preferences.ageMax, candidate.ageMax);
+
+    if (overlapStart > overlapEnd) {
+      return 0;
+    }
+
+    const overlapRange = overlapEnd - overlapStart;
+    const userRange = context.preferences.ageMax - context.preferences.ageMin;
+    const candidateRange = candidate.ageMax - candidate.ageMin;
+    const avgRange = (userRange + candidateRange) / 2;
+
+    const overlapPercent = overlapRange / avgRange;
+
+    return Math.round(5 * overlapPercent);
   }
 }

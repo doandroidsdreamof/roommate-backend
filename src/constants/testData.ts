@@ -20,6 +20,8 @@ export const createPostingTestDto = {
     billsIncluded: false,
     floor: 3,
     totalFloors: 5,
+    ageMin: 18,
+    ageMax: 35,
     hasBalcony: true,
     hasParking: false,
     hasElevator: true,
@@ -47,6 +49,8 @@ export interface ICreatePostingTestDto {
     description: string;
     depositAmount: number;
     billsIncluded: boolean;
+    ageMin: number;
+    ageMax: number;
     floor: number;
     totalFloors: number;
     hasBalcony: boolean;

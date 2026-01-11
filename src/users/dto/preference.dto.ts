@@ -7,6 +7,7 @@ import {
   PET_OWNERSHIP,
   SMOKING_HABIT,
 } from 'src/constants/enums';
+import { ageRangeSchema } from 'src/shared/validation-schema';
 
 const budgetSchema = z
   .number()
@@ -18,6 +19,7 @@ const budgetSchema = z
 // TODO refactor budget min and max
 export const createPreferencesSchema = z
   .object({
+    ...ageRangeSchema.shape,
     housingSearchType: z.enum(HOUSING_SEARCH_TYPE),
     budgetMin: budgetSchema,
     budgetMax: budgetSchema,

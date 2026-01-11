@@ -1,15 +1,14 @@
 import { z } from 'zod';
 import {
   GENDER_PREFERENCE,
-  AGE_RANGES,
   OCCUPANT_GENDER_COMPOSITION,
   PET_OWNERSHIP,
   POSTING_STATUS,
 } from 'src/constants/enums';
 import { getEnumValues } from 'src/helpers/getEnumValues';
+import { ageRangeSchema } from 'src/shared/validation-schema';
 
 const genderPreferenceValues = getEnumValues(GENDER_PREFERENCE);
-const ageRangeValues = getEnumValues(AGE_RANGES);
 const occupantGenderCompositionValues = getEnumValues(
   OCCUPANT_GENDER_COMPOSITION,
 );
@@ -47,6 +46,7 @@ export const postingImageUpdateSchema = z.object({
 });
 
 const postingsSpecsSchema = z.object({
+  ...ageRangeSchema.shape,
   description: z
     .string()
     .min(50, 'Description must be at least 50 characters')
@@ -65,8 +65,6 @@ const postingsSpecsSchema = z.object({
   totalCapacity: z.number().int().positive().optional(),
   availableRooms: z.number().int().positive().optional(),
   occupantGenderComposition: z.enum(occupantGenderCompositionValues).optional(),
-  occupantAgeRange: z.enum(ageRangeValues).optional(),
-  preferredRoommateAgeRange: z.enum(ageRangeValues).optional(),
   smokingAllowed: z.boolean().optional(),
   alcoholFriendly: z.boolean().optional(),
   hasPets: z.boolean().optional(),

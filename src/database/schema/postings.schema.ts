@@ -13,7 +13,6 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import {
-  ageRangeEnum,
   genderPreferenceEnum,
   occupantGenderCompositionEnum,
   petOwnershipEnum,
@@ -136,8 +135,8 @@ export const postingSpecs = pgTable(
     occupantGenderComposition: occupantGenderCompositionEnum(
       'occupant_gender_composition',
     ),
-    occupantAgeRange: ageRangeEnum('occupant_age_range'),
-    preferredRoommateAgeRange: ageRangeEnum('preferred_roommate_age_range'),
+    ageMin: integer('age_min').notNull(),
+    ageMax: integer('age_max').notNull(),
 
     // Lifestyle
     smokingAllowed: boolean('smoking_allowed'),
@@ -151,6 +150,16 @@ export const postingSpecs = pgTable(
     ...createdAndUpdatedTimestamps,
   },
   (table) => [
+    check(
+      'age_min_valid',
+      sql`${table.ageMin} >= 18 AND ${table.ageMin} <= 100`,
+    ),
+    check(
+      'age_max_valid',
+      sql`${table.ageMax} >= 18 AND ${table.ageMax} <= 100`,
+    ),
+    check('age_range_valid', sql`${table.ageMax} >= ${table.ageMin}`),
+    check('age_range_reasonable', sql`${table.ageMax} - ${table.ageMin} <= 50`),
     check(
       'posting_specs_deposit_non_negative',
       sql`${table.depositAmount} >= 0`,

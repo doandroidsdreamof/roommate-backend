@@ -44,3 +44,4 @@ lerna-debug.log*
 districts
 
 **/drizzle/meta/
+**/drizzle/*.sql

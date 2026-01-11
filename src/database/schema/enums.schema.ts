@@ -1,7 +1,6 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 import {
   ACCOUNT_STATUS,
-  AGE_RANGES,
   ALCOHOL_CONSUMPTION,
   GENDER,
   GENDER_PREFERENCE,
@@ -27,7 +26,6 @@ export const accountStatusEnum = pgEnum(
   getEnumValues(ACCOUNT_STATUS),
 );
 
-export const ageRangeEnum = pgEnum('age_range', getEnumValues(AGE_RANGES));
 export const genderEnum = pgEnum('gender', getEnumValues(GENDER));
 
 // Preferences
