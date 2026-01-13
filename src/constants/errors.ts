@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { MAXIMUM_POSTINGS } from './configuration';
 
 export const ERRORS = {
   // ============= AUTH (1xxx) =============
@@ -94,7 +95,7 @@ export const ERRORS = {
 
   MAX_POSTINGS_REACHED: {
     code: 'POSTING_3007',
-    message: 'You have reached the maximum limit of 5 active postings',
+    message: `You have reached the maximum limit of ${MAXIMUM_POSTINGS.LIMIT} active postings`,
     status: HttpStatus.FORBIDDEN,
   },
 

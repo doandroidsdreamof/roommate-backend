@@ -13,6 +13,7 @@ import {
   UpdatePostingDto,
   UpdatePostingImagesDto,
 } from './dto/postings.dto';
+import { MAXIMUM_POSTINGS } from 'src/constants/configuration';
 
 @Injectable()
 export class PostingsService {
@@ -265,7 +266,7 @@ export class PostingsService {
     return !!checkPosting;
   }
   /**
-   * Check if user has reached maximum posting limit (5)
+   * Check if user has reached maximum posting limit (2)
    */
   private async checkPostingLimit(userId: string): Promise<void> {
     const count = await this.db
@@ -280,7 +281,7 @@ export class PostingsService {
 
     const postingCount = Number(count[0]?.count);
 
-    if (postingCount >= 5) {
+    if (postingCount >= MAXIMUM_POSTINGS.LIMIT) {
       throw new DomainException('MAX_POSTINGS_REACHED');
     }
   }

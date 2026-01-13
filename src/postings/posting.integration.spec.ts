@@ -67,10 +67,10 @@ describe('PostingsService', () => {
       expect(updatedUser!.postingCount).toBe(0);
     });
 
-    it('should throw MAX_POSTINGS_REACHED when user has 5 active postings', async () => {
+    it('should throw MAX_POSTINGS_REACHED when user has 2 active postings', async () => {
       const { user } =
         await testDB.factories.users.createWithProfileAndPreferences();
-      await testDB.factories.postings.createMultiple(user!.id, 5);
+      await testDB.factories.postings.createMultiple(user!.id, 2);
       const dtoCopy = JSON.parse(
         JSON.stringify(createPostingTestDto),
       ) as ICreatePostingTestDto;
@@ -78,7 +78,7 @@ describe('PostingsService', () => {
       dtoCopy.neighborhoodId = 1;
 
       await expect(postingsService.create(user!.id, dtoCopy)).rejects.toThrow(
-        'You have reached the maximum limit of 5 active postings',
+        'You have reached the maximum limit of 2 active postings',
       );
     });
 
@@ -108,7 +108,7 @@ describe('PostingsService', () => {
     });
   });
 
-  describe('updatePostingsImages', () => {
+  /*   describe('updatePostingsImages', () => {
     it('should throw FORBIDDEN when non-owner tries to update images', async () => {});
 
     it('should correctly merge new URLs preserving existing images', async () => {});
@@ -122,5 +122,5 @@ describe('PostingsService', () => {
     it('should throw POSTING_ALREADY_CLOSED when closing already-closed posting', async () => {});
 
     it('should allow new posting in same neighborhood after closing previous', async () => {});
-  });
+  }); */
 });

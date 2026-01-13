@@ -98,6 +98,11 @@ export class UsersController {
   ) {
     return this.usersService.updatePreference(userId, updatePreferenceDto);
   }
+  @Get('preference/exists')
+  @HttpCode(HttpStatus.OK)
+  checkPreferenceExists(@AuthUser('sub') userId: string) {
+    return this.usersService.checkPreferenceExists(userId);
+  }
 
   @Patch('profile/photo')
   @HttpCode(HttpStatus.OK)
