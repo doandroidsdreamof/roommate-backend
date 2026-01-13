@@ -5,4 +5,5 @@ export const CacheKeys = {
   userPreference: (userId: string) => `preference:${userId}`,
   matches: (userId: string) => `matches:${userId}`,
   provinces: () => 'locations:provinces',
+  districtsByProvince: (provinceId: string) => `disticts:${provinceId}`,
 } as const;
