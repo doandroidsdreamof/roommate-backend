@@ -106,7 +106,6 @@ export const preferences = pgTable(
       sql`${table.ageMax} >= 18 AND ${table.ageMax} <= 100`,
     ),
     check('age_range_valid', sql`${table.ageMax} >= ${table.ageMin}`),
-    check('age_range_reasonable', sql`${table.ageMax} - ${table.ageMin} <= 50`),
     index('preferences_user_id_idx').on(table.userId),
     index('preferences_budget_range_idx').on(table.budgetMin, table.budgetMax),
     check(
