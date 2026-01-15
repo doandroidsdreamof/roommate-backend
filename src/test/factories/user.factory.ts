@@ -60,7 +60,6 @@ export class UserFactory {
       .values({
         userId: user!.id,
         genderPreference: 'mixed',
-        housingSearchType: 'looking_for_roommate',
         budgetMin: 3000,
         budgetMax: 8000,
         smokingHabit: 'social',

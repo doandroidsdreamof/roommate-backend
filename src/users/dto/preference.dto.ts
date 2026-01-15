@@ -1,13 +1,12 @@
-import { z } from 'zod';
 import {
   ALCOHOL_CONSUMPTION,
   GENDER_PREFERENCE,
-  HOUSING_SEARCH_TYPE,
   PET_COMPATIBILITY,
   PET_OWNERSHIP,
   SMOKING_HABIT,
 } from 'src/constants/enums';
 import { ageRangeSchema } from 'src/shared/validation-schema';
+import { z } from 'zod';
 
 const budgetSchema = z
   .number()
@@ -20,7 +19,6 @@ const budgetSchema = z
 export const createPreferencesSchema = z
   .object({
     ...ageRangeSchema.shape,
-    housingSearchType: z.enum(HOUSING_SEARCH_TYPE),
     budgetMin: budgetSchema,
     budgetMax: budgetSchema,
     genderPreference: z.enum(GENDER_PREFERENCE).optional(),

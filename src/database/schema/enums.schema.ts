@@ -4,7 +4,6 @@ import {
   ALCOHOL_CONSUMPTION,
   GENDER,
   GENDER_PREFERENCE,
-  HOUSING_SEARCH_TYPE,
   OCCUPANT_GENDER_COMPOSITION,
   PET_COMPATIBILITY,
   PET_OWNERSHIP,
@@ -27,12 +26,6 @@ export const accountStatusEnum = pgEnum(
 );
 
 export const genderEnum = pgEnum('gender', getEnumValues(GENDER));
-
-// Preferences
-export const housingSearchTypeEnum = pgEnum(
-  'housing_search_type',
-  getEnumValues(HOUSING_SEARCH_TYPE),
-);
 
 export const genderPreferenceEnum = pgEnum(
   'gender_preference',

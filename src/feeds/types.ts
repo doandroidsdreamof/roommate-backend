@@ -16,7 +16,6 @@ export type FeedContext = {
   preferences: Pick<
     typeof schema.preferences.$inferSelect,
     | 'genderPreference'
-    | 'housingSearchType'
     | 'budgetMin'
     | 'budgetMax'
     | 'smokingHabit'

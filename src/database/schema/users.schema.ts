@@ -16,7 +16,6 @@ import {
   alcoholConsumptionEnum,
   genderEnum,
   genderPreferenceEnum,
-  housingSearchTypeEnum,
   petCompatibilityEnum,
   petOwnershipEnum,
   smokingHabitEnum,
@@ -86,7 +85,6 @@ export const preferences = pgTable(
       .notNull()
       .unique()
       .references(() => users.id, { onDelete: 'cascade' }),
-    housingSearchType: housingSearchTypeEnum('housing_search_type').notNull(),
     budgetMin: integer('budget_min'),
     budgetMax: integer('budget_max'),
     ageMin: integer('age_min').notNull(),
@@ -110,11 +108,6 @@ export const preferences = pgTable(
     check('age_range_valid', sql`${table.ageMax} >= ${table.ageMin}`),
     check('age_range_reasonable', sql`${table.ageMax} - ${table.ageMin} <= 50`),
     index('preferences_user_id_idx').on(table.userId),
-    index('preferences_housing_type_idx').on(table.housingSearchType),
-    index('preferences_user_housing_idx').on(
-      table.userId,
-      table.housingSearchType,
-    ),
     index('preferences_budget_range_idx').on(table.budgetMin, table.budgetMax),
     check(
       'preferences_budget_min_positive',

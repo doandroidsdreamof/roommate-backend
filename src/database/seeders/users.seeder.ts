@@ -113,11 +113,6 @@ async function seedUsers() {
       const ageMax = ageMin + faker.number.int({ min: 5, max: 20 });
 
       preferenceBatch.push({
-        housingSearchType: faker.helpers.weightedArrayElement([
-          { weight: 60, value: 'looking_for_roommate' as const },
-          { weight: 30, value: 'looking_for_room' as const },
-          { weight: 10, value: 'offering_room' as const },
-        ]),
         ageMin,
         ageMax,
         budgetMin,

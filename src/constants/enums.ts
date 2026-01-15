@@ -17,12 +17,6 @@ export const ACCOUNT_STATUS = {
   DELETED: 'deleted',
 } as const;
 
-export const HOUSING_SEARCH_TYPE = {
-  LOOKING_FOR_ROOM: 'looking_for_room',
-  LOOKING_FOR_ROOMMATE: 'looking_for_roommate',
-  OFFERING_ROOM: 'offering_room',
-} as const;
-
 export const GENDER_PREFERENCE = {
   FEMALE_ONLY: 'female_only',
   MALE_ONLY: 'male_only',

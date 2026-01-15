@@ -5,17 +5,16 @@ import {
   ACCOUNT_STATUS,
   GENDER,
   GENDER_PREFERENCE,
-  HOUSING_SEARCH_TYPE,
   SWIPE_ACTIONS,
 } from 'src/constants/enums';
+import { REDIS_TTL } from 'src/constants/redis-ttl.config';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
 import { DomainException } from 'src/exceptions/domain.exception';
+import { CacheKeys } from 'src/redis/cache-keys';
 import { RedisService } from 'src/redis/redis.service';
 import { FeedScorerService } from './services/feedScorer.service';
 import { EligibleUser, FeedContext, FeedResponse } from './types';
-import { REDIS_TTL } from 'src/constants/redis-ttl.config';
-import { CacheKeys } from 'src/redis/cache-keys';
 
 @Injectable()
 export class FeedsService {
@@ -39,7 +38,6 @@ export class FeedsService {
         preferences: {
           columns: {
             genderPreference: true,
-            housingSearchType: true,
             budgetMin: true,
             budgetMax: true,
             smokingHabit: true,
@@ -219,7 +217,6 @@ export class FeedsService {
           petCompatibility: schema.preferences.petCompatibility,
           alcoholConsumption: schema.preferences.alcoholConsumption,
           genderPreference: schema.preferences.genderPreference,
-          houseSearcingType: schema.preferences.housingSearchType,
           ageMax: schema.preferences.ageMax,
           ageMin: schema.preferences.ageMin,
         })
@@ -233,10 +230,6 @@ export class FeedsService {
             ne(schema.profile.userId, context.userId),
             eq(schema.profile.city, context.profile.city),
             eq(schema.profile.accountStatus, ACCOUNT_STATUS.ACTIVE),
-            eq(
-              schema.preferences.housingSearchType,
-              HOUSING_SEARCH_TYPE.LOOKING_FOR_ROOMMATE,
-            ),
             genderFilter,
             budgetFilter,
             ageFilter,
