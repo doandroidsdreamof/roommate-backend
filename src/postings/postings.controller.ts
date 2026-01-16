@@ -60,9 +60,10 @@ export class PostingsController {
   @Get('lists')
   @HttpCode(HttpStatus.OK)
   getLists(
+    @AuthUser('sub') userId: string,
     @Query(new ZodValidationPipe(listsQuerySchema)) query: ListsQueryDto,
   ) {
-    return this.listsService.getLists(query);
+    return this.listsService.getLists(userId, query);
   }
 
   @Patch(':id/close')

@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, asc, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -15,7 +15,7 @@ export class ListsService {
     private db: NodePgDatabase<typeof schema>,
   ) {}
 
-  async getLists(query: ListsQueryDto) {
+  async getLists(userId: string, query: ListsQueryDto) {
     const { limit, sortBy = 'createdAt', sortOrder = 'desc' } = query;
 
     const sortColumn =
@@ -43,7 +43,6 @@ export class ListsService {
         max: query.maxSquareMeters,
         column: schema.postings.squareMeters,
       })
-
       .addExactMatch({ value: query.city, column: schema.postings.city })
       .addExactMatch({
         value: query.district,
@@ -57,8 +56,6 @@ export class ListsService {
         value: query.preferredRoommateGender,
         column: schema.postings.preferredRoommateGender,
       })
-
-      // Booleans
       .addBoolean({
         value: query.isFurnished,
         column: schema.postings.isFurnished,
@@ -88,17 +85,14 @@ export class ListsService {
         column: schema.postingSpecs.alcoholFriendly,
       })
       .addBoolean({ value: query.hasPets, column: schema.postingSpecs.hasPets })
-
       .addSearch({
         query: query.search,
         columns: [schema.postings.title, schema.postingSpecs.description],
       })
-
       .addPagination({
         cursor: query.cursor,
         column: schema.postings.createdAt,
       })
-
       .build();
 
     const listsItems = await this.db
@@ -116,11 +110,26 @@ export class ListsService {
         district: schema.postings.district,
         preferredRoommateGender: schema.postings.preferredRoommateGender,
         specs: schema.postingSpecs,
+        // ✅ Add isBookmarked with CASE WHEN
+        isBookmarked: sql<boolean>`
+          CASE 
+            WHEN ${schema.userBookmarks.id} IS NOT NULL THEN true 
+            ELSE false 
+          END
+        `.as('is_bookmarked'),
       })
       .from(schema.postings)
       .leftJoin(
         schema.postingSpecs,
         eq(schema.postings.id, schema.postingSpecs.postingId),
+      )
+      // ✅ Add LEFT JOIN for user bookmarks
+      .leftJoin(
+        schema.userBookmarks,
+        and(
+          eq(schema.postings.id, schema.userBookmarks.postingId),
+          eq(schema.userBookmarks.userId, userId),
+        ),
       )
       .where(
         conditions
@@ -132,11 +141,13 @@ export class ListsService {
         desc(schema.postings.id),
       )
       .limit(limit + 1);
+
     const { items, nextCursor, hasMore } = paginateResults(
       listsItems,
       limit,
       'createdAt',
     );
+
     return {
       lists: items,
       nextCursor,
