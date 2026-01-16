@@ -50,9 +50,9 @@ export const listsQuerySchema = z.object({
 
   // Sort
   sortBy: z
-    .enum(['price', 'date', 'views', 'bookmarks'])
+    .enum(['createdAt', 'rentAmount', 'viewCount', 'bookmarkCount'])
     .optional()
-    .default('date'),
+    .default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 
   // Search

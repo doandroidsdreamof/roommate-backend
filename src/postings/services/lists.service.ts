@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -16,7 +16,17 @@ export class ListsService {
   ) {}
 
   async getLists(query: ListsQueryDto) {
-    const { limit } = query;
+    const { limit, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+
+    const sortColumn =
+      sortBy === 'viewCount'
+        ? schema.postings.viewCount
+        : sortBy === 'bookmarkCount'
+          ? schema.postings.bookmarkCount
+          : sortBy === 'rentAmount'
+            ? schema.postings.rentAmount
+            : schema.postings.createdAt;
+
     const conditions = new QueryBuilder()
       .addRange({
         min: query.minRent,
@@ -117,7 +127,10 @@ export class ListsService {
           ? and(isNull(schema.postings.deletedAt), conditions)
           : isNull(schema.postings.deletedAt),
       )
-      .orderBy(desc(schema.postings.createdAt), desc(schema.postings.id))
+      .orderBy(
+        sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn),
+        desc(schema.postings.id),
+      )
       .limit(limit + 1);
     const { items, nextCursor, hasMore } = paginateResults(
       listsItems,
