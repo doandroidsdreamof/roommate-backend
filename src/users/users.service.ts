@@ -145,14 +145,6 @@ export class UsersService {
 
       return { exists: !!preference };
     } catch (error) {
-      // Only return false if it's a not found error
-      if (
-        error instanceof DomainException &&
-        error.message === 'PREFERENCES_NOT_FOUND'
-      ) {
-        return { exists: false };
-      }
-
       this.logger.error('Unexpected error checking preferences:', error);
       throw error;
     }
