@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -117,6 +117,7 @@ export class ListsService {
           ? and(isNull(schema.postings.deletedAt), conditions)
           : isNull(schema.postings.deletedAt),
       )
+      .orderBy(desc(schema.postings.createdAt), desc(schema.postings.id))
       .limit(limit + 1);
     const { items, nextCursor, hasMore } = paginateResults(
       listsItems,
