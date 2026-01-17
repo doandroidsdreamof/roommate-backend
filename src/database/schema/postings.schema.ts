@@ -144,7 +144,6 @@ export const postingSpecs = pgTable(
 
     hasPets: boolean('has_pets'),
     currentPetOwnership: petOwnershipEnum('current_pet_ownership'),
-    availableUntil: timestamp('available_until', { withTimezone: true }),
     nearbyTransport: text('nearby_transport'),
 
     ...createdAndUpdatedTimestamps,

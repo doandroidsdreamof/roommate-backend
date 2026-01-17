@@ -110,7 +110,6 @@ export class ListsService {
         district: schema.postings.district,
         preferredRoommateGender: schema.postings.preferredRoommateGender,
         specs: schema.postingSpecs,
-        // ✅ Add isBookmarked with CASE WHEN
         isBookmarked: sql<boolean>`
           CASE 
             WHEN ${schema.userBookmarks.id} IS NOT NULL THEN true 
@@ -123,7 +122,6 @@ export class ListsService {
         schema.postingSpecs,
         eq(schema.postings.id, schema.postingSpecs.postingId),
       )
-      // ✅ Add LEFT JOIN for user bookmarks
       .leftJoin(
         schema.userBookmarks,
         and(

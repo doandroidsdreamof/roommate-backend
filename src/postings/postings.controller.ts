@@ -18,6 +18,8 @@ import {
   closePostingSchema,
   CreatePostingDto,
   createPostingSchema,
+  GetPostingParamsDto,
+  getPostingParamsSchema,
   postingImageUpdateSchema,
   UpdatePostingDto,
   UpdatePostingImagesDto,
@@ -89,5 +91,14 @@ export class PostingsController {
     updatePostingDto: UpdatePostingDto,
   ) {
     return this.postingsService.update(userId, postingId, updatePostingDto);
+  }
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  getPosting(
+    @AuthUser('sub') userId: string,
+    @Param(new ZodValidationPipe(getPostingParamsSchema))
+    params: GetPostingParamsDto,
+  ) {
+    return this.postingsService.getPosting(params.id, userId);
   }
 }

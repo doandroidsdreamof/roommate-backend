@@ -24,6 +24,54 @@ export class PostingsService {
     private usersService: UsersService,
   ) {}
 
+  async getPosting(postingId: string, userId: string) {
+    const posting = await this.db.query.postings.findFirst({
+      where: and(
+        eq(schema.postings.id, postingId),
+        sql`${schema.postings.deletedAt} IS NULL`,
+      ),
+      columns: {
+        status: false,
+        updatedAt: false,
+        createdAt: false,
+        viewCount: false,
+        bookmarkCount: false,
+      },
+      with: {
+        specs: {
+          columns: {
+            createdAt: false,
+            updatedAt: false,
+          },
+          with: {
+            posting: true,
+          },
+        },
+        user: {
+          columns: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!posting) {
+      throw new DomainException('POSTING_NOT_FOUND');
+    }
+
+    const bookmark = await this.db.query.userBookmarks.findFirst({
+      where: and(
+        eq(schema.userBookmarks.userId, userId),
+        eq(schema.userBookmarks.postingId, postingId),
+      ),
+    });
+
+    return {
+      ...posting,
+      isBookmarked: !!bookmark,
+    };
+  }
+
   async create(userId: string, createPostingDto: CreatePostingDto) {
     const { specs, images, ...postingData } = createPostingDto;
     await this.checkPostingLimit(userId);
@@ -58,9 +106,6 @@ export class PostingsService {
           .values({
             postingId: posting.id,
             ...specs,
-            availableUntil: specs.availableUntil
-              ? new Date(specs.availableUntil)
-              : undefined,
           })
           .returning();
         if (!postingSpec) {
@@ -132,13 +177,10 @@ export class PostingsService {
           .where(eq(schema.postings.id, postingId));
 
         if (specs && Object.keys(specs).length > 0) {
-          const { availableUntil, ...restSpecs } = specs;
+          const { ...restSpecs } = specs;
 
           const specsUpdateData = {
             ...restSpecs,
-            ...(availableUntil !== undefined && {
-              availableUntil: new Date(availableUntil),
-            }),
           };
 
           await tx

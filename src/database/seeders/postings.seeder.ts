@@ -78,17 +78,6 @@ async function loadNeighborhoods(
 
 // ============= GENERATORS =============
 
-function generatePostingType():
-  | 'offering_room'
-  | 'looking_for_roommate'
-  | 'looking_for_room' {
-  return faker.helpers.weightedArrayElement([
-    { weight: 60, value: 'offering_room' as const },
-    { weight: 30, value: 'looking_for_roommate' as const },
-    { weight: 10, value: 'looking_for_room' as const },
-  ]);
-}
-
 function generateRentAmount(province: string): number {
   const ranges: Record<string, { min: number; max: number }> = {
     İSTANBUL: { min: 8000, max: 20000 },
@@ -248,10 +237,6 @@ async function seedPostings() {
           { weight: 10, value: 'dog' as const },
           { weight: 5, value: 'other' as const },
         ]),
-        availableUntil:
-          faker.helpers.maybe(() => faker.date.future({ years: 1 }), {
-            probability: 0.3,
-          }) ?? null,
         nearbyTransport: 'Metro 5 dk, otobüs durakları yakın',
       });
 

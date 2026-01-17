@@ -69,7 +69,6 @@ const postingsSpecsSchema = z.object({
   alcoholFriendly: z.boolean().optional(),
   hasPets: z.boolean().optional(),
   currentPetOwnership: z.enum(petOwnershipValues).optional(),
-  availableUntil: z.iso.datetime().optional(),
   nearbyTransport: z.string().max(500).optional(),
 });
 
@@ -106,6 +105,11 @@ export const updatePostingSchema = z.object({
   specs: postingsSpecsSchema.partial().optional(),
 });
 
+export const getPostingParamsSchema = z.object({
+  id: z.uuid(),
+});
+
+export type GetPostingParamsDto = z.infer<typeof getPostingParamsSchema>;
 export type CreatePostingDto = z.infer<typeof createPostingSchema>;
 export type UpdatePostingDto = z.infer<typeof updatePostingSchema>;
 export type UpdatePostingImagesDto = z.infer<typeof postingImageUpdateSchema>;
