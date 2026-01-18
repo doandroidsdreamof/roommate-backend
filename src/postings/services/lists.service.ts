@@ -105,6 +105,8 @@ export class ListsService {
         bookmarkCount: schema.postings.bookmarkCount,
         coverImageUrl: schema.postings.coverImageUrl,
         createdAt: schema.postings.createdAt,
+        latitude: schema.postings.latitude,
+        longitude: schema.postings.longitude,
         rentAmount: schema.postings.rentAmount,
         roomCount: schema.postings.roomCount,
         district: schema.postings.district,
