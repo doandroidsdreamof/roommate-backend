@@ -345,7 +345,10 @@ export class UsersService {
         id: b.id,
         postingId: b.postingId,
         bookmarkedAt: b.createdAt,
-        posting: b.posting,
+        posting: {
+          ...b.posting,
+          isBookmarked: true,
+        },
       })),
       nextCursor,
       hasMore,
