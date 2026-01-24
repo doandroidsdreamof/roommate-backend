@@ -7,6 +7,7 @@ import {
   jsonb,
   numeric,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uuid,
@@ -84,7 +85,7 @@ export const postings = pgTable(
 
     // Metadata
     bookmarkCount: integer('bookmark_count').default(0).notNull(),
-    viewCount: integer('view_count').default(0).notNull(), // TODO one view count per user
+    viewCount: integer('view_count').default(0).notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
 
     ...createdAndUpdatedTimestamps,
@@ -100,6 +101,27 @@ export const postings = pgTable(
       sql`${table.bookmarkCount} >= 0`,
     ),
     check('postings_view_count_non_negative', sql`${table.viewCount} >= 0`),
+  ],
+);
+
+export const postingViews = pgTable(
+  'posting_views',
+  {
+    postingId: uuid('posting_id')
+      .notNull()
+      .references(() => postings.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    viewedAt: timestamp('viewed_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    ...createdAndUpdatedTimestamps,
+  },
+  (table) => [
+    primaryKey({ columns: [table.postingId, table.userId] }),
+    index('posting_views_posting_id_idx').on(table.postingId),
+    index('posting_views_user_id_idx').on(table.userId),
   ],
 );
 

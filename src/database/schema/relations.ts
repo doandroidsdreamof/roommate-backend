@@ -7,7 +7,12 @@ import {
   neighborhoods,
   provinces,
 } from './locations.schema';
-import { postingImages, postings, postingSpecs } from './postings.schema';
+import {
+  postingImages,
+  postings,
+  postingSpecs,
+  postingViews,
+} from './postings.schema';
 import {
   preferences,
   profile,
@@ -125,6 +130,17 @@ export const postingImagesRelations = relations(postingImages, ({ one }) => ({
   postingSpecs: one(postingSpecs, {
     fields: [postingImages.postingSpecsId],
     references: [postingSpecs.id],
+  }),
+}));
+
+export const postingViewsRelations = relations(postingViews, ({ one }) => ({
+  posting: one(postings, {
+    fields: [postingViews.postingId],
+    references: [postings.id],
+  }),
+  user: one(users, {
+    fields: [postingViews.userId],
+    references: [users.id],
   }),
 }));
 

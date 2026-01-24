@@ -6,7 +6,12 @@ import {
   neighborhoods,
   provinces,
 } from './locations.schema';
-import { postingImages, postings, postingSpecs } from './postings.schema';
+import {
+  postingImages,
+  postings,
+  postingSpecs,
+  postingViews,
+} from './postings.schema';
 import {
   preferences,
   profile,
@@ -39,6 +44,7 @@ export type Neighborhood = InferSelectModel<typeof neighborhoods>;
 export type Posting = InferSelectModel<typeof postings>;
 export type PostingSpecs = InferSelectModel<typeof postingSpecs>;
 export type PostingImage = InferSelectModel<typeof postingImages>;
+export type PostingViews = InferSelectModel<typeof postingViews>;
 
 // Swipes and Matches
 export type Swipes = InferSelectModel<typeof swipes>;

@@ -25,6 +25,10 @@ export class PostingsService {
   ) {}
 
   async getPosting(postingId: string, userId: string) {
+    const isUserView = await this.isUserViewedPostingDetail(postingId, userId);
+    if (!isUserView) {
+      await this.createView(postingId, userId);
+    }
     const posting = await this.db.query.postings.findFirst({
       where: and(
         eq(schema.postings.id, postingId),
@@ -70,6 +74,32 @@ export class PostingsService {
       ...posting,
       isBookmarked: !!bookmark,
     };
+  }
+
+  async createView(postingId: string, userId: string) {
+    await this.db.transaction(async (tx) => {
+      await tx.insert(schema.postingViews).values({
+        postingId,
+        userId,
+      });
+      await tx
+        .update(schema.postings)
+        .set({ viewCount: sql`${schema.postings.viewCount} + 1` })
+        .where(eq(schema.postings.id, postingId));
+    });
+  }
+
+  async isUserViewedPostingDetail(
+    postingId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const isViewed = await this.db.query.postingViews.findFirst({
+      where: and(
+        eq(schema.postingViews.postingId, postingId),
+        eq(schema.postingViews.userId, userId),
+      ),
+    });
+    return !!isViewed;
   }
 
   async create(userId: string, createPostingDto: CreatePostingDto) {
