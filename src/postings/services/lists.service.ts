@@ -43,9 +43,12 @@ export class ListsService {
         max: query.maxSquareMeters,
         column: schema.postings.squareMeters,
       })
-      .addExactMatch({ value: query.city, column: schema.postings.city })
       .addExactMatch({
-        value: query.district,
+        value: query.city?.toLocaleUpperCase('tr-TR'),
+        column: schema.postings.city,
+      })
+      .addExactMatch({
+        value: query.district?.toLocaleUpperCase('tr-TR'),
         column: schema.postings.district,
       })
       .addExactMatch({
