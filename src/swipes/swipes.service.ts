@@ -10,17 +10,7 @@ import { UsersService } from 'src/users/users.service';
 import { CreateSwipeDto } from './dto/swipes.dto';
 import { RedisService } from 'src/redis/redis.service';
 import { CacheKeys } from 'src/redis/cache-keys';
-
-/* 
-
- Potential edge-cases
- 
- Self swipe 
- Duplicate swipe (unique constraint)
- Swiping deleted/blocked user (check before insert)
- Race condition on match creation 
-
-*/
+import { MessagingService } from 'src/messaging/messaging.service';
 
 @Injectable()
 export class SwipesService {
@@ -30,6 +20,7 @@ export class SwipesService {
     private db: NodePgDatabase<typeof schema>,
     private usersService: UsersService,
     private matchesService: MatchesService,
+    private messagingService: MessagingService,
     private readonly redis: RedisService,
   ) {}
 
@@ -74,12 +65,21 @@ export class SwipesService {
             eq(schema.swipes.action, SWIPE_ACTIONS.LIKE),
           ),
         });
-
+        // TODO transaction
         if (mutualLike) {
           await this.matchesService.insertMatch(userId, swipedId);
+          const conversation = await this.messagingService.createConversation(
+            userId,
+            swipedId,
+          );
           // TODO only invalidate on last swipe
           await this.redis.invalidate(CacheKeys.feed(userId));
-          return { swipe, matched: true };
+          return {
+            recipientId: swipedId,
+            conversationId: conversation.id,
+            swipe,
+            matched: true,
+          };
         }
       }
       await this.redis.invalidate(CacheKeys.feed(userId));

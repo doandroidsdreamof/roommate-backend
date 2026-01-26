@@ -9,6 +9,8 @@ import { testDB } from '../test/test-db.helper';
 import { SwipesService } from './swipes.service';
 import { eq } from 'drizzle-orm';
 import * as schema from 'src/database/schema';
+import { MessagingService } from 'src/messaging/messaging.service';
+import { PostingsService } from 'src/postings/postings.service';
 
 describe('SwipesService', () => {
   let swipesService: SwipesService;
@@ -22,6 +24,8 @@ describe('SwipesService', () => {
         MatchesService,
         ProfileService,
         PreferenceService,
+        MessagingService,
+        PostingsService,
         {
           provide: RedisService,
           useValue: {

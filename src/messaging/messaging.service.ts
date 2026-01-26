@@ -1,5 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { and, eq, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -12,6 +12,7 @@ import { Message } from './messaging.interface';
 
 @Injectable()
 export class MessagingService {
+  private readonly logger = new Logger(MessagingService.name);
   constructor(
     @Inject(DrizzleAsyncProvider) private db: NodePgDatabase<typeof schema>,
     private usersService: UsersService,
@@ -63,7 +64,7 @@ export class MessagingService {
     const conversation = await this.createConversation(senderId, recipientId);
     return conversation;
   }
-  private async createConversation(
+  async createConversation(
     userAId: string,
     userBId: string,
   ): Promise<schema.Conversation> {
@@ -126,6 +127,59 @@ export class MessagingService {
     });
 
     return conversation ?? null;
+  }
+
+  // TODO implement inifinite scroll
+  async getUserConversations(userId: string) {
+    const conversations = await this.db.query.conversations.findMany({
+      where: or(
+        eq(schema.conversations.userFirstId, userId),
+        eq(schema.conversations.userSecondId, userId),
+      ),
+      orderBy: (conversations, { desc }) => [desc(conversations.createdAt)],
+      with: {
+        userFirst: {
+          columns: {
+            id: true,
+          },
+          with: {
+            profile: {
+              columns: {
+                name: true,
+                photoUrl: true,
+              },
+            },
+          },
+        },
+        userSecond: {
+          columns: {
+            id: true,
+          },
+          with: {
+            profile: {
+              columns: {
+                name: true,
+                photoUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    this.logger.log(conversations);
+
+    return conversations.map((conv) => {
+      const isUserFirst = conv.userFirstId === userId;
+      const otherUser = isUserFirst ? conv.userSecond : conv.userFirst;
+
+      return {
+        id: conv.id,
+        otherUserId: otherUser.id,
+        otherUserName: otherUser.profile?.name || 'Unknown',
+        otherUserPhoto: otherUser.profile?.photoUrl || null,
+        createdAt: conv.createdAt,
+      };
+    });
   }
   async createPendingMessage(message: Message) {
     await this.db.insert(schema.pendingMessages).values({
