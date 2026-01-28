@@ -157,7 +157,7 @@ export class WebsocketService {
     for (const msg of pending) {
       server.to(socketId).emit('message', {
         from: msg.senderId,
-        message: msg.encrypted,
+        message: msg.messages,
         timestamp: msg.createdAt.toISOString(),
       });
 

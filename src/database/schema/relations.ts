@@ -7,12 +7,15 @@ import {
   neighborhoods,
   provinces,
 } from './locations.schema';
+import { matches } from './matches.schema';
+import { conversations, pendingMessages, userKeys } from './messages.schema';
 import {
   postingImages,
   postings,
   postingSpecs,
   postingViews,
 } from './postings.schema';
+import { swipes } from './swipes.schema';
 import {
   preferences,
   profile,
@@ -20,9 +23,6 @@ import {
   userBookmarks,
   users,
 } from './users.schema';
-import { swipes } from './swipes.schema';
-import { matches } from './matches.schema';
-import { conversations, pendingMessages, userKeys } from './messages.schema';
 
 // Location Relations
 export const countriesRelations = relations(countries, ({ many }) => ({
@@ -188,20 +188,17 @@ export const matchesRelations = relations(matches, ({ one }) => ({
   }),
 }));
 
-export const conversationsRelations = relations(
-  conversations,
-  ({ one, many }) => ({
-    userFirst: one(users, {
-      fields: [conversations.userFirstId],
-      references: [users.id],
-    }),
-    userSecond: one(users, {
-      fields: [conversations.userSecondId],
-      references: [users.id],
-    }),
-    pendingMessages: many(pendingMessages),
+export const conversationsRelations = relations(conversations, ({ one }) => ({
+  userFirst: one(users, {
+    fields: [conversations.userFirstId],
+    references: [users.id],
   }),
-);
+  userSecond: one(users, {
+    fields: [conversations.userSecondId],
+    references: [users.id],
+  }),
+  pendingMessages: one(pendingMessages),
+}));
 
 export const pendingMessagesRelations = relations(
   pendingMessages,

@@ -1,5 +1,13 @@
 import { sql } from 'drizzle-orm';
-import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
 
 export const conversations = pgTable(
@@ -45,7 +53,9 @@ export const pendingMessages = pgTable(
     recipientId: uuid('recipient_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    encrypted: text('encrypted').notNull(),
+    messages: jsonb('messages')
+      .$type<Array<{ message: string; createdAt: Date }>>()
+      .notNull(),
     nonce: text('nonce').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     expiresAt: timestamp('expires_at')
@@ -53,8 +63,8 @@ export const pendingMessages = pgTable(
       .notNull(),
   },
   (table) => [
-    index('pending_messages_recipient_idx').on(table.recipientId),
-    index('pending_messages_conversation_idx').on(table.conversationId),
-    index('pending_messages_expires_idx').on(table.expiresAt),
+    uniqueIndex('pending_messages_conversation_unique').on(
+      table.conversationId,
+    ),
   ],
 );

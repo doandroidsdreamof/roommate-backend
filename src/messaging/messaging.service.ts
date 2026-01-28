@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, or } from 'drizzle-orm';
+import { and, eq, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -182,13 +182,29 @@ export class MessagingService {
     });
   }
   async createPendingMessage(message: Message) {
-    await this.db.insert(schema.pendingMessages).values({
-      conversationId: message.conversationId,
-      senderId: message.senderId,
-      recipientId: message.recipientId,
-      encrypted: message.content,
-      nonce: message.nonce,
-    });
+    this.logger.log('=======================> msg:', message);
+    // TODO createdAt can be confused with record createdAt
+    await this.db
+      .insert(schema.pendingMessages)
+      .values({
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        recipientId: message.recipientId,
+        messages: [
+          {
+            message: message.content,
+            createdAt: message.createdAt,
+          },
+        ],
+        nonce: message.nonce,
+      })
+      .onConflictDoUpdate({
+        target: schema.pendingMessages.conversationId,
+        set: {
+          messages: sql`${schema.pendingMessages.messages} || excluded.messages`,
+        },
+      })
+      .returning();
   }
 
   async getPendingMessages(recipientId: string) {
