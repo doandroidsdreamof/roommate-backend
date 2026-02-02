@@ -127,7 +127,6 @@ export class FeedScorerService {
       return SCORING.LIFESTYLE.SMOKING.PERFECT_MATCH;
     }
 
-    // Partial compatibility between NO and SOCIAL
     if (
       (userHabit === SMOKING_HABIT.NO &&
         candidateHabit === SMOKING_HABIT.SOCIAL) ||
@@ -137,7 +136,6 @@ export class FeedScorerService {
       return SCORING.LIFESTYLE.SMOKING.PARTIAL_NO_SOCIAL;
     }
 
-    // Partial compatibility between SOCIAL and REGULAR
     if (
       (userHabit === SMOKING_HABIT.SOCIAL &&
         candidateHabit === SMOKING_HABIT.REGULAR) ||
@@ -183,7 +181,6 @@ export class FeedScorerService {
       return SCORING.LIFESTYLE.ALCOHOL.PERFECT_MATCH;
     }
 
-    // Check proximity in alcohol levels
     const userLevel =
       userConsumption in ALCOHOL_LEVELS ? ALCOHOL_LEVELS[userConsumption] : -1;
 

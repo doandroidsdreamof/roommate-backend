@@ -26,6 +26,7 @@ export class WebsocketService {
       });
 
       const isOnline = this.isUserOnline(payload.recipientId);
+      this.logger.log('🚀 ~ isOnline:', isOnline);
 
       if (isOnline) {
         this.sendMessageToUser(
@@ -33,6 +34,7 @@ export class WebsocketService {
           payload.recipientId,
           senderId,
           message.content,
+          message.conversationId,
         );
       } else {
         await this.messagingService.createPendingMessage(message);
@@ -53,17 +55,12 @@ export class WebsocketService {
       this.sendError(server, client.id, 'MESSAGE_FAILED', errorMessage);
     }
   }
-  /**
-   * Add user to connected users map
-   */
+
   addConnection(userId: string, socketId: string): void {
     this.connectedUsers.set(userId, socketId);
     this.logger.log(`User ${userId} added to connections`);
   }
 
-  /**
-   * Remove user from connected users map
-   */
   removeConnection(socketId: string): string | undefined {
     for (const [userId, sid] of this.connectedUsers.entries()) {
       if (sid === socketId) {
@@ -75,16 +72,10 @@ export class WebsocketService {
     return undefined;
   }
 
-  /**
-   * Get socket ID for a user
-   */
   getSocketId(userId: string): string | undefined {
     return this.connectedUsers.get(userId);
   }
 
-  /**
-   * Get user ID by socket ID
-   */
   getUserId(socketId: string): string | undefined {
     for (const [userId, sid] of this.connectedUsers.entries()) {
       if (sid === socketId) {
@@ -102,14 +93,12 @@ export class WebsocketService {
     return Array.from(this.connectedUsers.keys());
   }
 
-  /**
-   * Send message to specific user
-   */
   sendMessageToUser(
     server: Server,
     recipientId: string,
     senderId: string,
     message: string,
+    conversationId: string,
   ): boolean {
     const recipientSocketId = this.getSocketId(recipientId);
 
@@ -121,6 +110,7 @@ export class WebsocketService {
     server.to(recipientSocketId).emit('message', {
       from: senderId,
       message: message,
+      conversationId: conversationId,
       timestamp: new Date().toISOString(),
     });
 
@@ -128,9 +118,6 @@ export class WebsocketService {
     return true;
   }
 
-  /**
-   * Send error to specific socket
-   */
   sendError(
     server: Server,
     socketId: string,
@@ -155,10 +142,15 @@ export class WebsocketService {
     if (!socketId) return;
 
     for (const msg of pending) {
-      server.to(socketId).emit('message', {
+      // TODO implement Acknowledgment
+      this.logger.log(msg);
+      server.to(socketId).emit('pending_messages', {
         from: msg.senderId,
         message: msg.messages,
         timestamp: msg.createdAt.toISOString(),
+        conversationId: msg.conversationId,
+        isPending: true,
+        isOwn: false,
       });
 
       await this.messagingService.deletePendingMessage(msg.id);

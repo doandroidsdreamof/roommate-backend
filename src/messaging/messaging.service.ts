@@ -182,7 +182,7 @@ export class MessagingService {
     });
   }
   async createPendingMessage(message: Message) {
-    this.logger.log('=======================> msg:', message);
+    this.logger.log('=======================> createPendingMessage:', message);
     // TODO createdAt can be confused with record createdAt
     await this.db
       .insert(schema.pendingMessages)

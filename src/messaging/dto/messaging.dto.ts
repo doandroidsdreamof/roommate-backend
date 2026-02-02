@@ -14,7 +14,7 @@ export const SendMessageSchema = z.object({
     .min(1, 'Message cannot be empty')
     .max(1000, 'Message too long (max 1000 characters)')
     .trim(),
-  contextType: z.enum(messageContextTypeEnum),
+  contextType: z.enum(messageContextTypeEnum).optional(),
 });
 
 export type SendMessageDTO = z.infer<typeof SendMessageSchema>;
