@@ -135,7 +135,7 @@ export const postingSpecs = pgTable(
       .references(() => postings.id, { onDelete: 'cascade' }),
 
     // Full Description
-    description: text('description').notNull(),
+    description: text('description').notNull(), // TODO check constraint
 
     // Additional Pricing
     depositAmount: integer('deposit_amount').notNull(),

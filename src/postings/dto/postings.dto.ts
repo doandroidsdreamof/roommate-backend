@@ -49,7 +49,7 @@ const postingsSpecsSchema = z.object({
   ...ageRangeSchema.shape,
   description: z
     .string()
-    .min(50, 'Description must be at least 50 characters')
+    .min(10, 'Description must be at least 10 characters')
     .max(2000, 'Description must be at most 2000 characters'),
   depositAmount: z
     .number()
