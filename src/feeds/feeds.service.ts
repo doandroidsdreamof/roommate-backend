@@ -15,6 +15,7 @@ import { CacheKeys } from 'src/redis/cache-keys';
 import { RedisService } from 'src/redis/redis.service';
 import { FeedScorerService } from './services/feedScorer.service';
 import { EligibleUser, FeedContext, FeedResponse } from './types';
+import { SwipesService } from 'src/swipes/swipes.service';
 
 @Injectable()
 export class FeedsService {
@@ -23,6 +24,7 @@ export class FeedsService {
     @Inject(DrizzleAsyncProvider) private db: NodePgDatabase<typeof schema>,
     private readonly redis: RedisService,
     private feedScorerService: FeedScorerService,
+    private swipseService: SwipesService,
   ) {}
 
   async feedContext(userId: string): Promise<FeedContext> {
@@ -137,6 +139,8 @@ export class FeedsService {
   }
 
   async generateFeed(userId: string): Promise<FeedResponse[]> {
+    await this.swipseService.checkSwipeLimit(userId);
+
     const cacheKey = CacheKeys.feed(userId);
 
     const cached = await this.redis.getJSON<FeedResponse[]>(cacheKey);

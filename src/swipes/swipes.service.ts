@@ -148,7 +148,7 @@ export class SwipesService {
     const newCount = user.swipesUsed + 1;
 
     let resetAt = user.swipesResetAt;
-    if (newCount >= 40) {
+    if (newCount === 40) {
       resetAt = new Date(now);
       resetAt.setDate(resetAt.getDate() + 1);
       resetAt.setHours(0, 0, 0, 0);
@@ -162,5 +162,39 @@ export class SwipesService {
         updatedAt: now,
       })
       .where(eq(schema.users.id, userId));
+  }
+  async checkSwipeLimit(userId: string): Promise<void> {
+    const user = await this.db.query.users.findFirst({
+      where: eq(schema.users.id, userId),
+      columns: {
+        swipesUsed: true,
+        swipesResetAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new DomainException('USER_NOT_FOUND');
+    }
+
+    const now = new Date();
+
+    if (user.swipesResetAt && now >= user.swipesResetAt) {
+      await this.db
+        .update(schema.users)
+        .set({
+          swipesUsed: 0,
+          swipesResetAt: null,
+          updatedAt: now,
+        })
+        .where(eq(schema.users.id, userId));
+
+      return;
+    }
+
+    if (user.swipesUsed >= 40) {
+      throw new DomainException('SWIPE_LIMIT_REACHED', {
+        resetAt: user.swipesResetAt?.toISOString(),
+      });
+    }
   }
 }
