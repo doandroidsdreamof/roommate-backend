@@ -27,6 +27,8 @@ export class SwipesService {
   async swipeAction(userId: string, createSwipeDto: CreateSwipeDto) {
     const { action, swipedId } = createSwipeDto;
 
+    await this.checkAndResetSwipeLimit(userId);
+
     if (userId === swipedId) {
       throw new DomainException('CANNOT_SWIPE_SELF');
     }
@@ -88,5 +90,77 @@ export class SwipesService {
       this.logger.error('Swipe action failed', error);
       throw new DomainException('SWIPE_FAILED');
     }
+  }
+
+  // TODO split it to separated methods
+  async checkAndResetSwipeLimit(userId: string): Promise<void> {
+    const user = await this.db.query.users.findFirst({
+      where: eq(schema.users.id, userId),
+      columns: {
+        swipesUsed: true,
+        swipesResetAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new DomainException('USER_NOT_FOUND');
+    }
+
+    const now = new Date();
+
+    if (user.swipesResetAt && now >= user.swipesResetAt) {
+      await this.db
+        .update(schema.users)
+        .set({
+          swipesUsed: 0,
+          swipesResetAt: null,
+          updatedAt: now,
+        })
+        .where(eq(schema.users.id, userId));
+
+      return;
+    }
+
+    if (user.swipesUsed >= 40) {
+      if (!user.swipesResetAt) {
+        const resetAt = new Date(now);
+        resetAt.setDate(resetAt.getDate() + 1);
+        resetAt.setHours(0, 0, 0, 0);
+
+        await this.db
+          .update(schema.users)
+          .set({
+            swipesResetAt: resetAt,
+            updatedAt: now,
+          })
+          .where(eq(schema.users.id, userId));
+
+        throw new DomainException('SWIPE_LIMIT_REACHED', {
+          resetAt: resetAt.toISOString(),
+        });
+      }
+
+      throw new DomainException('SWIPE_LIMIT_REACHED', {
+        resetAt: user.swipesResetAt.toISOString(),
+      });
+    }
+
+    const newCount = user.swipesUsed + 1;
+
+    let resetAt = user.swipesResetAt;
+    if (newCount >= 40) {
+      resetAt = new Date(now);
+      resetAt.setDate(resetAt.getDate() + 1);
+      resetAt.setHours(0, 0, 0, 0);
+    }
+
+    await this.db
+      .update(schema.users)
+      .set({
+        swipesUsed: newCount,
+        swipesResetAt: resetAt,
+        updatedAt: now,
+      })
+      .where(eq(schema.users.id, userId));
   }
 }

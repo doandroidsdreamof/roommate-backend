@@ -34,6 +34,8 @@ export const users = pgTable(
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
     isAnonymized: boolean('is_anonymized').default(false).notNull(), //* for analytics etc.
     postingCount: integer('posting_count').default(0).notNull(),
+    swipesUsed: integer('swipes_used').default(0).notNull(),
+    swipesResetAt: timestamp('swipes_reset_at', { withTimezone: true }),
     ...createdAndUpdatedTimestamps,
   },
   (table) => [
@@ -41,6 +43,10 @@ export const users = pgTable(
       .on(table.id)
       .where(sql`${table.deletedAt} IS NULL`),
     check('users_posting_count_non_negative', sql`${table.postingCount} >= 0`),
+    check(
+      'users_swipes_used_valid',
+      sql`${table.swipesUsed} >= 0 AND ${table.swipesUsed} <= 40`,
+    ),
   ],
 );
 

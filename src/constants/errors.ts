@@ -154,6 +154,12 @@ export const ERRORS = {
     message: 'Failed to process swipe',
     status: HttpStatus.INTERNAL_SERVER_ERROR,
   },
+  SWIPE_LIMIT_REACHED: {
+    // TODO fix error code increase
+    code: 'SWIPE_6006',
+    message: 'Daily swipe limit reached. Please try again later.',
+    status: HttpStatus.TOO_MANY_REQUESTS,
+  },
   MATCH_NOT_FOUND: {
     code: 'MATCH_6003',
     message: 'Match not found or already unmatched',

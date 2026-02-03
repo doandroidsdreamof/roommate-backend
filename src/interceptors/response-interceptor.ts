@@ -102,6 +102,10 @@ export class ResponseInterceptor<T> implements NestInterceptor<
     const timestamp = new Date().toISOString();
     const status = exception.getStatus();
 
+    const exceptionResponse = exception.getResponse();
+    const metadata =
+      typeof exceptionResponse === 'object' ? exceptionResponse : {};
+
     res.status(status).json({
       success: false,
       statusCode: status,
@@ -112,6 +116,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<
         name: exception.name,
         details: exception.cause,
       },
+      ...metadata,
     });
   }
 }
