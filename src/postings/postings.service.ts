@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { MAXIMUM_POSTINGS } from 'src/constants/configuration';
 import { POSTING_STATUS } from 'src/constants/enums';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import * as schema from 'src/database/schema';
@@ -13,7 +14,6 @@ import {
   UpdatePostingDto,
   UpdatePostingImagesDto,
 } from './dto/postings.dto';
-import { MAXIMUM_POSTINGS } from 'src/constants/configuration';
 
 @Injectable()
 export class PostingsService {

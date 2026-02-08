@@ -6,4 +6,6 @@ export const CacheKeys = {
   matches: (userId: string) => `matches:${userId}`,
   provinces: () => 'locations:provinces',
   districtsByProvince: (provinceId: string) => `disticts:${provinceId}`,
+  neighborhoodsByDistrict: (provinceId: string) =>
+    `neighborhoods:district:${provinceId}`,
 } as const;

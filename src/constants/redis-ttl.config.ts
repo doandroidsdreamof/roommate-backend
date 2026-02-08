@@ -13,4 +13,5 @@ export const REDIS_TTL = {
   PROVINCES: 2592000, // 30 days
   DISTRICTS: 2592000, // 30 days
   NEIGHBORHOOD_SEARCH: 2592000,
+  NEIGHBORHOODS: 7 * 24 * 60 * 60, // 1 week
 } as const;

@@ -33,4 +33,8 @@ export class LocationsController {
   ) {
     return this.locationsService.getDistrictsByProvince(dto.provinceId);
   }
+  @Get('districts/:districtId/neighborhoods')
+  async getNeighborhoodsByDistrict(@Param('districtId') districtId: string) {
+    return this.locationsService.getNeighborhoodsByDistrict(+districtId);
+  }
 }

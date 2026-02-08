@@ -15,6 +15,28 @@ export class LocationsService {
     private readonly redis: RedisService,
   ) {}
 
+  async getNeighborhoodsByDistrict(districtId: number) {
+    const cacheKey = CacheKeys.neighborhoodsByDistrict(districtId.toString());
+
+    const cached = await this.redis.getJSON(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const neighborhoods = await this.db.query.neighborhoods.findMany({
+      where: eq(schema.neighborhoods.districtId, districtId),
+      orderBy: (neighborhoods, { asc }) => [asc(neighborhoods.name)],
+    });
+
+    await this.redis.setJSONWithExpiry(
+      cacheKey,
+      neighborhoods,
+      REDIS_TTL.NEIGHBORHOODS,
+    );
+
+    return neighborhoods;
+  }
+
   async getProvinces() {
     const cacheKey = CacheKeys.provinces();
 
