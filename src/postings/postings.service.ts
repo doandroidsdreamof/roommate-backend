@@ -151,10 +151,9 @@ export class PostingsService {
         }
 
         this.logger.debug('Transaction completed successfully');
-        await this.usersService.incrementPostingCount(userId);
         return posting;
       });
-
+      await this.usersService.incrementPostingCount(userId);
       return {
         message: 'Posting created successfully',
       };
@@ -337,12 +336,10 @@ export class PostingsService {
     });
     return !!checkPosting;
   }
-  /**
-   * Check if user has reached maximum posting limit (2)
-   */
+
   private async checkPostingLimit(userId: string): Promise<void> {
     const count = await this.db
-      .select({ count: sql<number>`COUNT(*)` })
+      .select({ count: sql<number>`COUNT(*)` }) // * Check if the user has reached the maximum posting limit (2)
       .from(schema.postings)
       .where(
         and(
@@ -356,5 +353,20 @@ export class PostingsService {
     if (postingCount >= MAXIMUM_POSTINGS.LIMIT) {
       throw new DomainException('MAX_POSTINGS_REACHED');
     }
+  }
+
+  async getUserPostings(userId: string) {
+    const postings = await this.db.query.postings.findMany({
+      where: and(
+        eq(schema.postings.userId, userId),
+        isNull(schema.postings.deletedAt),
+      ),
+      orderBy: (postings, { desc }) => [desc(postings.createdAt)],
+      with: {
+        specs: true,
+      },
+    });
+
+    return postings;
   }
 }

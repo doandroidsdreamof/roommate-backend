@@ -23,6 +23,8 @@ import { neighborhoods } from './locations.schema';
 import { createdAndUpdatedTimestamps } from './shared-types';
 import { users } from './users.schema';
 
+// TODO max integer constraints
+
 export const postingImages = pgTable(
   'posting_images',
   {
@@ -180,7 +182,6 @@ export const postingSpecs = pgTable(
       sql`${table.ageMax} >= 18 AND ${table.ageMax} <= 100`,
     ),
     check('age_range_valid', sql`${table.ageMax} >= ${table.ageMin}`),
-    check('age_range_reasonable', sql`${table.ageMax} - ${table.ageMin} <= 50`),
     check(
       'posting_specs_deposit_non_negative',
       sql`${table.depositAmount} >= 0`,

@@ -13,6 +13,7 @@ import {
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import { ZodValidationPipe } from 'src/pipes/validation-pipe';
+import { ListsQueryDto, listsQuerySchema } from './dto/lists.dto';
 import {
   ClosePostingDto,
   closePostingSchema,
@@ -27,7 +28,6 @@ import {
 } from './dto/postings.dto';
 import { PostingsService } from './postings.service';
 import { ListsService } from './services/lists.service';
-import { ListsQueryDto, listsQuerySchema } from './dto/lists.dto';
 
 @Controller({ path: 'postings', version: '1' })
 @UseGuards(AuthGuard)
@@ -66,6 +66,11 @@ export class PostingsController {
     @Query(new ZodValidationPipe(listsQuerySchema)) query: ListsQueryDto,
   ) {
     return this.listsService.getLists(userId, query);
+  }
+  @Get('user-posting')
+  @HttpCode(HttpStatus.OK)
+  getUserPostings(@AuthUser('sub') userId: string) {
+    return this.postingsService.getUserPostings(userId);
   }
 
   @Patch(':id/close')
