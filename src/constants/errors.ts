@@ -263,6 +263,12 @@ export const ERRORS = {
     message: 'Cannot send messages to a blocked user',
     status: HttpStatus.FORBIDDEN,
   },
+  // ============= Location (11xxx) =============
+  NEIGHBORHOOD_NOT_FOUND: {
+    code: 'LOCATION_11000',
+    message: 'Neighborhood not found',
+    status: HttpStatus.NOT_FOUND,
+  },
 } as const;
 
 export type ErrorKey = keyof typeof ERRORS;

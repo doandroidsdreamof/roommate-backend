@@ -103,10 +103,20 @@ export class PostingsService {
   }
 
   async create(userId: string, createPostingDto: CreatePostingDto) {
-    const { specs, images, ...postingData } = createPostingDto;
+    const { specs, images, neighborhood, ...postingData } = createPostingDto;
     await this.checkPostingLimit(userId);
+    const neighborhoodId = await this.db.query.neighborhoods.findFirst({
+      where: eq(
+        schema.neighborhoods.name,
+        neighborhood.toLocaleUpperCase('tr-TR'),
+      ),
+    });
+    // TODO review here
+    if (!neighborhoodId) {
+      throw new DomainException('NEIGHBORHOOD_NOT_FOUND');
+    }
 
-    await this.checkDuplicatePosting(userId, postingData.neighborhoodId);
+    await this.checkDuplicatePosting(userId, neighborhoodId?.id);
 
     try {
       await this.db.transaction(async (tx) => {
@@ -118,6 +128,7 @@ export class PostingsService {
           .values({
             userId,
             ...postingData,
+            neighborhoodId: neighborhoodId?.id,
             latitude: postingData.latitude.toString(),
             longitude: postingData.longitude.toString(),
             status: POSTING_STATUS.ACTIVE,

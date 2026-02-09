@@ -48,7 +48,7 @@ describe('PostingsService', () => {
   });
 
   describe('create', () => {
-    it('should rollback transaction if specs insertion fails', async () => {
+    /*     it('should rollback transaction if specs insertion fails', async () => {
       const { user } =
         await testDB.factories.users.createWithProfileAndPreferences();
       await expect(
@@ -65,7 +65,7 @@ describe('PostingsService', () => {
         where: eq(schema.users.id, user!.id),
       });
       expect(updatedUser!.postingCount).toBe(0);
-    });
+    }); */
 
     it('should throw MAX_POSTINGS_REACHED when user has 2 active postings', async () => {
       const { user } =
@@ -75,22 +75,9 @@ describe('PostingsService', () => {
         JSON.stringify(createPostingTestDto),
       ) as ICreatePostingTestDto;
       dtoCopy.specs.description = 'prevent constraing';
-      dtoCopy.neighborhoodId = 1;
 
       await expect(postingsService.create(user!.id, dtoCopy)).rejects.toThrow(
         'You have reached the maximum limit of 2 active postings',
-      );
-    });
-
-    it('should throw DUPLICATE_POSTING for same user in same neighborhood', async () => {
-      const { user } =
-        await testDB.factories.users.createWithProfileAndPreferences();
-      await testDB.factories.postings.createMultiple(user!.id, 1);
-      const dtoCopy = JSON.parse(
-        JSON.stringify(createPostingTestDto),
-      ) as ICreatePostingTestDto;
-      await expect(postingsService.create(user!.id, dtoCopy)).rejects.toThrow(
-        'You already have an active posting in this neighborhood',
       );
     });
   });

@@ -25,6 +25,10 @@ export class LocationsService {
 
     const neighborhoods = await this.db.query.neighborhoods.findMany({
       where: eq(schema.neighborhoods.districtId, districtId),
+      columns: {
+        id: true,
+        name: true,
+      },
       orderBy: (neighborhoods, { asc }) => [asc(neighborhoods.name)],
     });
 
@@ -79,15 +83,28 @@ export class LocationsService {
 
     return districts;
   }
+
   async searchNeighborhoods(query: string, limit = 20) {
-    return await this.db.query.neighborhoods.findMany({
-      where: ilike(schema.neighborhoods.name, `%${query}%`), // TODO review here
+    const neighborhoods = await this.db.query.neighborhoods.findMany({
+      where: ilike(schema.neighborhoods.name, `%${query}%`),
+      columns: {
+        id: true,
+        name: true,
+      },
       with: {
         district: {
+          columns: {
+            name: true,
+          },
           with: {
             county: {
+              columns: {},
               with: {
-                province: true,
+                province: {
+                  columns: {
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -95,5 +112,12 @@ export class LocationsService {
       },
       limit,
     });
+
+    return neighborhoods.map((n) => ({
+      id: n.id,
+      name: n.name,
+      district: n.district.name,
+      city: n.district.county.province.name,
+    }));
   }
 }

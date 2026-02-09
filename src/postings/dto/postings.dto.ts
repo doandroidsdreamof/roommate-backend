@@ -80,7 +80,7 @@ export const createPostingSchema = z.object({
   coverImageUrl: z.url('Must be a valid URL'),
   city: z.string().min(1, 'City is required').max(100),
   district: z.string().min(1, 'District is required').max(100),
-  neighborhoodId: z.number().int().positive(),
+  neighborhood: z.string().min(1, 'Mahalle zorunludur').max(100),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   rentAmount: z.number().int().positive(),

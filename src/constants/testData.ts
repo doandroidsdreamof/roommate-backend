@@ -3,7 +3,7 @@ export const createPostingTestDto = {
   coverImageUrl: 'https://example.com/cover.jpg',
   city: 'Istanbul',
   district: 'Kadikoy',
-  neighborhoodId: 1,
+  neighborhood: 'Caferağa',
   latitude: 41.0082,
   longitude: 28.9784,
   rentAmount: 20000,
@@ -35,7 +35,7 @@ export interface ICreatePostingTestDto {
   coverImageUrl: string;
   city: string;
   district: string;
-  neighborhoodId: number;
+  neighborhood: string;
   latitude: number;
   longitude: number;
   rentAmount: number;
