@@ -105,18 +105,25 @@ export class PostingsService {
   async create(userId: string, createPostingDto: CreatePostingDto) {
     const { specs, images, neighborhood, ...postingData } = createPostingDto;
     await this.checkPostingLimit(userId);
-    const neighborhoodId = await this.db.query.neighborhoods.findFirst({
-      where: eq(
-        schema.neighborhoods.name,
-        neighborhood.toLocaleUpperCase('tr-TR'),
-      ),
+    // TODO clean the mess
+    const normalizedName = neighborhood.toLocaleUpperCase('tr-TR').trim();
+    const neighborhoodRecord = await this.db.query.neighborhoods.findFirst({
+      where: (neighborhoods, { and, or, eq }) =>
+        and(
+          or(
+            eq(neighborhoods.name, normalizedName),
+            eq(neighborhoods.name, `${normalizedName} MAH`),
+            eq(neighborhoods.name, `${normalizedName} MAHALLESİ`),
+          ),
+        ),
     });
+
     // TODO review here
-    if (!neighborhoodId) {
+    if (!neighborhoodRecord) {
       throw new DomainException('NEIGHBORHOOD_NOT_FOUND');
     }
 
-    await this.checkDuplicatePosting(userId, neighborhoodId?.id);
+    await this.checkDuplicatePosting(userId, neighborhoodRecord?.id);
 
     try {
       await this.db.transaction(async (tx) => {
@@ -128,7 +135,7 @@ export class PostingsService {
           .values({
             userId,
             ...postingData,
-            neighborhoodId: neighborhoodId?.id,
+            neighborhoodId: neighborhoodRecord?.id,
             latitude: postingData.latitude.toString(),
             longitude: postingData.longitude.toString(),
             status: POSTING_STATUS.ACTIVE,
