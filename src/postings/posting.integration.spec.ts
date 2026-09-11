@@ -1,7 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { DrizzleAsyncProvider } from 'src/database/drizzle.provider';
 import { testDB } from '../test/test-db.helper';
-import * as schema from 'src/database/schema';
 import { PostingsService } from './postings.service';
 import { UsersService } from 'src/users/users.service';
 import { ProfileService } from 'src/users/services/profile.service';
@@ -12,7 +11,6 @@ import {
   createPostingTestDto,
   ICreatePostingTestDto,
 } from 'src/constants/testData';
-import { eq } from 'drizzle-orm';
 
 describe('PostingsService', () => {
   let postingsService: PostingsService;

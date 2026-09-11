@@ -17,6 +17,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "noUncheckedIndexedAccess": true,
+    "types": ["jest", "node"],
     "forceConsistentCasingInFileNames": true // Ensures that file names are treated with consistent casing, e.g. linux is case-sensitive
   }
 }
