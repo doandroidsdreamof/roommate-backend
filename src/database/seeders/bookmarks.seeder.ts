@@ -3,8 +3,22 @@ import { UserBookmark } from '../schema';
 import { seederDb as db } from './seed-db-instance';
 
 async function seedBookmarks() {
-  const userId = '5a0a2ed6-b674-4fec-a553-979df73dc792';
-  const postingId = '8e385c2c-b693-4389-82e6-961c808b9a96';
+  const [user] = await db!
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .limit(1);
+
+  const [posting] = await db!
+    .select({ id: schema.postings.id })
+    .from(schema.postings)
+    .limit(1);
+
+  if (!user || !posting) {
+    throw new Error('Seed users and postings first');
+  }
+
+  const userId = user.id;
+  const postingId = posting.id;
   const bookmarks = [];
   const now = new Date();
 

@@ -10,7 +10,6 @@ import { seederDb as db } from './seed-db-instance';
 
 const USER_BATCH_SIZE = 100; // Process 100 users at a time
 const SWIPE_CHUNK_SIZE = 500; // Insert max 500 swipes at once
-const TEST_USER_ID = '5a0a2ed6-b674-4fec-a553-979df73dc792';
 
 function getSwipeCount(): number {
   const rand = Math.random();
@@ -62,11 +61,14 @@ async function seedSwipesAndMatches() {
   const totalUsers = allUsers.length;
   console.log(`✓ Loaded ${totalUsers} users\n`);
 
-  // Ensure test user exists in the list
-  const testUserExists = allUsers.some((u) => u.id === TEST_USER_ID);
-  if (!testUserExists) {
-    console.log(`⚠️  Test user ${TEST_USER_ID} not found in database`);
+  //* Oldest user is the designated test user. Run seed:users first.
+  const testUserId = allUsers[0]?.id;
+
+  if (!testUserId) {
+    throw new Error('No users found in database. Run seed:users first.');
   }
+
+  console.log(`🎯 Test user: ${testUserId}\n`);
 
   console.log(`Starting swipe generation...\n`);
 
@@ -88,7 +90,7 @@ async function seedSwipesAndMatches() {
 
     for (const user of userBatch) {
       // Give test user more swipes for testing
-      const isTestUser = user.id === TEST_USER_ID;
+      const isTestUser = user.id === testUserId;
       const swipeCount = isTestUser ? 300 : getSwipeCount();
       const blockCount = isTestUser ? 20 : getBlockCount();
 
